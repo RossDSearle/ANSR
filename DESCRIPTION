@@ -1,0 +1,17 @@
+Package: ANSR
+Type: Package
+Title: Query ANSIS and massage the responses into various useful formats
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Ross", "Searle",
+      email = "ross.searle@csiro.au",
+      role = c("aut", "cre")
+    )
+  )
+Description: More about what it does (maybe more than one line).
+    Continuation lines should be indented.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: stringr, sf, jsonlite, httr
