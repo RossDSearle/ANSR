@@ -1,10 +1,10 @@
 
-mps <<- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Shiny/Apps/ShowANSISSites2/schemaFieldMapping2.csv')
-CodesTable <<- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Shiny/Apps/ShowANSISSites2/ANSISCodes.csv')
-usethis::use_data(mps, CodesTable, internal = TRUE, overwrite = T)
+#mps <<- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Shiny/Apps/ShowANSISSites2/schemaFieldMapping2.csv')
+# CodesTable <<- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Shiny/Apps/ShowANSISSites2/ANSISCodes.csv')
+# usethis::use_data(mps, CodesTable, internal = TRUE, overwrite = T)
 
 
-mp <<- unique(mps[mps$Domain!='' & mps$SchemaLocation=='Horizons', ]$Domain )
+
 
 
 # parseANSISJson
@@ -195,6 +195,8 @@ makeSiteCSV <- function(sl){
 
 parseANSISSiteLayersToDenormalisedTable <- function(siteAsList){
 
+  mp <- unique(mps[mps$Domain!='' & mps$SchemaLocation=='Horizons', ]$Domain )
+  
   slsl <- siteAsList[['siteVisit']][[1]]$soilProfile[[1]]$soilLayer
 
   if(!is.null(slsl)){
