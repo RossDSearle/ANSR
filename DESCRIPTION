@@ -13,5 +13,8 @@ Description: More about what it does (maybe more than one line).
     Continuation lines should be indented.
 License: What license is it under?
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Imports: stringr, sf, jsonlite, httr
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 3.5)

@@ -1,7 +1,27 @@
 
+mps <<- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Shiny/Apps/ShowANSISSites2/schemaFieldMapping2.csv')
+CodesTable <<- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Shiny/Apps/ShowANSISSites2/ANSISCodes.csv')
+usethis::use_data(mps, CodesTable, internal = TRUE, overwrite = T)
+
+
+mp <<- unique(mps[mps$Domain!='' & mps$SchemaLocation=='Horizons', ]$Domain )
+
+
+# parseANSISJson
+#
+#' Parses an ANSIS JSON response into an R ANSIS object
+#' @param jsnFile The path to the ANSIS JSON file to parse
+
+#' @examples getTransformedSpectraAsDataFrame(TransformationID=2, labCode='4A1')
+
+#' @details  This function returns a spectra dataframe from the CSIS Database for a given Transformation ID. If a labCode is supplied only Spectra records with a related lab method are returned
+#' @author Ross Searle
+#' @return data frame
+#' @export
+
 parseANSISJson <- function(jsnFile){
 
-  sl <- fromJSON(jsnFile , simplifyDataFrame = F)
+  sl <- jsonlite::fromJSON(jsnFile , simplifyDataFrame = F)
   r <- sl
   sol <- list()
   nsites <- length(r$data)
@@ -11,7 +31,6 @@ parseANSISJson <- function(jsnFile){
 
       s <- r$data[[k]]
       sid <- getSiteID(siteAsList=s)
-      # parseANSISSiteVistToDenormalisedTable
       layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
       siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
 
@@ -228,7 +247,7 @@ getMorphVals <- function(layer, att, mps, ud, ld, alldf){
 
   for (i in 1:nrow(flds)) {
 
-    fld = str_split(flds[i, ]$Fields, ':')[[1]]
+    fld = stringr::str_split(flds[i, ]$Fields, ':')[[1]]
     arrayed=flds[i, ]$Arrayed
 
     if(length(fld)==1 & arrayed=='No'){
@@ -244,7 +263,7 @@ getMorphVals <- function(layer, att, mps, ud, ld, alldf){
     if(repStr==''){
       v <- vv
     }else{
-      v <- str_remove(vv, repStr)
+      v <- stringr::str_remove(vv, repStr)
     }
     if(length(v)==0){v=''}
 
@@ -287,7 +306,7 @@ getLabVals <- function(layer, prop, mps, ud, ld, alldf){
   l=layer
   up <- l[[prop]][[1]]$usedProcedure
 
-  p <- str_remove(up, 'scm:')
+  p <- stringr::str_remove(up, 'scm:')
   v <- l[[prop]][[1]]$result$value
   u <- l[[prop]][[1]]$result$unit
   r <- data.frame(ud=ud, ld=ld, property='LabResults', propType='Lab', field=p, value=v, desc=desc)
@@ -311,7 +330,7 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
 
   ###  not sure if it is a required field and needs a bit of massaging
   if(!is.null(dt)){
-    sDate <- str_split(dt, 'T')[[1]][1]
+    sDate <- stringr::str_split(dt, 'T')[[1]][1]
   }else{
     sDate <- ''
   }
@@ -336,47 +355,6 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
   slopeUnit <- getSlopeUnit(sv)
 
   alldf <- getSiteVisitVals(val=paste0(slopeVal, ' ', slopeUnit), att='S_SLOPE', alldf)
-
-  # if(!is.null(v)){
-  #   print('isnotnull')
-  #   slopeVal <- v
-  # }else{
-  #   slopeVal <- ''
-  # }
-  #
-  # v2<<-NULL
-  # try( v2 <<- sv$siteVisit[[1]][['landform']][['landformElement']][[1]][['slope']][[1]][['Result']][['unit']])
-  # if(!is.null(v2)){
-  #   slopeUnit <- v2
-  # }else{
-  #   slopeUnit <- ''
-  # }
-
-  # # if(length(sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]])>0){
-  #    if('unit' %in% names(sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$Result)){
-  #    slopeUnit <- getElement(sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$Result, 'unit')
-  #   # slopeUnit <- sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$Result$unit
-  #  }else{
-  #    slopeUnit =''
-  #  }
-
-  #slopeUnit <- sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$Result$unit
-  #slopeUnit<-'Test'
-
-  #alldf <- getSiteVisitVals(val=paste0(slopeVal, ' ', str_remove(slopeUnit, 'unit:')), att='S_SLOPE', alldf)
-
-
-
-
-  #print(alldf)
-
-  # alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$Result$unit, att='S_SLOPE_UNIT', alldf)
-  #  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$usedProcedure, att='S_SLOPE_EVAL', alldf)
-
-  #  landformPattern
-  # alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformPattern[[1]]$ansisType, att='S_PATT_TYPE', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformPattern/ansisType')
-
-
 
   #  Elevation
   alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$result$value, att='O_ELEVATION', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/result/value')
@@ -446,7 +424,7 @@ getSiteVisitVals <- function(val, att, alldf, domain=NULL, schemaPath='' ){
   if(repStr==''){
     v <- vv
   }else{
-    v <- str_remove(vv, repStr)
+    v <- stringr::str_remove(vv, repStr)
   }
   if(length(v)==0){v=''}
 
@@ -500,7 +478,7 @@ getSlopeUnit <- function(sv){
   tryCatch(
     {
       v <- sv$siteVisit[[1]]$landform$landformElement[[1]]$slope[[1]]$Result$unit
-      v <- str_remove(v, 'unit:')
+      v <- stringr::str_remove(v, 'unit:')
       return(v)},
 
     error = function(msg){
@@ -513,9 +491,9 @@ getSlopeUnit <- function(sv){
 getSiteLocation <- function(siteAsList){
 
   srid <- siteAsList$geometry[[1]]
-  bits <- str_split(srid, '[(]')
-  bits2 <- str_remove(bits[[1]][2], '[)]')
-  bits3 <- str_split(bits2, ' ')[[1]]
+  bits <- stringr::str_split(srid, '[(]')
+  bits2 <- stringr::str_remove(bits[[1]][2], '[)]')
+  bits3 <- stringr::str_split(bits2, ' ')[[1]]
   ol <- list()
   ol$X <- as.numeric(bits3[1])
   ol$Y <- as.numeric(bits3[2])
