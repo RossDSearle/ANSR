@@ -4,22 +4,22 @@
 \alias{parseANSISJson}
 \title{Parses an ANSIS JSON response into an R ANSIS object}
 \usage{
-parseANSISJson(jsnFile)
+parseANSISJson(jsnFile, outDir = NULL)
 }
 \arguments{
 \item{jsnFile}{The path to the ANSIS JSON file to parse}
 }
 \value{
-data frame
+list
 }
 \description{
 Parses an ANSIS JSON response into an R ANSIS object
 }
 \details{
-This function returns a spectra dataframe from the CSIS Database for a given Transformation ID. If a labCode is supplied only Spectra records with a related lab method are returned
+This function parses an ANSIS JSON response into a form that is more amenable to further massage
 }
 \examples{
-getTransformedSpectraAsDataFrame(TransformationID=2, labCode='4A1')
+parseANSISJson()
 }
 \author{
 Ross Searle
