@@ -5,7 +5,7 @@
 # parseANSISJson
 #
 #' Parses an ANSIS JSON response into an R ANSIS object
-#' @param jsnFile The path to the ANSIS JSON file to parse
+#' @param ansisResponse The path to the ANSIS JSON file to parse
 
 #' @examples parseANSISJson()
 
@@ -14,20 +14,25 @@
 #' @return list
 #' @export
 
-parseANSISJson <- function(jsnFile, outDir=NULL){
+parseANSISJson <- function(ansisResponse, outDir=NULL){
 
- 
-  
-cat('Reading the JSON data .....\n\n')
-  sl <- jsonlite::fromJSON(jsnFile , simplifyDataFrame = F)
-  r <- sl
-  
-  isansis <- r$`$schema`
-  if(is.null(isansis)){
-    stop('This is not a valid ANSIS JSON response')
-  }else if (isansis!='https://anzsoildata.github.io/def-au-schema-json/schema/domain/2023-07-31/ansis.json'){
-    stop('This is not a valid ANSIS JSON response')
+  if(class(ansisResponse)=='list'){
+    print('using R list')
+    r <- ansisResponse
+  } else{
+    cat('Reading the JSON data .....\n\n')
+    sl <- jsonlite::fromJSON(jsnFile , simplifyDataFrame = F)
+    r <- sl
+    
+    isansis <- r$`$schema`
+    if(is.null(isansis)){
+      stop('This is not a valid ANSIS JSON response')
+    }else if (isansis!='https://anzsoildata.github.io/def-au-schema-json/schema/domain/2023-07-31/ansis.json'){
+      stop('This is not a valid ANSIS JSON response')
+    }
   }
+  
+
   
   sol <- list()
   nsites <- length(r$data)

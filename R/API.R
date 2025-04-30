@@ -27,13 +27,8 @@ apiCreateQuery <- function(qryJSON, accessToken){
   resp <- POST(url='https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/create-query-request',
                body=qryJSON,
                add_headers(Authorization = paste0("Bearer ", accessToken)))
-  
-  jsnReqList <- fromJSON(reqJson, simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
-  resp
   jsn <- content(resp, 'text', encoding = 'UTF8')
-  
   reqID <- str_split(jsn, ': ')[[1]][2]
-  
   return(reqID)
 }
 
@@ -68,28 +63,37 @@ apiQueryStatus <- function(reqID, accessToken){
 
 apiDownloadResponse <- function(fls, accessToken){
   
-  outDir <- 'c:/temp/ansis'
+  outDir <- paste0(tempdir(), '/tmp_', as.numeric(Sys.time()))
+  #outDir <- 'c:/temp/ansis'
   if(!dir.exists(outDir)){ dir.create(outDir, recursive = T)}
-  files <- vector(mode = 'character', length = length(status$sdrRequest$files))
-  for (i in 1:length(status$sdrRequest$files)) {
-    resp <- GET(url=paste0('https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/download-response?fileId=', status$sdrRequest$files[i] ),
-                add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+  files <- vector(mode = 'character', length = length(fls))
+  for (i in 1:length(fls)) {
+    resp <- GET(url=paste0('https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
+                add_headers(Authorization = paste0("Bearer ", accessToken)))
     resp
     jsn <- content(resp, 'text', encoding = 'UTF8')
     files[[i]] <- jsn
     fn <- paste0(outDir, '/res_', i, '.json')
     cat(jsn, file = fn)
   }
+  
+ jl <-  mergeResponseFiles(outDir)
+ 
+ return(jl)
 }
 
 apiRetrieveData <- function(reqID, accessToken){
   
  fls <- apiQueryStatus(reqID, accessToken)
   
-  apiDownloadResponse(fls, accessToken)
+ ad <- apiDownloadResponse(fls, accessToken)
+ return(ad)
   
 }
 
 
+getANSISData <- function(usr, bob ){
+  
+}
 
 

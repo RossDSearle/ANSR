@@ -35,3 +35,24 @@ makeBoundingBox <- function(minx, maxx, miny, maxy){
   bds[[5]] <- c(minx, miny)
   return(bds)
 }
+
+
+mergeResponseFiles <- function(outDir){
+  
+  
+  fls <- list.files(outDir, pattern = '.json$', full.names = T)
+  
+  ol <- list()
+  ol['$schema'] <- "https://anzsoildata.github.io/def-au-schema-json/schema/domain/2023-07-31/ansis.json"
+  ol$data <-list()
+  
+  for (i in 1:length(fls)) {
+    jl <- fromJSON(fls[i], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+    ol$data <- append(ol$data,jl$data)
+  }
+
+print(  str(ol, max.level = 1))
+
+return(ol)
+  
+}

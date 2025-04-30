@@ -10,6 +10,8 @@ library(httr)
 library(jsonlite)
 library(jsonview)
 library(stringr)
+library(lubridate)
+
 
 NP <- function(jsn){
   
@@ -253,16 +255,17 @@ password = 'RossTest29'
 tkn <- apiGenerateToken(user = username, pwd= password)
 
 
-minx=151
+minx=151.9
 maxx=152
-miny=-26
+miny=-26.9
 maxy=-27
 
 qry <- makeQuery(minx, maxx, miny, maxy, startYear=1900, endYear=NULL)
 
 qryID <- apiCreateQuery(qryJSON=qry, accessToken=tkn)
 
-apiRetrieveData(reqID=qryID, accessToken=tkn)
+ANSISData <- apiRetrieveData(reqID=qryID, accessToken=tkn)
 
 
-
+odo <- parseANSISJson(ANSISData)
+odo$locsDF
