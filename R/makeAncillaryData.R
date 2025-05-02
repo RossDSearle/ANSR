@@ -4,4 +4,8 @@
  # usethis::use_data(mps, CodesTable, ansisExampleObject, internal = TRUE, overwrite = T)
 
 
+#  Can't seem to get the sysdata.rda to work so resorting to below - saving the required dfs as text in packageData.R and reading 
+#   in from functions in startUpMessage.R
 
+# dput(mps, file='c:/temp/mps.txt')
+# dput(CodesTable, file='c:/temp/CodesTable.txt')

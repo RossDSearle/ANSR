@@ -21,7 +21,7 @@ parseANSISJson <- function(ansisResponse, outDir=NULL){
     r <- ansisResponse
   } else{
     cat('Reading the JSON data .....\n\n')
-    sl <- jsonlite::fromJSON(jsnFile , simplifyDataFrame = F)
+    sl <- jsonlite::fromJSON(ansisResponse , simplifyDataFrame = F)
     r <- sl
     
     isansis <- r$`$schema`

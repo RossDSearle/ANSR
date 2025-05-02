@@ -1,7 +1,22 @@
 
+checkIfAuthorised <- function(){
+  
+  #if(!rlang::is_environment('pkg.env')){
+  if(!exists('authANSIS')){
+    cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
+    return(F)
+  }
 
+  #if(!pkg.env$Authorised){
+  if(!authANSIS$Authorised){
+    cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
+    return(F)
+  }
+  
+  return(T)
+}
 
-makeQuery <- function(minx, maxx, miny, maxy, startYear=1900, endYear=NULL){
+makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, startYear=1900, endYear=NULL){
   
   if(is.null(endYear)){
     endYear<-year(Sys.Date())
@@ -10,13 +25,14 @@ makeQuery <- function(minx, maxx, miny, maxy, startYear=1900, endYear=NULL){
   bds <- makeBoundingBox(minx, maxx, miny, maxy)
   
   query <- list()
-  query$minYear=startYear
-  query$maxYear=2025
-  query$useSDR=T
+  query$minYear=unbox(startYear)
+  query$maxYear=unbox(2025)
+  query$useSDR=unbox(T)
+  query$propertyGroups <- c("3-0-0")
   
-  query$bounds[[1]] <- bds
+ # query$bounds[[1]] <- bds
   
-  jsnQry <- toJSON(query, auto_unbox = T)
+  jsnQry <- toJSON(query, auto_unbox = F)
   #cat(jsnQry, file = 'c:/temp/query.json')
   
   return(jsnQry) 

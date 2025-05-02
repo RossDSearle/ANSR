@@ -4,10 +4,10 @@
 \alias{parseANSISJson}
 \title{Parses an ANSIS JSON response into an R ANSIS object}
 \usage{
-parseANSISJson(jsnFile, outDir = NULL)
+parseANSISJson(ansisResponse, outDir = NULL)
 }
 \arguments{
-\item{jsnFile}{The path to the ANSIS JSON file to parse}
+\item{ansisResponse}{The path to the ANSIS JSON file to parse}
 }
 \value{
 list

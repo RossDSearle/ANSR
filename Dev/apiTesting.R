@@ -13,6 +13,9 @@ library(stringr)
 library(lubridate)
 
 
+username = 'ross.searle@gmail.com'
+password = 'RossTest29'
+
 NP <- function(jsn){
   
   tf <- tempfile(fileext = '.json')
@@ -74,14 +77,18 @@ siteL <- head(fromJSON(jsn, simplifyDataFrame=F))
 siteL$data[[1]]$siteVisit[[1]]$soilProfile[[1]]$soilLayer[[1]]$colour[[1]]$result
 
 
+tkn <- apiGenerateToken(username, password)
 
 
+qry <- '{"propertyGroups": ["3-0-0"], "useSDR": true}'
+qry <- makeQuery()
 
+qry <- makeQuery(minx, maxx, miny, maxy, startYear=1900, endYear=NULL)
 
 
 resp <- POST(url='https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/create-query-request',
             body=qry,
-            add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+            add_headers(Authorization = paste0("Bearer ", tkn)))
 
 jsnReqList <- fromJSON(reqJson, simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
 resp
@@ -89,9 +96,11 @@ jsn <- content(resp, 'text', encoding = 'UTF8')
 
 reqID <- str_split(jsn, ': ')[[1]][2]
 
+apiAllQueryStatus(accessToken=tkn)
 
 
-
+apiQueryStatus(reqID, tkn)
+d <- apiDownloadResponse('a75f4241-ff55-485d-9a3a-985ac3a90105', tkn)
 
 
 
@@ -249,10 +258,8 @@ reqJson2 <- '{
 
 
 
-username = 'ross.searle@gmail.com'
-password = 'RossTest29'
 
-tkn <- apiGenerateToken(user = username, pwd= password)
+
 
 
 minx=151.9
@@ -260,12 +267,25 @@ maxx=152
 miny=-26.9
 maxy=-27
 
-qry <- makeQuery(minx, maxx, miny, maxy, startYear=1900, endYear=NULL)
+apiCatalogueSummary()
+head(apiProviderCatalogue(poviderNames='CSIRO_CSIS' ))
 
-qryID <- apiCreateQuery(qryJSON=qry, accessToken=tkn)
-
-ANSISData <- apiRetrieveData(reqID=qryID, accessToken=tkn)
+getAttributeTable(user=username, pwd=password, minx, maxx, miny, maxy, startYear=1900, endYear,  properties = c('6A1', '15A1'))
 
 
-odo <- parseANSISJson(ANSISData)
-odo$locsDF
+
+username = 'ross.searle@gmail.com'
+password = 'RossTest29'
+#password = 'bob'
+apiAuthoriseMe(username, password)
+
+ajsn <- queryQuerySingleSite(providerID = 'CSIRO_CSIS', siteID = '1007', format = 'HTML' )
+
+
+ado <- parseANSISJson(ansisResponse = ajsn)
+generateSiteDescription(ado)
+
+
+
+
+apiCatalogueSummary()
