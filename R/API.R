@@ -31,6 +31,7 @@ apiAuthoriseMe <- function(username, password){
     authANSIS$pwd <<- password
     authANSIS$Authorised <<- T
     
+    
     # pkg.env <- new.env()
     # pkg.env$usr <- username
     # pkg.env$pwd <- password
@@ -135,6 +136,52 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F){
   return(cdf)
 }
 
+
+
+#' ANSIS Property Definitions
+#' 
+#' Returns a data frame of ANSIS property codes and their definitions
+#' @examples head(apiPropertyDefinitions())
+#' @author Ross Searle
+#' @return data frame
+#' @export
+#'
+#'
+
+apiPropertyDefinitions <- function(){
+  
+  resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/definitions')
+  resp
+  jsn <- content(resp, 'text', encoding = 'UTF8')
+  
+  defs <- fromJSON(jsn)
+  # defs[grepl("^0-0", names(defs))]
+  # defs[grepl("^3-2", names(defs))]
+  
+  odf<- data.frame()
+  
+  for (i in 0:4) {
+    print(i)
+    n1 <- defs[as.character(i)]
+    propType=n1[[1]]$name
+    # need to deal with n2 null
+    for (j in 1:length(n1[[1]]$members)) {
+      print(j) 
+      n2 <- defs[n1[[1]]$members[j]]
+      prop = n2[[1]]$name
+      
+      if(!is.null(n2[[1]]$members)){
+        for (k in 1:length(n2[[1]]$members)) {
+          n3 <- defs[n2[[1]]$members[k]]
+          
+          df<- data.frame('PropType'=propType, 'Property'=prop, 'Name'=n3[[1]]$name, 'ANSISCode'=n2[[1]]$members[k] )
+          odf <- rbind(odf, df)
+        }
+      }
+    }
+  }
+ return(odf)
+}
 
 
 
@@ -299,7 +346,7 @@ queryAttributeTable <- function(minx, maxx, miny, maxy, startYear=1900, endYear=
 #' @export
 #'
 #'
-queryQuerySingleSite <- function(providerID, siteID, format='JSON'){
+queryQuerySingleSite <- function(providerID, siteID, format='ANSISDataObject'){
   
   if(!checkIfAuthorised()){return(cat(''))}
   tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)

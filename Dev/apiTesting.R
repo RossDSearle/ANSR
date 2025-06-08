@@ -33,7 +33,7 @@ NP <- function(jsn){
 resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/catalogue-summary')
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
-jsonview::json_tree_view (jsn)
+listviewer::jsonedit(jsn)
 
 head(fromJSON(jsn))
 
@@ -46,7 +46,8 @@ head(fromJSON(jsn))
 resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/provider/CSIRO_CSIS')
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
-jsonview::json_tree_view (jsn)
+listviewer::jsonedit(jsn)
+
 head(fromJSON(jsn))
 
 
@@ -57,22 +58,52 @@ head(fromJSON(jsn))
 resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/definitions')
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
-jsonview::json_tree_view (jsn)
+listviewer::jsonedit(jsn)
 NP(jsn)
 head(fromJSON(jsn))
 
+cat(jsn, file='c:/temp/definitions.json')
+
+defs <- fromJSON(jsn)
+defs[grepl("^0-0", names(defs))]
+defs[grepl("^3-2", names(defs))]
+
+odf<- data.frame()
 
 
+for (i in 0:4) {
+  print(i)
+  n1 <- defs[as.character(i)]
+  propType=n1[[1]]$name
+  # need to deal with n2 null
+  for (j in 1:length(n1[[1]]$members)) {
+   print(j) 
+    n2 <- defs[n1[[1]]$members[j]]
+    prop = n2[[1]]$name
+    
+    if(!is.null(n2[[1]]$members)){
+    for (k in 1:length(n2[[1]]$members)) {
+         n3 <- defs[n2[[1]]$members[k]]
+       
+         df<- data.frame('PropType'=propType, 'Property'=prop, 'Name'=n3[[1]]$name, 'ANSISCode'=n2[[1]]$members[k] )
+         odf <- rbind(odf, df)
+      }
+      
+    }
+  }
+  
+}
 
+odf
 
 
 ####  Fetch a Single Site    ########
 
 resp <- GET(url='https://apim-ansis-hrm-test-ae.azure-api.net/sdr-public/v1/SingleSite?provider=CSIRO_CSIS&site=1',
-            add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+            add_headers(Authorization = paste0("Bearer ", tkn)))
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
-jsonview::json_tree_view (jsn)
+listviewer::jsonedit(jsn)
 siteL <- head(fromJSON(jsn, simplifyDataFrame=F))
 siteL$data[[1]]$siteVisit[[1]]$soilProfile[[1]]$soilLayer[[1]]$colour[[1]]$result
 
@@ -83,14 +114,18 @@ tkn <- apiGenerateToken(username, password)
 qry <- '{"propertyGroups": ["3-0-0"], "useSDR": true}'
 qry <- makeQuery()
 
+minx=151
+maxx=152
+miny=-26
+maxy=-27
+
+
 qry <- makeQuery(minx, maxx, miny, maxy, startYear=1900, endYear=NULL)
 
 
 resp <- POST(url='https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/create-query-request',
             body=qry,
             add_headers(Authorization = paste0("Bearer ", tkn)))
-
-jsnReqList <- fromJSON(reqJson, simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 
@@ -99,7 +134,7 @@ reqID <- str_split(jsn, ': ')[[1]][2]
 apiAllQueryStatus(accessToken=tkn)
 
 
-apiQueryStatus(reqID, tkn)
+apiSingleQueryStatus(reqID)
 d <- apiDownloadResponse('a75f4241-ff55-485d-9a3a-985ac3a90105', tkn)
 
 
@@ -186,10 +221,6 @@ reqJson <- '{
 }'
 
 
-minx=151
-maxx=152
-miny=-26
-maxy=-27
 
 
 makeBoundingBox()
@@ -207,6 +238,8 @@ bds[[4]] <- c(147.9569212046403, -40.021246219604436)
 # bds[[3]] <- '148.0719133795693, -40.08056633680312'
 # bds[[4]] <- '147.9569212046403, -40.021246219604436'
 
+
+query <- list()
 query$bounds[[1]] <- bds
 
 cat(toJSON(query, auto_unbox = T), file = 'c:/temp/query.json')
@@ -278,6 +311,47 @@ username = 'ross.searle@gmail.com'
 password = 'RossTest29'
 #password = 'bob'
 apiAuthoriseMe(username, password)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ajsn <- queryQuerySingleSite(providerID = 'CSIRO_CSIS', siteID = '1007', format = 'HTML' )
 

@@ -2,6 +2,7 @@
 
 export(apiAuthoriseMe)
 export(apiGenerateToken)
+export(apiPropertyDefinitions)
 export(getAO)
 export(getAvailableProperties)
 export(getPropertiesSummary)

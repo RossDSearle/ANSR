@@ -4,7 +4,7 @@
 \alias{queryQuerySingleSite}
 \title{Get a single site}
 \usage{
-queryQuerySingleSite(providerID, siteID, format = "JSON")
+queryQuerySingleSite(providerID, siteID, format = "ANSISDataObject")
 }
 \arguments{
 \item{username}{ANSIS account username}
