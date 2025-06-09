@@ -41,6 +41,15 @@ apiAuthoriseMe <- function(username, password){
   }
 }
 
+ANSISAPIDocs <- function(){
+  shell(system.file(package = "ANSR", "/extdata/ANSIS_API_Docs.pdf"), wait = F)
+}
+
+ANSISOpenWebsite <- function(){
+  browseURL('https://ansis.net/')
+}
+
+
 
 #' Generate an Authorisation token
 #' @param user ANSIS account username
@@ -71,6 +80,13 @@ apiGenerateToken <- function(user, pwd, verbose=F){
   return(auth$access_token)
 }
 
+
+#' ANSIS Catalogue Summary
+#' @details  Lists the ANSIS data providers
+#' @author Ross Searle
+#' @return data frame
+#' @export
+
 apiCatalogueSummary  <- function(){
   
   url <- paste0('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/catalogue-summary')
@@ -81,7 +97,20 @@ apiCatalogueSummary  <- function(){
 }
 
 
-apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F){
+#' ANSIS Provider Catalogue
+#' 
+#' Shows details for specified ANSIS data providers
+#' @param poviderNames A list of ANSIS Provider names. 
+#' @param includeProperties Include the list of ANSIS Soil properties associated with each site.
+#' @param outputFormat Either a dataframe or JSON
+#' @param ViewIt View the raw json output.
+#' @details Returns the site data catalogues for the providers specified with the poviderNames list. Valid IDs are provided via the “name” field of the apiCatalogueSummary() function. 
+#' Returns a list of ANSIS site numbers along with locations and a list of properties for each site.
+#' 
+#' @author Ross Searle
+#' @return datafram
+#' @export
+apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outputFormat='dataframe', ViewIt=F){
   
   if(is.null(poviderNames)){
     prvs <- apiCatalogueSummary()
@@ -99,6 +128,7 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F){
       resp <- httr::GET(url=url)
       jsn <- httr::content(resp, 'text', encoding = 'UTF8')
       jdf <- jsonlite::fromJSON(jsn)
+      
       
       if(!is.null(nrow(jdf))){
         
@@ -133,7 +163,17 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F){
       }
       
     }
-  return(cdf)
+  
+  if(ViewIt){
+    listviewer::jsonedit(jsn)  ### probably need to smoosh the jsn together if there os more than one provider specified
+  }
+  
+  if(outputFormat=='dataframe'){
+    return(cdf)
+  }else{
+    jsn
+  }
+ 
 }
 
 
@@ -187,7 +227,7 @@ apiPropertyDefinitions <- function(){
 
 
 
-apiCreateQuery <- function(qryJSON){
+apiSendQuery <- function(qryJSON){
   
   if(!checkIfAuthorised()){return(cat(''))}
   tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
@@ -204,7 +244,7 @@ apiCreateQuery <- function(qryJSON){
 
 
 
-apiMonitorQueryStatus <- function(reqID){
+apiQueryStatus_Monitor <- function(reqID){
   
   if(!checkIfAuthorised()){return(cat(''))}
   tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
@@ -235,7 +275,7 @@ apiMonitorQueryStatus <- function(reqID){
     return(status$sdrRequest$files)
 }
 
-apiAllQueryStatus <- function(statusTypes=NULL){
+apiQueryStatus_All <- function(statusTypes=NULL){
   
   if(!checkIfAuthorised()){return(cat(''))}
   tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
@@ -270,7 +310,7 @@ apiAllQueryStatus <- function(statusTypes=NULL){
 }
 
 
-apiSingleQueryStatus <- function(reqID){
+apiQueryStatus_Single <- function(reqID, verbose=F){
   
   if(!checkIfAuthorised()){return(cat(''))}
   tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
@@ -280,13 +320,26 @@ apiSingleQueryStatus <- function(reqID){
   jsn <- httr::content(resp, 'text', encoding = 'UTF8')
   rq <- jsonlite::fromJSON(jsn, simplifyDataFrame = T, simplifyVector = T)
   
-  return(rq$sdrRequest$status)
+  if(verbose){
+    return(rq)
+  }else{
+    return(rq$sdrRequest$status)
+  }
+  
 }
 
 
+apiCancelQuery <- function(reqID){
+  
+  resp <- paste0('https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/cancel-query-request?requestId=', reqID)
+  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  rq <- jsonlite::fromJSON(jsn, simplifyDataFrame = T, simplifyVector = T)
+  
+  }
 
 
-apiDownloadResponse <- function(fls){
+
+apiDownloadQueryData <- function(fls){
   
   if(!checkIfAuthorised()){return(cat(''))}
   tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
@@ -301,7 +354,7 @@ apiDownloadResponse <- function(fls){
     resp <- httr::GET(url=paste0('https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
                       httr::add_headers(Authorization = paste0("Bearer ", tkn)))
     jsn <- httr::content(resp, 'text', encoding = 'UTF8')
-    files[[i]] <- jsn
+   # files[[i]] <- jsn
     fn <- paste0(outDir, '/res_', i, '.json')
     cat(jsn, file = fn)
   }
@@ -311,12 +364,12 @@ apiDownloadResponse <- function(fls){
  return(jl)
 }
 
-apiRetrieveData <- function(reqID){
-
-  fls <- apiQueryStatus(reqID)
-  ad <- apiDownloadResponse(fls)
-  return(ad)
-}
+# apiRetrieveData <- function(reqID){
+# 
+#   fls <- apiQueryStatus(reqID)
+#   ad <- apiDownloadResponse(fls)
+#   return(ad)
+# }
 
 
 

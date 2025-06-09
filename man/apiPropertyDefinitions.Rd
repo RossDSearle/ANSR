@@ -10,10 +10,10 @@ apiPropertyDefinitions()
 data frame
 }
 \description{
-Returns a data frame of ANSIS Property codes and their definitions
+Returns a data frame of ANSIS property codes and their definitions
 }
 \examples{
-apiPropertyDefinitions()
+head(apiPropertyDefinitions())
 }
 \author{
 Ross Searle

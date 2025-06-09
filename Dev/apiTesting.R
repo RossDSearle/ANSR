@@ -94,7 +94,9 @@ for (i in 0:4) {
   
 }
 
-odf
+
+
+
 
 
 ####  Fetch a Single Site    ########
@@ -134,8 +136,10 @@ reqID <- str_split(jsn, ': ')[[1]][2]
 apiAllQueryStatus(accessToken=tkn)
 
 
-apiSingleQueryStatus(reqID)
-d <- apiDownloadResponse('a75f4241-ff55-485d-9a3a-985ac3a90105', tkn)
+status <- apiSingleQueryStatus(reqID, verbose = T)
+d <- apiDownloadResponse('c3dcdf4d-454e-4d7d-92c5-052bb55708b2')
+
+h <- apiDownloadResponse('20604d96-a3fb-4fea-ad6e-47332c522e91')
 
 
 
@@ -148,7 +152,7 @@ if(!dir.exists(outDir)){ dir.create(outDir, recursive = T)}
 files <- vector(mode = 'character', length = length(status$sdrRequest$files))
 for (i in 1:length(status$sdrRequest$files)) {
   resp <- GET(url=paste0('https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/download-response?fileId=', status$sdrRequest$files[i] ),
-              add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+              add_headers(Authorization = paste0("Bearer ", tkn)))
   resp
   jsn <- content(resp, 'text', encoding = 'UTF8')
   #down <- fromJSON(jsn, simplifyDataFrame = F)
@@ -171,12 +175,12 @@ down$data[[2]]$geometry
 
 
 
-files <- c("C:/Temp/res_1.json", "C:/Temp/res_2.json", "C:/Temp/res_3.json")
+files <- c("C:/Temp/ansis/res_1.json", "C:/Temp/ansis/res_2.json", "C:/Temp/ansis/res_3.json")
 jsonl <- lapply(files, function(f) rjson::fromJSON(file = f))
 jsonc <- rjson::toJSON(jsonl)
 write(jsonc, file = "C:/Temp/res_All.json")
 
-
+listviewer::jsonedit(jsonc)
 
 reqJson <- '{
     "minYear": 1909,
