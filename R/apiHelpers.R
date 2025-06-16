@@ -8,20 +8,27 @@ checkIfAuthorised <- function(){
   }
 
   #if(!pkg.env$Authorised){
-  if(!authANSIS$Authorised){
+  if(!authANSIS@Authorised){
     cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
     return(F)
+  }
+  
+  ### reauthorise if the token has expired
+  if(authANSIS@TokenExpiry <= Sys.time()){
+    cat('\nReauthorising with ANSIS...\n')
+    apiAuthoriseMe(authANSIS@usr, authANSIS@pwd)
   }
   
   return(T)
 }
 
-makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, properties=NULL, sites=NULL, provider=NULL, startYear=1900, endYear=NULL){
+makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisProperties=NULL,
+                      sites=NULL, provider=NULL, startYear=1900, endYear=NULL){
   
   query <- list()
   
   if(is.null(endYear)){
-    endYear<-year(Sys.Date())
+    endYear<-lubridate::year(Sys.Date())
   }
   
   if(!is.null(sites)){
@@ -29,10 +36,8 @@ makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, properties=NUL
     so <- vector(mode='list', length = 1)
     
     s <- list()
-    s$provider = unbox(provider)
-    #s$sites <- vector(mode='list', length = 1)
+    s$provider = jsonlite::unbox(provider)
     s$sites <- sites
-    #s$sites[[1]] <- sites
     so[[1]] <- s
     
    query$sites <- so
@@ -43,15 +48,24 @@ makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, properties=NUL
       query$bounds[[1]] <- bds
   }
   
+  # if(!is.null(propertyName)){
+  #   
+  #   idxs <- which(schemaMaps$PropertyName == propertyName)
+  #   properties <- schemaMaps$ANSISCode[idxs]    
+  #   
+  # }else if(!is.null(labCode)){
+  #   idxs <- which(labcodesMapping$meths==labCode)
+  #   properties = labcodesMapping$ANSISCode[idxs]
+  # }
 
-  query$minYear=unbox(startYear)
-  query$maxYear=unbox(endYear)
-  query$useSDR=unbox(T)
-  query$propertyGroups <- properties
+  query$minYear=jsonlite::unbox(startYear)
+  query$maxYear=jsonlite::unbox(endYear)
+  query$useSDR=jsonlite::unbox(T)
+  query$propertyGroups <- ansisProperties
   
  
   
-  jsnQry <- toJSON(query, auto_unbox = F)
+  jsnQry <- jsonlite::toJSON(query, auto_unbox = F)
   #cat(jsnQry, file = 'c:/temp/query.json')
   
   return(jsnQry) 
@@ -63,11 +77,11 @@ makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, properties=NUL
 makeBoundingBox <- function(minx, maxx, miny, maxy){
   
   bds <- vector(mode = 'list', length = 5)
-  bds[[1]] <- c(minx, miny)
-  bds[[2]] <- c(minx, maxy)
-  bds[[3]] <- c(maxx, maxy)
-  bds[[4]] <- c(maxx, miny)
-  bds[[5]] <- c(minx, miny)
+  bds[[1]] <- c(minx, maxy)
+  bds[[2]] <- c(minx, miny)
+  bds[[3]] <- c(maxx, miny)
+  bds[[4]] <- c(maxx, maxy)
+  bds[[5]] <- c(minx, maxy)
   return(bds)
 }
 
@@ -91,7 +105,7 @@ mergeResponseFiles <- function(outDir){
   projs <- list()
   
   for (i in 1:length(fls)) {
-    jl <- fromJSON(fls[i], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+    jl <- jsonlite::fromJSON(fls[i], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
     ol$data <- append(ol$data,jl$data)
     
    if(length(jl$included$persons))

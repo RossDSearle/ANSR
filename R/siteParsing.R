@@ -200,9 +200,9 @@ makeSitesLocationTableFromDataList <- function(dl){
 # }
 
 
-parseSites <- function(respAsList){
+parseSites <- function(respAsList, mps){
 
-  mps <- read.csv('C:/Projects/ANSIS/ANSISAPI/schemaFieldMapping2.csv')
+  
   mp <- unique(mps[mps$SchemaLocation=='Horizons' & mps$Domain!='',]$Domain)
 
   r <- respAsList
@@ -234,7 +234,7 @@ parseSites <- function(respAsList){
 
 
 
-parseANSISSiteLayersToDenormalisedTable <- function(siteAsList){
+parseANSISSiteLayersToDenormalisedTable <- function(siteAsList, mps){
 
   mp <- unique(mps[mps$Domain!='' & mps$SchemaLocation=='Horizons', ]$Domain )
     slsl <- siteAsList[['siteVisit']][[1]]$soilProfile[[1]]$soilLayer
@@ -326,15 +326,15 @@ getSlopeUnit <- function(sv){
 
 
 
-parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
+parseANSISSiteVistToDenormalisedTable <- function(siteAsList, mps){
 
   sv <- siteAsList
 
   alldf <- data.frame(property=character(), propType=character(), schemaPath=character(), value=character(), desc=character() )
 
-  alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$value, att='S_ID', alldf, schemaPath='/SoilSite/data/scopedIdentifier/value')
-  alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$authority, att='AGENCY_CODE', alldf, schemaPath='/SoilSite/data/scopedIdentifier/authority')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$usedProcedure, att='O_TYPE', alldf, schemaPath='/SoilSite/data/siteVisit/soilProfile/usedProcedure')
+  alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$value, att='S_ID', alldf, schemaPath='/SoilSite/data/scopedIdentifier/value', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$authority, att='AGENCY_CODE', alldf, schemaPath='/SoilSite/data/scopedIdentifier/authority', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$usedProcedure, att='O_TYPE', alldf, schemaPath='/SoilSite/data/siteVisit/soilProfile/usedProcedure', mps=mps)
 
   dt <-  sv$siteVisit[[1]]$startedAtTime
 
@@ -350,13 +350,13 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
 
 
   #  disturbance
-  alldf <- getSiteVisitVals(val=sv$disturbance[[1]]$result, att='O_SOIL_DISTURB', alldf, schemaPath = '/SoilSite/data/disturbance/result')
+  alldf <- getSiteVisitVals(val=sv$disturbance[[1]]$result, att='O_SOIL_DISTURB', alldf, schemaPath = '/SoilSite/data/disturbance/result', mps=mps)
 
   #  landformElement
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$ansisType, att='S_ELEM_TYPE', alldf, schemaPath='/SoilSite/data/siteVisit/landform/landformElement/ansisType')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$height$result$value, att='S_ELEM_HEIGHT', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformElement/height/result/value')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$height$result$unit, att='S_ELEM_HEIGHT_UNIT', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformElement/height/result/unit')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$morphologicalType$result, att='S_MORPH_TYPE', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformElement/morphologicalType/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$ansisType, att='S_ELEM_TYPE', alldf, schemaPath='/SoilSite/data/siteVisit/landform/landformElement/ansisType', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$height$result$value, att='S_ELEM_HEIGHT', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformElement/height/result/value', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$height$result$unit, att='S_ELEM_HEIGHT_UNIT', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformElement/height/result/unit', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]]$morphologicalType$result, att='S_MORPH_TYPE', alldf, schemaPath = '/SoilSite/data/siteVisit/landform/landformElement/morphologicalType/result', mps=mps)
 
  # v<-NULL
 
@@ -364,7 +364,7 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
   slopeVal <- getSlope(sv)
   slopeUnit <- getSlopeUnit(sv)
 
-  alldf <- getSiteVisitVals(val=paste0(slopeVal, ' ', slopeUnit), att='S_SLOPE', alldf)
+  alldf <- getSiteVisitVals(val=paste0(slopeVal, ' ', slopeUnit), att='S_SLOPE', alldf, mps=mps)
 
   # if(!is.null(v)){
   #   print('isnotnull')
@@ -408,40 +408,40 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
 
 
   #  Elevation
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$result$value, att='O_ELEVATION', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/result/value')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$result$unit, att='O_ELEVATION_UNIT', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/result/unit')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$usedProcedure, att='O_ELEVATION_EVAL', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/usedProcedure')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$result$value, att='O_ELEVATION', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/result/value', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$result$unit, att='O_ELEVATION_UNIT', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/result/unit', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$elevation$usedProcedure, att='O_ELEVATION_EVAL', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/elevation/usedProcedure', mps=mps)
 
   #  Rock Outcrop
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$outcrop[[1]]$abundance$result , att='RO_ABUN', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/outcrop/abundance/result')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$outcrop[[1]]$lithology$result , att='RO_LITH', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/outcrop/lithology/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$outcrop[[1]]$abundance$result , att='RO_ABUN', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/outcrop/abundance/result', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$outcrop[[1]]$lithology$result , att='RO_LITH', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/outcrop/lithology/result', mps=mps)
 
   #  Runoff
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$runoff$result , att='O_RUNOFF', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/runoff/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$landSurface$runoff$result , att='O_RUNOFF', alldf, schemaPath = '/SoilSite/data/siteVisit/landSurface/runoff/result', mps=mps)
 
   #  Classification
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$classification[[1]]$result$value , att='O_CLASSIFICATION', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/classification/result/value')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$classification[[1]]$result$source , att='O_CLASSIFICATION_SRC', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/classification/result/source')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$classification[[1]]$result$value , att='O_CLASSIFICATION', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/classification/result/value', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$classification[[1]]$result$source , att='O_CLASSIFICATION_SRC', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/classification/result/source', mps=mps)
 
   #  Drainage
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$drainage$result , att='O_DRAINAGE', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/drainage/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$drainage$result , att='O_DRAINAGE', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/drainage/result', mps=mps)
 
   #  Permeability
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$permeability$result , att='O_PERMEABILITY', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/permeability/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$permeability$result , att='O_PERMEABILITY', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/permeability/result', mps=mps)
 
   #  Surface Coarse Fragments
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$abundance$result , att='SCF_ABUN', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/abundance/result')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$size$result  , att='SCF_SIZE', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/size/result')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$lithology$result  , att='SCF_LITH', alldf, domain = 'C_LITHOLOGY', schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/lithology/result')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$shape$result  , att='SCF_SHAPE', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/shape/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$abundance$result , att='SCF_ABUN', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/abundance/result', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$size$result  , att='SCF_SIZE', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/size/result', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$lithology$result  , att='SCF_LITH', alldf, domain = 'C_LITHOLOGY', schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/lithology/result', mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$coarseFragments[[1]]$shape$result  , att='SCF_SHAPE', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/coarseFragments/shape/result', mps=mps)
 
   #  Surface Condition
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$conditionWhenDry$result , att='SCON_STAT', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/conditionWhenDry/result')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$soilSurface$conditionWhenDry$result , att='SCON_STAT', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/soilSurface/conditionWhenDry/result', mps=mps)
 
   #  Substrate
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$substrate$lithology$result , att='O_SB_LITH', alldf, domain = 'C_LITHOLOGY', schemaPath = '/SoilSite/data/siteVisit/soilProfile/substrate/lithology/result')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$substrate$depth$result$value , att='O_SB_DEPTH', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/substrate/depth/result/value')
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$substrate$depth$result$unit , att='O_SB_DEPTH_UNIT', alldf, schemaPath =  '/SoilSite/data/siteVisit/soilProfile/substrate/depth/result/value')
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$substrate$lithology$result , att='O_SB_LITH', alldf, domain = 'C_LITHOLOGY', schemaPath = '/SoilSite/data/siteVisit/soilProfile/substrate/lithology/result', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$substrate$depth$result$value , att='O_SB_DEPTH', alldf, schemaPath = '/SoilSite/data/siteVisit/soilProfile/substrate/depth/result/value', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$substrate$depth$result$unit , att='O_SB_DEPTH_UNIT', alldf, schemaPath =  '/SoilSite/data/siteVisit/soilProfile/substrate/depth/result/value', mps=mps)
 
  return(alldf)
 
@@ -476,16 +476,7 @@ testObject <- function(val){
 # getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]][['morphologicalType']][['result']], att='S_MORPH_TYPE', alldf)
 # getSiteVisitVals(val=sv$siteVisit[[1]]$landform$landformElement[[1]][['slope']][[1]][['Result']][['value']], att='S_SLOPE', alldf)
 
-getSiteVisitVals <- function(val, att, alldf, domain=NULL, schemaPath='' ){
-
-
-  # if(is.null(testObject(val))){
-  #
-  #   hrr <- data.frame(property=att, propType='SiteVisit', field=of, value='', desc='')
-  #   alldf <- rbind(alldf, hrr)
-  #   return(alldf)
-  # }
-
+getSiteVisitVals <- function(val, att, alldf, domain=NULL, schemaPath='', mps ){
 
   fld <- mps[mps$Property==att, ]
   of <- paste0(fld$Property)

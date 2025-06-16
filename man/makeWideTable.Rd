@@ -4,7 +4,7 @@
 \alias{makeWideTable}
 \title{Format the ANSIS response into a wide table}
 \usage{
-makeWideTable(ansisObject, propertyType = NULL, properties = NULL, decode = F)
+makeWideTable(ansisObject, propertyType = NULL, labcodes = NULL, decode = F)
 }
 \arguments{
 \item{propertyType}{Return data for a specific list of soil properties}

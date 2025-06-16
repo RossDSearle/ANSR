@@ -1,4 +1,5 @@
-
+library(doParallel)
+library(doSNOW)
 
 
 
@@ -14,8 +15,8 @@
 #' @return list
 #' @export
 
-parseANSISJson <- function(ansisResponse, outDir=NULL){
-
+parseANSISJson <- function(ansisResponse, saveFilePath=NULL){
+  
   if(class(ansisResponse)=='list'){
     print('using R list')
     r <- ansisResponse
@@ -32,8 +33,19 @@ parseANSISJson <- function(ansisResponse, outDir=NULL){
     }
   }
   
-
   
+  
+  if(length(r$data) <= 1){
+    return(parseANSISJsonSerial(r, saveFilePath))
+  }else{
+    return(parseANSISJsonParallel(r, saveFilePath))
+  }
+}
+
+
+parseANSISJsonSerial <- function(r, saveFilePath=NULL){
+
+
   sol <- list()
   nsites <- length(r$data)
   
@@ -74,16 +86,100 @@ parseANSISJson <- function(ansisResponse, outDir=NULL){
   
   jL$CSV <- makeAllDataCSV(sol)
   
-  if(!is.null(outDir)){
-   bn <- basename(tools::file_path_sans_ext(jsnFile))
-   if(!dir.exists(outDir)){
-     cat('Specified output directory does not exist so it will be created.\n')
-     dir.create(outDir, recursive = T)
-   }
-   saveRDS(jL, paste0(outDir, '/', bn, '.rds'))
-   cat(paste0('ANSIS Data Object saved to - ', outDir, '/', bn, '.rds', '.\n'))
+  if(!is.null(saveFilePath)){
+    bn <- basename(tools::file_path_sans_ext(saveFilePath))
+    outDir <- dirname(saveFilePath)
+    outFile <- paste0(outDir, '/', bn, '.rds')
+    #bn <- paste0("ANSISDataObject_", stringr::str_replace_all( Sys.time(), ":", "-" ))
+    if(!dir.exists(outDir)){
+      cat('Specified output directory does not exist so it will be created.\n')
+      dir.create(outDir, recursive = T)
+    }
+    saveRDS(jL, paste0(outFile))
+    cat(paste0('ANSIS Data Object saved to - ', outFile, '.\n'))
   }
 
+  return(jL)
+}
+
+
+
+parseANSISJsonParallel <- function(r, saveFilePath=NULL, numCPUs=NULL){
+  
+  nsites <- length(r$data)
+  
+  
+  if(is.null(numCPUs)){
+    numCPUs = min(nsites, detectCores()-1)
+  }
+   # numCPUs=3
+  
+  cat(paste0('Using ', numCPUs, ' CPUs'), sep='\n')
+  
+  cl <- makeSOCKcluster(numCPUs)
+  doSNOW::registerDoSNOW(cl)
+  
+ mps <- DataSets@mps
+ CodesTable <- DataSets@CodesTable
+  
+  
+  pb <- txtProgressBar(max=nsites, style=3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts <- list(progress=progress)
+  pout <-  foreach(k=1:nsites, .options.snow=opts, .packages=c(), 
+               .export = c('getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
+                           'mps', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
+    
+    sol2 <- list()
+    s <- r$data[[k]]
+    sid <- getSiteID(siteAsList=s)
+    
+    layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s, mps=mps)
+    siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s, mps=mps)
+    
+    loc <- getSiteLocation(siteAsList=s)
+    pl <- list()
+    pl$Site=sid
+    pl$X=loc$X
+    pl$Y=loc$Y
+    pl$data <-  layersTable
+    pl$siteVisitTable <- siteVistTable
+    
+    sol2[[sid]] <- pl
+    return(sol2)
+    
+    }
+  
+  close(pb)
+  stopCluster(cl)
+
+  sol <- do.call(c, pout)
+  
+  
+  cat('\nCreating the ANSIS Data Object .....\n\n')
+  locsDF <- makeSitesLocationTableFromDataList(sol)
+  jL <- list()
+ # jL$dfDenorm <- sol
+  jL$locsDF <- locsDF
+  jL$jsonList <- r
+  
+  jL$CSV <- makeAllDataCSV(sol)
+  
+  if(!is.null(saveFilePath)){
+    bn <- basename(tools::file_path_sans_ext(saveFilePath))
+    outDir <- dirname(saveFilePath)
+    outFile <- paste0(outDir, '/', bn, '.rds')
+    #bn <- paste0("ANSISDataObject_", stringr::str_replace_all( Sys.time(), ":", "-" ))
+    if(!dir.exists(outDir)){
+      cat('Specified output directory does not exist so it will be created.\n')
+      dir.create(outDir, recursive = T)
+    }
+    saveRDS(jL, paste0(outFile))
+    cat(paste0('ANSIS Data Object saved to - ', outFile, '.\n'))
+  }
+  
+ # print(nrow(jL$locsDF))
+  
   return(jL)
 }
 
@@ -115,10 +211,10 @@ getAO <- function(){
 #' @return dataframe
 #' @export
 
-makeWideTable <- function(ansisObject, propertyType=NULL, properties=NULL, decode=F){
+makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=F){
 
 
-  if(is.null(propertyType) & is.null(properties)){
+  if(is.null(propertyType) & is.null(labcodes)){
     stop('You have to specify a value for either the propertyType or properties parameter')
   }
   
@@ -130,13 +226,13 @@ makeWideTable <- function(ansisObject, propertyType=NULL, properties=NULL, decod
   alldf$LowerDepth <- as.numeric(alldf$LowerDepth)
   
  
-  if(!is.null(properties)){
-    idxs <- which(!properties %in% unique(alldf$Property))
+  if(!is.null(labcodes)){
+    idxs <- which(!labcodes %in% unique(alldf$Property))
     if(length(idxs) > 0){
       stop('One or more supplied properties are not available in the ANSIS response. Use the "getAvailableProperties" function to see what properties are available')
     }else{
-      cols <- properties
-      alldf <- alldf[alldf$Property %in% properties,]
+      cols <- labcodes
+      alldf <- alldf[alldf$Property %in% labcodes,]
     }
   }else if(!is.null(propertyType)){
     alldf <- alldf[alldf$PropertyType==propertyType,]
@@ -159,6 +255,7 @@ makeWideTable <- function(ansisObject, propertyType=NULL, properties=NULL, decod
   bt <- baseCols
   nt <- alldf
   for (i in 1:nrow(bt)) {
+    print(i)
     rec <- bt[i, ]
     sid <- rec$Site
     ud <- rec$UpperDepth

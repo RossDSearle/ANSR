@@ -13,8 +13,8 @@ merge_lists(list1, list2)
 
 fls <- c('C:/Temp/ansis/res_1.json','C:/Temp/ansis/res_2.json')
 
-l1 <- fromJSON('C:/Temp/ansis/res_1.json', simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
-l2 <- fromJSON('C:/Temp/ansis/res_2.json', simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+l1 <- jsonlite::fromJSON('C:/Temp/ansis/res_1.json', simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+l2 <- jsonlite::fromJSON('C:/Temp/ansis/res_2.json', simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
 
 ol <- list()
 #ol['$schema'] <- "https://anzsoildata.github.io/def-au-schema-json/schema/domain/2023-07-31/ansis.json"
@@ -30,7 +30,7 @@ orgs <- list()
 projs <- list()
 
 for (i in 1:length(fls)) {
-  jl <- fromJSON(fls[i], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+  jl <- jsonlite::fromJSON(fls[i], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
   
   for (j in 1:length(jl$included$persons)) {
     pid <- jl$included$persons[[j]]$id
@@ -38,7 +38,7 @@ for (i in 1:length(fls)) {
       pnl <- vector(mode = 'list', length=1)
       pnl[[1]] <- jl$included$persons[[j]]
       ol$included$persons <- append(ol$included$persons, pnl)
-      persons <- append(persons, oid)
+      persons <- append(persons, pid)
     }
   }
   
