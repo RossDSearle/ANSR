@@ -43,7 +43,16 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
 
     tokenTime <- authANSIS@TokenExpiry - Sys.time()
     cat(paste0('\n', crayon::bold(crayon::green('Authorisation successful')), '\n\nThis authorisation with ANSIS will remain valid for about ' , round(tokenTime), ' hours. You might have to reauthorise youself at some stage.\n' ))
-  }
+  
+    fls <- list.files(DataStorePath, pattern = '.rds$', recursive = F)
+    
+    
+   
+    
+    cat(paste0('\nLocal Datastore contains ', length(fls), ' query responses stored. Size = ', round(dir_size(DataStorePath)/10**6), " MB : Location - ", DataStorePath, "\n"))
+    
+    
+    }
 }
 
 ANSISAPIDocs <- function(){
@@ -249,7 +258,7 @@ apiPropertyDefinitions <- function(){
 
 
 
-apiDoQuery <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
+apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
                          startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
   
@@ -553,17 +562,21 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
 }
 
 
+#' Get a DSM Suitable Data Table
+#' @param Name ANSIS account username
+#' @param Description ANSIS account password
 
+#' @details  place holder
+#' @author Ross Searle
+#' @return logical
+#' @export
 
 getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL, labCode=NULL, startYear=1900, endYear=NULL){
   
   if(!checkIfAuthorised()){return(cat(''))}
-  
-  reqID <- apiSendQuery(minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL)
-  
- 
-  makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = '6A1')
-  
+    ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL)
+    cat('\nGenerating DSM Table....\n')
+    makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = '6A1')
 }
 
 
@@ -576,8 +589,7 @@ getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soil
 #' @author Ross Searle
 #' @return logical
 #' @export
-#'
-#'
+
 getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
   
   if(!checkIfAuthorised()){return(cat(''))}
@@ -599,6 +611,7 @@ getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
     tf <- tempfile(pattern = 'ANSIS_', fileext = '.html')
     cat(html, file = tf)
     browseURL(paste('file://', tf, sep='/'))
+    return(html)
     
   }
   

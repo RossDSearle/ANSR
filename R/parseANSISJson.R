@@ -1,7 +1,3 @@
-library(doParallel)
-library(doSNOW)
-
-
 
 # parseANSISJson
 #
@@ -15,13 +11,13 @@ library(doSNOW)
 #' @return list
 #' @export
 
-parseANSISJson <- function(ansisResponse, saveFilePath=NULL){
+parseANSISJson <- function(ansisResponse){
   
   if(class(ansisResponse)=='list'){
-    print('using R list')
+  #  print('using R list')
     r <- ansisResponse
   } else{
-    cat('Reading the JSON data .....\n\n')
+  #  cat('Reading the JSON data .....\n\n')
     sl <- jsonlite::fromJSON(ansisResponse , simplifyDataFrame = F)
     r <- sl
     
@@ -36,31 +32,30 @@ parseANSISJson <- function(ansisResponse, saveFilePath=NULL){
   
   
   if(length(r$data) <= 1){
-    return(parseANSISJsonSerial(r, saveFilePath))
+    return(parseANSISJsonSerial(r))
   }else{
-    return(parseANSISJsonParallel(r, saveFilePath))
+    return(parseANSISJsonParallel(r))
   }
 }
 
 
-parseANSISJsonSerial <- function(r, saveFilePath=NULL){
+parseANSISJsonSerial <- function(r){
 
 
   sol <- list()
   nsites <- length(r$data)
-  
+
   pb <-progress::progress_bar$new(
     format = "  Parsing ANSIS response :what [:bar] :percent in :elapsed",
     total = nsites, clear = FALSE, width= 100, show_after=1)
 
-  
+
   for (k in  1:nsites) {
-      
+
       s <- r$data[[k]]
       sid <- getSiteID(siteAsList=s)
-      
+
         pb$tick(tokens = list(what = stringr::str_pad(sid, 20, 'left')))
-     
       layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
       siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
 
@@ -76,66 +71,50 @@ parseANSISJsonSerial <- function(r, saveFilePath=NULL){
 
     }
 
-  
-  cat('\nCreating the ANSIS Data Object .....\n\n')
+
+#  cat('\nCreating the ANSIS Data Object .....\n\n')
   locsDF <- makeSitesLocationTableFromDataList(sol)
   jL <- list()
   jL$dfDenorm <- sol
   jL$locsDF <- locsDF
   jL$jsonList <- r
-  
+
   jL$CSV <- makeAllDataCSV(sol)
-  
-  if(!is.null(saveFilePath)){
-    bn <- basename(tools::file_path_sans_ext(saveFilePath))
-    outDir <- dirname(saveFilePath)
-    outFile <- paste0(outDir, '/', bn, '.rds')
-    #bn <- paste0("ANSISDataObject_", stringr::str_replace_all( Sys.time(), ":", "-" ))
-    if(!dir.exists(outDir)){
-      cat('Specified output directory does not exist so it will be created.\n')
-      dir.create(outDir, recursive = T)
-    }
-    saveRDS(jL, paste0(outFile))
-    cat(paste0('ANSIS Data Object saved to - ', outFile, '.\n'))
-  }
 
   return(jL)
 }
 
 
 
-parseANSISJsonParallel <- function(r, saveFilePath=NULL, numCPUs=NULL){
+parseANSISJsonParallel <- function(r, numCPUs=NULL){
   
   nsites <- length(r$data)
   
-  
   if(is.null(numCPUs)){
-    numCPUs = min(nsites, detectCores()-1)
+    numCPUs = min(nsites, parallel::detectCores()-1)
   }
-   # numCPUs=3
   
-  cat(paste0('Using ', numCPUs, ' CPUs'), sep='\n')
-  
-  cl <- makeSOCKcluster(numCPUs)
+  cl <- parallel::makePSOCKcluster(numCPUs)
   doSNOW::registerDoSNOW(cl)
   
  mps <- DataSets@mps
  CodesTable <- DataSets@CodesTable
   
+ `%dopar%` <- foreach::`%dopar%`
   
   pb <- txtProgressBar(max=nsites, style=3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress=progress)
-  pout <-  foreach(k=1:nsites, .options.snow=opts, .packages=c(), 
+  pout <-  foreach::foreach(k=1:nsites, .options.snow=opts, .packages=c(), 
                .export = c('getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
-                           'mps', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
+                           'mps', 'CodesTable', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
     
     sol2 <- list()
     s <- r$data[[k]]
     sid <- getSiteID(siteAsList=s)
     
-    layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s, mps=mps)
-    siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s, mps=mps)
+    layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
+    siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
     
     loc <- getSiteLocation(siteAsList=s)
     pl <- list()
@@ -151,7 +130,7 @@ parseANSISJsonParallel <- function(r, saveFilePath=NULL, numCPUs=NULL){
     }
   
   close(pb)
-  stopCluster(cl)
+  parallel::stopCluster(cl)
 
   sol <- do.call(c, pout)
   
@@ -165,18 +144,18 @@ parseANSISJsonParallel <- function(r, saveFilePath=NULL, numCPUs=NULL){
   
   jL$CSV <- makeAllDataCSV(sol)
   
-  if(!is.null(saveFilePath)){
-    bn <- basename(tools::file_path_sans_ext(saveFilePath))
-    outDir <- dirname(saveFilePath)
-    outFile <- paste0(outDir, '/', bn, '.rds')
-    #bn <- paste0("ANSISDataObject_", stringr::str_replace_all( Sys.time(), ":", "-" ))
-    if(!dir.exists(outDir)){
-      cat('Specified output directory does not exist so it will be created.\n')
-      dir.create(outDir, recursive = T)
-    }
-    saveRDS(jL, paste0(outFile))
-    cat(paste0('ANSIS Data Object saved to - ', outFile, '.\n'))
-  }
+  # if(!is.null(saveFilePath)){
+  #   bn <- basename(tools::file_path_sans_ext(saveFilePath))
+  #   outDir <- dirname(saveFilePath)
+  #   outFile <- paste0(outDir, '/', bn, '.rds')
+  #   #bn <- paste0("ANSISDataObject_", stringr::str_replace_all( Sys.time(), ":", "-" ))
+  #   if(!dir.exists(outDir)){
+  #     cat('Specified output directory does not exist so it will be created.\n')
+  #     dir.create(outDir, recursive = T)
+  #   }
+  #   saveRDS(jL, paste0(outFile))
+  #   cat(paste0('ANSIS Data Object saved to - ', outFile, '.\n'))
+  # }
   
  # print(nrow(jL$locsDF))
   
@@ -255,7 +234,6 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
   bt <- baseCols
   nt <- alldf
   for (i in 1:nrow(bt)) {
-    print(i)
     rec <- bt[i, ]
     sid <- rec$Site
     ud <- rec$UpperDepth

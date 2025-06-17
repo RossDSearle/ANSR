@@ -1,13 +1,13 @@
 
 checkIfAuthorised <- function(){
   
-  #if(!rlang::is_environment('pkg.env')){
+
   if(!exists('authANSIS')){
     cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
     return(F)
   }
 
-  #if(!pkg.env$Authorised){
+
   if(!authANSIS@Authorised){
     cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
     return(F)
@@ -16,7 +16,7 @@ checkIfAuthorised <- function(){
   ### reauthorise if the token has expired
   if(authANSIS@TokenExpiry <= Sys.time()){
     cat('\nReauthorising with ANSIS...\n')
-    apiAuthoriseMe(authANSIS@usr, authANSIS@pwd)
+    apiAuthoriseMe(authANSIS@usr, authANSIS@pwd, authANSIS@DataStorePath)
   }
   
   return(T)
@@ -161,4 +161,14 @@ mergeResponseFiles <- function(outDir){
 
 return(ol)
   
+}
+
+
+
+dir_size <- function(path, recursive = TRUE) {
+  stopifnot(is.character(path))
+  files <- list.files(path, full.names = T, recursive = recursive)
+  vect_size <- sapply(files, function(x) file.size(x))
+  size_files <- sum(vect_size)
+  size_files
 }

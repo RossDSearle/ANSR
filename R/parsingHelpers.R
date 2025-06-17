@@ -52,10 +52,12 @@ makeSiteCSV <- function(sl){
 # 
 # 
 # 
-parseANSISSiteLayersToDenormalisedTable <- function(siteAsList, mps){
+parseANSISSiteLayersToDenormalisedTable <- function(siteAsList){
 
+  
+ # mps <- DataSets@mps
+ # CodesTable <- DataSets@CodesTable
   mp <- unique(mps[mps$Domain!='' & mps$SchemaLocation=='Horizons', ]$Domain )
-
 
   slsl <- siteAsList[['siteVisit']][[1]]$soilProfile[[1]]$soilLayer
 
@@ -79,7 +81,7 @@ parseANSISSiteLayersToDenormalisedTable <- function(siteAsList, mps){
         }else if(isLabProperty(layer=l, prop=att)){
           alldf <- getLabVals(layer=l, prop=att, mps=mps, ud, ld, alldf)
         }
-      }
+      } 
     }
     return(alldf)
   }
@@ -102,6 +104,8 @@ isLabProperty <- function(layer, prop){
 getMorphVals <- function(layer, att, mps, ud, ld, alldf){
 
   l=layer
+  
+  # CodesTable <- DataSets@CodesTable
 
   schRoot <- '/SoilSite/data/siteVisit/soilProfile/soilLayer/'
 
@@ -178,8 +182,10 @@ getLabVals <- function(layer, prop, mps, ud, ld, alldf){
 }
 # 
 # 
-parseANSISSiteVistToDenormalisedTable <- function(siteAsList, mps){
+parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
 
+  
+  #mps <- DataSets@mps
   sv <- siteAsList
 
   alldf <- data.frame(property=character(), propType=character(), schemaPath=character(), value=character(), desc=character() )
@@ -261,14 +267,7 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList, mps){
 
 getSiteVisitVals <- function(val, att, alldf, domain=NULL, schemaPath='', mps ){
 
-
-  # if(is.null(testObject(val))){
-  #
-  #   hrr <- data.frame(property=att, propType='SiteVisit', field=of, value='', desc='')
-  #   alldf <- rbind(alldf, hrr)
-  #   return(alldf)
-  # }
-
+ # CodesTable <- DataSets@CodesTable
 
   fld <- mps[mps$Property==att, ]
   of <- paste0(fld$Property)

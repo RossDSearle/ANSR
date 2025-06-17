@@ -4,7 +4,7 @@
 \alias{apiAuthoriseMe}
 \title{Authorise ANSIS Session}
 \usage{
-apiAuthoriseMe(username, password)
+apiAuthoriseMe(username, password, DataStorePath)
 }
 \arguments{
 \item{username}{ANSIS account username}

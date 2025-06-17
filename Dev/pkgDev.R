@@ -154,4 +154,4 @@ showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 unique(ado$CSV$Property)
 
-getDSMtable(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=150, maxx=152, miny=-27, maxy=-25, propertyName='Concentration of organic Carbon')
+dsm <- getDSMtable(Name='ANSISDemo2', Description = "This is a description of the purpose of the query", minx=150, maxx=152, miny=-27, maxy=-25, propertyName='Concentration of organic Carbon')

@@ -9,14 +9,20 @@ source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/siteParsi
 source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/packageData.R')
 
 
-DataSets <<- new("DataSets",
-                 mps = getPackageData_mps(),
-                 CodesTable = getPackageData_CodesTable(),
-                 labcodesMapping = getPackageData_labcodesMapping()
-)
+
+mps <<- getPackageData_mps()
+CodesTable <<- getPackageData_CodesTable()
+CodesTable <<- getPackageData_CodesTable()
+
+
+# DataSets <<- new("DataSets",
+#                  mps = getPackageData_mps(),
+#                  CodesTable = getPackageData_CodesTable(),
+#                  labcodesMapping = getPackageData_labcodesMapping()
+# )
 
 #source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/startUpMessage.R')
 
 
 #apiAuthoriseMe(username = 'ross.searle@gmail.com', password = 'RossTest29')
-apiAuthoriseMe(username = 'ross.searle@csiro.au', password = cp)
+apiAuthoriseMe(username = 'ross.searle@csiro.au', password = cp, DataStorePath  = 'c:/temp/Ansis/Data' )

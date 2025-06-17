@@ -14,7 +14,7 @@ Description: More about what it does (maybe more than one line).
 License: None
 Encoding: UTF-8
 LazyData: true
-Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable
+Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, parallel
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 3.5)
