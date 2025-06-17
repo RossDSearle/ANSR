@@ -1,9 +1,3 @@
-#library(httr)
-#library(jsonlite)
-#library(jsonview)
-#library(stringr)
-#library(lubridate)
-
 
 username = 'ross.searle@csiro.au'
 password = ''
@@ -11,9 +5,7 @@ password = ''
 library(ANSR)
 
 
-#apiAuthoriseMe(username = 'ross.searle@gmail.com', password = pc, DataStorePath = 'c:/temp/Ansis/Data')
 apiAuthoriseMe(username = 'ross.searle@csiro.au', password = pc, DataStorePath = 'c:/temp/Ansis/Data')
-
 
 
 ####   Return a single site   #######
