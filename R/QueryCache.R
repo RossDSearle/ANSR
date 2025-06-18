@@ -155,7 +155,7 @@ showCacheFileSizes <- function(siteCount=F){
   fls <- list.files(pao, recursive = F, full.names = T)
   
   if(length(fls)==0){
-     paste0('There is no data in the local ANSIS data cache - ', authANSIS@DataStorePath)
+     cat(paste0('\nThere is no data in the local ANSIS data cache - ', authANSIS@DataStorePath, '\n\n'))
   }else{
   
   siteCnts <- vector(mode = 'numeric', length = length(fls))
@@ -182,7 +182,7 @@ showCacheFileSizes <- function(siteCount=F){
  
 }
 
-showCacheData <- function(queryName=NULL, verbose=T){
+showCachedQueries <- function(queryName=NULL, verbose=T){
   
   dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
   
@@ -243,7 +243,7 @@ dir_size <- function(path, recursive = TRUE) {
 }
 
 describeCache <- function(){
-  fls <- list.files(authANSIS@DataStorePath, pattern = '.rds$', recursive = F)
+  fls <- list.files(paste0(authANSIS@DataStorePath, '/ANSISDataObjects'), pattern = '.rds$', recursive = F)
   cat(paste0('\nLocal Datastore contains ', length(fls), ' query responses stored. Size = ', round(dir_size(authANSIS@DataStorePath)/10**6), " MB : Location - ", authANSIS@DataStorePath, "\n"))
 }
 

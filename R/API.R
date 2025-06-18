@@ -270,13 +270,11 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
       qo <- makeQueryObject(Name, Description, minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
       dataInCache <- checkCache(authANSIS=authANSIS, qObj=qo)
       
-      paste0('Data in Cache = ', dataInCache)
-      
   if(!is.null(dataInCache)){
     if(dataInCache == 'NewNameRequired'){
       return(NULL)
     }else{
-      paste0('Retrieving ANSIS data from the local cache....')
+      cat(paste0('\nRetrieving ANSIS data from the local cache....\n\n'))
       ado <- retrieveDataFromCache(dataInCache)
       return(ado)
     }
@@ -289,6 +287,10 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
       outDir <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', Name)
       if(!dir.exists(outDir)){dir.create(outDir, recursive = T, showWarnings = F)}
       sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
+      if(length(sitesJSN$data)==0){
+        cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
+        return(NULL)
+      }
       ado <- parseANSISJson(ansisResponse = sitesJSN)
       
         if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
