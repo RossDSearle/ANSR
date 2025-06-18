@@ -97,12 +97,19 @@ for (i in 0:4) {
 
 
 
+resp <- GET(url='https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/SingleSite?provider=CSIRO_CSIS&site=1',
+            add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+resp
+jsn <- content(resp, 'text', encoding = 'UTF8')
+listviewer::jsonedit(jsn)
+siteL <- head(fromJSON(jsn, simplifyDataFrame=F))
+siteL$data[[1]]$siteVisit[[1]]$soilProfile[[1]]$soilLayer[[1]]$colour[[1]]$result
 
 
 ####  Fetch a Single Site    ########
 
 resp <- GET(url='https://apim-ansis-hrm-test-ae.azure-api.net/sdr-public/v1/SingleSite?provider=CSIRO_CSIS&site=1',
-            add_headers(Authorization = paste0("Bearer ", tkn)))
+            add_headers(Authorization = paste0("Bearer ", auth$access_token)))
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 listviewer::jsonedit(jsn)

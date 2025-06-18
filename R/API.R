@@ -44,13 +44,12 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
     tokenTime <- authANSIS@TokenExpiry - Sys.time()
     cat(paste0('\n', crayon::bold(crayon::green('Authorisation successful')), '\n\nThis authorisation with ANSIS will remain valid for about ' , round(tokenTime), ' hours. You might have to reauthorise youself at some stage.\n' ))
   
-    fls <- list.files(DataStorePath, pattern = '.rds$', recursive = F)
+    dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
+    if(!file.exists(dbp)){
+      createQueryDB(dbp)
+    }
     
-    
-   
-    
-    cat(paste0('\nLocal Datastore contains ', length(fls), ' query responses stored. Size = ', round(dir_size(DataStorePath)/10**6), " MB : Location - ", DataStorePath, "\n"))
-    
+    describeCache()
     
     }
 }
@@ -80,12 +79,16 @@ apiGenerateToken <- function(user, pwd, verbose=F){
   if(verbose){cat('Authorising user....\n')}
   
   url <- 'https://b2cansishrmtestae.b2clogin.com/b2cansishrmtestae.onmicrosoft.com/B2C_1A_ROPC_AUTH/oauth2/v2.0/token?grant_type=password'
+  
+
   bdyL <- list()
   bdyL$username = user
-  bdyL$password = pwd
+  bdyL$password = URLencode(pwd, reserved = T)
   bdyL$scope = 'openid 44040d13-769e-4567-8bbe-b2109b42c939'
   bdyL$client_id = '44040d13-769e-4567-8bbe-b2109b42c939'
   bdyL$response_id = 'token id_token'
+  
+  #jsnb = jsonlite::toJSON(bdyL)
   
   resp <- httr::POST(url=url, body=bdyL, encode='form')
   jsn <- httr::content(resp, 'text', encoding = 'UTF8')
@@ -262,55 +265,37 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
                          startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
   
-  reqID <- apiSendQuery(minx, maxx, miny, maxy, 
-                        soilProperty, propertyName, labCode,
-                        startYear, endYear, provider, sites)
-  
-  apiQueryStatus_Monitor(reqID)
-  
-  op <- authANSIS@DataStorePath
-  if(!is.null(op)){
-    if(!is.null(Name)){
-     
-      of <- paste0(authANSIS@DataStorePath, '/', Name, '.rds')
-      od <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', Name)
-      dir.create(od, recursive = T, showWarnings = F)
-      outDir <- od
+  if(!checkIfAuthorised()){return(cat(''))}
+      
+      qo <- makeQueryObject(Name, Description, minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
+      dataInCache <- checkCache(authANSIS=authANSIS, qObj=qo)
+      
+      paste0('Data in Cache = ', dataInCache)
+      
+  if(!is.null(dataInCache)){
+    if(dataInCache == 'NewNameRequired'){
+      return(NULL)
+    }else{
+      paste0('Retrieving ANSIS data from the local cache....')
+      ado <- retrieveDataFromCache(dataInCache)
+      return(ado)
     }
-  }else{
-    outDir = NULL
-    of=NULL
-  }
-  sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
-  ado <- parseANSISJson(ansisResponse = sitesJSN)
-  
-  
-  if(!is.null(of)){
-      queryObject <- list()
-      queryObject$Name <- Name
-      queryObject$Description <- Description
-      queryObject$Time <- Sys.time()
-      queryObject$User <- authANSIS@usr
-      queryObject$Query$Bdy$Minx <- minx
-      queryObject$Query$Bdy$maxx <- maxx
-      queryObject$Query$Bdy$miny <- miny
-      queryObject$Query$Bdy$maxy <- maxy
-      queryObject$Query$soilProperty = soilProperty
-      queryObject$Query$propertyName = propertyName
-      queryObject$Query$labCode = labCode
-      queryObject$Query$startYear = startYear
-      queryObject$Query$endYear = endYear
-      queryObject$Query$provider = provider
-      queryObject$Query$sites = sites
-      queryObject$ANSISObject <- ado
-      
-      
-      saveRDS(queryObject, of)
+       
     
+  }else{
+    
+      reqID <- apiSendQuery(minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
+      apiQueryStatus_Monitor(reqID)
+      outDir <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', Name)
+      if(!dir.exists(outDir)){dir.create(outDir, recursive = T, showWarnings = F)}
+      sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
+      ado <- parseANSISJson(ansisResponse = sitesJSN)
+      
+        if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
+            addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
+        }
+      return(ado)
   }
-  
-  cat(paste0('\nQuery results where saved to - ', of, '\n'))
-  return(ado)
 }
   
 
@@ -575,8 +560,12 @@ getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soil
   
   if(!checkIfAuthorised()){return(cat(''))}
     ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL)
-    cat('\nGenerating DSM Table....\n')
-    makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = '6A1')
+  
+
+    if(!is.null(ado)){
+      cat('\nGenerating DSM Table....\n')
+        makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = '6A1')
+    }
 }
 
 

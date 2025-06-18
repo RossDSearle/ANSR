@@ -7,12 +7,27 @@ source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/apiHelper
 source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/parsingHelpers.R')
 source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/siteParsing.R')
 source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/packageData.R')
+source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/QueryCache.R')
 
 
 
 mps <<- getPackageData_mps()
 CodesTable <<- getPackageData_CodesTable()
 CodesTable <<- getPackageData_CodesTable()
+
+
+DataSets <<- new("DataSets",
+                 mps = getPackageData_mps(),
+                 CodesTable = getPackageData_CodesTable(),
+                 labcodesMapping = getPackageData_labcodesMapping()
+                 
+)
+
+Constants <<- new("Constants", 
+                  ANSISAPIurlV1 =  'https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1',
+                  ANSISAPIurlV2 =  'https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2',
+                  ANSISguiURL = 'https://app-ansis-hrm-portal-test-ae.azurewebsites.net/'
+)
 
 
 # DataSets <<- new("DataSets",

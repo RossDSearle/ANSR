@@ -165,10 +165,4 @@ return(ol)
 
 
 
-dir_size <- function(path, recursive = TRUE) {
-  stopifnot(is.character(path))
-  files <- list.files(path, full.names = T, recursive = recursive)
-  vect_size <- sapply(files, function(x) file.size(x))
-  size_files <- sum(vect_size)
-  size_files
-}
+
