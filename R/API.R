@@ -61,7 +61,12 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
 #' @return file
 #' @export
 ANSIS_APIDocs <- function(){
-  shell(paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf"), wait = F)
+  
+  if(Sys.info()["sysname"]=='Linux'){
+    readLines(paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf"))
+  }else{
+    shell(paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf"), wait = F)
+  }
 }
 
 #' Open a demo R Script
@@ -70,7 +75,16 @@ ANSIS_APIDocs <- function(){
 #' @return R script
 #' @export
 ANSIS_Demos <- function(){
-  shell(paste0(system.file(package = "ANSR"), "/extdata/ANSR_Demo.R"), wait = F)
+  
+  if(Sys.info()["sysname"]=='Linux'){
+   lns <-  readLines(paste0(system.file(package = "ANSR"), "/extdata/ANSR_Demo.R"))
+   lns <- paste0(lns, "\n")
+   cat(lns)
+   cat(crayon::cyan('\nCopy and paste the text above into an R script file\n\n'))
+  }else{
+  
+      shell(paste0(system.file(package = "ANSR"), "/extdata/ANSR_Demo.R"), wait = F)
+  }
 }
 
 

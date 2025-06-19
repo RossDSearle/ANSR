@@ -15,7 +15,7 @@ password = ''
 library(ANSR)
 
 
-apiAuthoriseMe(username = 'ross.searle@csiro.au', password = pc, DataStorePath = 'c:/temp/Ansis/Data')
+apiAuthoriseMe(username = 'ross.searle@csiro.au', password = password, DataStorePath = 'c:/temp/Ansis/Data')
 
 
 ####   Return a single site   #######
@@ -25,7 +25,7 @@ listviewer::jsonedit(ao)
 html <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "HTML") # need to be finished
 
 jsn <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "JSON")
-listviewer::jsonedit(ao)
+listviewer::jsonedit(jsn)
 
 ao <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "ANSISDataObject")
 makeWideTable(ao, propertyType = 'Lab')

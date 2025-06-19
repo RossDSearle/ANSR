@@ -65,8 +65,8 @@ apiDeleteAllQueries()
 minx=151.95;maxx=152;miny=-27;maxy=-26.9527
 
 tictoc::tic()
-qry <- makeQuery(minx=minx, maxx = maxx, miny = miny, maxy = maxy)
-reqID <- apiSendQuery(qryJSON = qry)
+qry <- ANSR:::makeQuery(minx=minx, maxx = maxx, miny = miny, maxy = maxy)
+reqID <- ANSR:::apiSendQuery(qryJSON = qry)
 apiQueryStatus_Monitor(reqID)
 tictoc::toc()
 
@@ -159,3 +159,15 @@ showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 unique(ado$CSV$Property)
 
 dsm <- getDSMtable(Name='ANSISDemo2', Description = "This is a description of the purpose of the query", minx=150, maxx=152, miny=-27, maxy=-25, propertyName='Concentration of organic Carbon')
+
+
+
+
+
+
+d <- apiDownloadQueryData('80ef7c41-807e-487d-bd43-dd308401b5ee', outDir = 'c:/temp/debug')
+
+parseANSISJson(d)
+
+
+
