@@ -25,6 +25,7 @@ makeQueryObject <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
   return(queryObject)
 }
 
+
 checkCache <- function(authANSIS, qObj){
   
    dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db')
@@ -57,7 +58,13 @@ checkCache <- function(authANSIS, qObj){
 }
 
 
-retrieveDataFromCache <- function(qName){
+#' Retrieve Data From Local Cache 
+#' @param qName The name of the query to retrieve data for
+#' @description When you do a query on the ANSIS data system using the apiGetANSISData() funtion, the data returned from ANSIS is cached locally. Data is returned from the local cache if you send a query with exactly the same parameters again.
+#' @author Ross Searle
+#' @return ANSIS Data Object - List
+#' @export
+cacheRetrieveData <- function(qName){
   
   f <- paste0(authANSIS@DataStorePath, '/ANSISDataObjects/', qName, '.rds')
   qo <- readRDS(f)
@@ -141,7 +148,13 @@ doAppend <- function(df, tableName=NULL){
   return(paste0(nrow(df), ' rows added'))
 }
 
-showQueryNames <- function(){
+#' Show Local Data Cache QueryNames 
+#' @description A list of the query names currently stored in the local data cache
+#' @author Ross Searle
+#' @return list
+#' @export
+#' 
+cacheShowQueryNames <- function(){
   
   dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
   sql <- paste0("SELECT Name From ANSISQueries" )
@@ -149,7 +162,15 @@ showQueryNames <- function(){
   return(df$Name)
 }
 
-showCacheFileSizes <- function(siteCount=F){
+
+#' Show Cache File Sizes
+#' @param siteCount If true this function will also show the number of sites returned by each query
+#' @description Shows a list of the files stored in the local data cahe and their file size
+#' @author Ross Searle
+#' @return ANSIS Data Object - List
+#' @export
+#' 
+cacheShowFileSizes <- function(siteCount=F){
   
   pao <- paste0(authANSIS@DataStorePath, '/ANSISDataObjects') 
   fls <- list.files(pao, recursive = F, full.names = T)
@@ -182,7 +203,16 @@ showCacheFileSizes <- function(siteCount=F){
  
 }
 
-showCachedQueries <- function(queryName=NULL, verbose=T){
+
+#' Show Cached Queries
+#' @param queryName If specified the function only returns information for that specific query
+#' @param verbose Show all information
+#' @description Shows information about cached queries
+#' @author Ross Searle
+#' @return data frame
+#' @export
+#' 
+cacheShowCachedQueries <- function(queryName=NULL, verbose=T){
   
   dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
   
@@ -205,7 +235,13 @@ showCachedQueries <- function(queryName=NULL, verbose=T){
   }
 }
 
-emptyCache <- function(queryName=NULL){
+#' Empty the Local Data Cache
+#' @param queryName If specified the function only deletes data for that specific query
+#' @description Deletes cached queries
+#' @author Ross Searle
+#' @return data frame
+#' @export
+cacheEmpty <- function(queryName=NULL){
   
   dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
 
@@ -242,7 +278,13 @@ dir_size <- function(path, recursive = TRUE) {
   size_files
 }
 
-describeCache <- function(){
+
+#' Describe Cache
+#' @description Summary information about the local data cache
+#' @author Ross Searle
+#' @return character
+#' @export
+cacheDescribe <- function(){
   fls <- list.files(paste0(authANSIS@DataStorePath, '/ANSISDataObjects'), pattern = '.rds$', recursive = F)
   cat(paste0('\nLocal Datastore contains ', length(fls), ' query responses stored. Size = ', round(dir_size(authANSIS@DataStorePath)/10**6), " MB : Location - ", authANSIS@DataStorePath, "\n"))
 }

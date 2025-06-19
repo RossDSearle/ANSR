@@ -1,5 +1,8 @@
 
-
+#' ANSIS Data Disclaimer
+#' @author Ross Searle
+#' @return character
+#' @export
 
 ANSIS_Disclaimer <- function(){
   
@@ -11,7 +14,10 @@ ANSIS_Disclaimer <- function(){
     )))
 }
 
-
+#' ANSIS Data System Citation
+#' @author Ross Searle
+#' @return character
+#' @export
 
 ANSIS_Citation <- function(){
   
@@ -19,6 +25,11 @@ ANSIS_Citation <- function(){
   
 }
 
+#' ANSIS Funding Ackowledgement
+#' @author Ross Searle
+#' @return character
+#' @export
+#' 
 ANSIS_Ackowledgement <- function(){
   h <- paste0(crayon::blue(crayon::bold( '\n############################  ACKNOWLEDGEMENT  ############################ \n\n')))
   prvs <- apiCatalogueSummary()
@@ -27,3 +38,30 @@ ANSIS_Ackowledgement <- function(){
   cat(paste0(h, crayon::blue('ANSIS is supported by funding through the Australian Government National Soil Strategy (Department of Agriculture, Fisheries and Forestry)\nin collaboration with CSIRO and partner organisations.\n\nPartners : ', p, '\n\n')))
 }
 
+
+#' ANSR Package Citation
+#' @author Ross Searle
+#' @return character
+#' @export
+#' 
+ANSR_PackageCitation <- function(){
+  citation('ANSR')
+}
+
+
+#' ANSIS Useful Info Resources
+#' @author Ross Searle
+#' @return character
+#' @export
+ANSIS_Info <- function(){
+  What <- c('ANSIS Website', 
+            'About',
+            'R package',
+            'CSIRO')
+  
+  Where <- c( 'https://ansis.net/',
+             'https://www.agriculture.gov.au/agriculture-land/farm-food-drought/natural-resources/soils/national-soil-action-plan/ansis',
+             'https://github.com/RossDSearle/ANSR',
+             'https://www.csiro.au/en/research/natural-environment/land/soil/ansis')
+data.frame(What, Where)
+  }

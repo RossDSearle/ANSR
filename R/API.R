@@ -49,15 +49,28 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
       createQueryDB(dbp)
     }
     
-    describeCache()
+    cacheDescribe()
     
     }
 }
 
+
+#' Get ANSIS API Documentation
+#' @details  Opens up the documentation of the ANSIS API upon wich this package has been developed
+#' @author Ross Searle
+#' @return file
+#' @export
 ANSISAPIDocs <- function(){
   shell(system.file(package = "ANSR", "/extdata/ANSIS_API_Docs.pdf"), wait = F)
 }
 
+
+#' Opens the ANSIS Website
+#' @details  Opens up the ANSIS Website
+#' @author Ross Searle
+#' @return url
+#' @export
+#' 
 ANSISOpenWebsite <- function(){
   browseURL('https://ansis.net/')
 }
@@ -132,6 +145,7 @@ apiCatalogueSummary  <- function(){
 #' @author Ross Searle
 #' @return dataframe
 #' @export
+#' 
 apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outputFormat='dataframe', ViewIt=F){
   
   if(is.null(poviderNames)){
@@ -207,8 +221,7 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outpu
 #' @author Ross Searle
 #' @return data frame
 #' @export
-#'
-#'
+
 
 apiPropertyDefinitions <- function(){
   
@@ -261,6 +274,25 @@ apiPropertyDefinitions <- function(){
 
 
 
+#' Get ANSIS Data
+#' @param Name A name for the query. Default is NULL.
+#' @param Description A description of the query.
+#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
+#' @param propertyName A specific form of the soil property.
+#' @param labCode Green Book standard lab method code.
+#' @param startYear Starting year of date range to return data for.
+#' @param endYear Finishing year of date range to return data for.
+#' @param provider The Data Provider to return data for.
+#' @param sites A list of ANSIS Site IDs to return data for.
+#' @details This is the main function to use to retrieve data form the ANSIS Data System. It wraps a number of individual functions contained in this package to process a query of the ANSIS Data System from start to finish. THis function sends a query to the ANSIS Data System, retrieves the data and massages the response into and ANSIS Data Object.
+#' @author Ross Searle
+#' @return ANSIS Data Object
+#' @export
+
 apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
                          startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
@@ -275,7 +307,7 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
       return(NULL)
     }else{
       cat(paste0('\nRetrieving ANSIS data from the local cache....\n\n'))
-      ado <- retrieveDataFromCache(dataInCache)
+      ado <- cacheRetrieveData(dataInCache)
       return(ado)
     }
        
@@ -302,7 +334,24 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
   
 
 
-
+#' Send a Query to the ANSIS API
+#' @param Name A name for the query. Default is NULL.
+#' @param Description A description of the query.
+#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
+#' @param propertyName A specific form of the soil property.
+#' @param labCode Green Book standard lab method code.
+#' @param startYear Starting year of date range to return data for.
+#' @param endYear Finishing year of date range to return data for.
+#' @param provider The Data Provider to return data for.
+#' @param sites A list of ANSIS Site IDs to return data for.
+#' @details Sends a query to the ANSIS Data System.
+#' @author Ross Searle
+#' @return Request ID
+#' @export
 apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
                          startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
@@ -327,58 +376,67 @@ apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
   return(reqID)
 }
 
-apiSendBigQuery <- function(minx=minx, maxx = maxx, miny = miny, maxy = maxy, slice=2){
-  
-  if(!checkIfAuthorised()){return(cat(''))}
-  
-  cat('Sending query to the ANSIS server....\n')
-  
-  ql <- vector(mode = 'list', length = slice*slice)
-  
-  inc <- (maxx - minx) / slice
-  minsx <- minx
-  minsy <- miny
- 
-  cnt = 1 
-  
-    for (i in 1:slice) {
-      #increment y
-      maxsy = minsy + inc
-      
-      for (j in 1:slice) {
-        #increment x
-        minsx = minsx
-        maxsx = minsx + inc
-        #print(paste0(minsx, " ", maxsx, " ", minsy, " ", maxsy))
-        
-       q <-  makeQuery(minx = minsx, maxx = maxsx, miny = minsy, maxy = maxsy)
-       ql[cnt] <- q
-       cnt=cnt+1
-       
-        minsx=maxsx
-      }
-      minsy=maxsy
-      minsx = minx
-    }
-  
-  
-  reqIDs <- vector(mode = 'list', length = slice*slice)  
-      for (i in 1:length(reqIDs)) {
-        cat('\rSubmitting query ',i, " of ", length(reqIDs))
-        resp <- httr::POST(url=paste0(Constants@ANSISAPIurlV2, '/create-query-request'),
-                           body=ql[[i]],
-                           httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-        jsn <- httr::content(resp, 'text', encoding = 'UTF8')
-        reqID <- stringr::str_split(jsn, ': ')[[1]][2]
-        if(is.null(reqID)){
-          stop(paste0('There is a problem with your query - ', qryJSON))
-        }
-        reqIDs[i] <- reqID
-      }
-  return(reqIDs)
-}
+# Was testing to see if this approach would speed up reponses from the ANSIS Server but alas it did not. The ANSIS system seems to be optimised to process queries at its end
+
+# apiSendBigQuery <- function(minx=minx, maxx = maxx, miny = miny, maxy = maxy, slice=2){
+#   
+#   if(!checkIfAuthorised()){return(cat(''))}
+#   
+#   cat('Sending query to the ANSIS server....\n')
+#   
+#   ql <- vector(mode = 'list', length = slice*slice)
+#   
+#   inc <- (maxx - minx) / slice
+#   minsx <- minx
+#   minsy <- miny
+#  
+#   cnt = 1 
+#   
+#     for (i in 1:slice) {
+#       #increment y
+#       maxsy = minsy + inc
+#       
+#       for (j in 1:slice) {
+#         #increment x
+#         minsx = minsx
+#         maxsx = minsx + inc
+#         #print(paste0(minsx, " ", maxsx, " ", minsy, " ", maxsy))
+#         
+#        q <-  makeQuery(minx = minsx, maxx = maxsx, miny = minsy, maxy = maxsy)
+#        ql[cnt] <- q
+#        cnt=cnt+1
+#        
+#         minsx=maxsx
+#       }
+#       minsy=maxsy
+#       minsx = minx
+#     }
+#   
+#   
+#   reqIDs <- vector(mode = 'list', length = slice*slice)  
+#       for (i in 1:length(reqIDs)) {
+#         cat('\rSubmitting query ',i, " of ", length(reqIDs))
+#         resp <- httr::POST(url=paste0(Constants@ANSISAPIurlV2, '/create-query-request'),
+#                            body=ql[[i]],
+#                            httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+#         jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+#         reqID <- stringr::str_split(jsn, ': ')[[1]][2]
+#         if(is.null(reqID)){
+#           stop(paste0('There is a problem with your query - ', qryJSON))
+#         }
+#         reqIDs[i] <- reqID
+#       }
+#   return(reqIDs)
+# }
 
 
+
+#' Monitor an ANSIS Query Status
+#' @param reqID get the status for this request ID
+#' @details  Monitors the status of an ANSIS query until it is finished
+#' @author Ross Searle
+#' @return ANSIS query status
+#' @export
 
 apiQueryStatus_Monitor <- function(reqID){
   
@@ -412,6 +470,14 @@ apiQueryStatus_Monitor <- function(reqID){
     return(reqID)
 }
 
+
+#' Get the Statuts of all ANSIS Queries
+#' @param statusTypes If specified just statuses of the given types are returned.
+#' @details Gets the status of all of your ANSIS Data System queries.
+#' @author Ross Searle
+#' @return data frame
+#' @export
+#' 
 apiQueryStatus_All <- function(statusTypes=NULL){
   
   if(!checkIfAuthorised()){return(cat(''))}
@@ -451,6 +517,13 @@ apiQueryStatus_All <- function(statusTypes=NULL){
 }
 
 
+#' Get an ANSIS Query Status
+#' @param reqID Request ID
+#' @details  Returns the status of a specific requiest ID.
+#' @author Ross Searle
+#' @return ANSIS query status
+#' @export
+#' 
 apiQueryStatus_Single <- function(reqID, verbose=F){
   
   if(!checkIfAuthorised()){return(cat(''))}
@@ -469,6 +542,13 @@ apiQueryStatus_Single <- function(reqID, verbose=F){
 }
 
 
+#' Delete an ANSIS Query
+#' @param reqID Request ID
+#' @details  Deletes (stops) a specific ANSIS Data System query
+#' @author Ross Searle
+#' @return ANSIS query status
+#' @export
+#'
 apiDeleteQuery <- function(reqID){
   
   if(!checkIfAuthorised()){return(cat(''))}
@@ -480,6 +560,12 @@ apiDeleteQuery <- function(reqID){
   
 }
 
+#' Delete all ANSIS Queries
+#' @details  Deletes (stops) all of your ANSIS Data System queries
+#' @author Ross Searle
+#' @return ANSIS query status
+#' @export
+#'
 apiDeleteAllQueries <- function(){
   
   queries <- apiQueryStatus_All()
@@ -504,6 +590,14 @@ cat(paste0('\nDeleted ', nrow(queries), ' queries\n'))
 }
 
 
+#' Download Query Data
+#' @param reqID Request ID
+#' @param outDir A directory path that the data will be downloaded to.
+#' @details Downloads the json query response files from the ANSIS server to your local machine. It also merges the single ANSIS response files into a single json file
+#' @author Ross Searle
+#' @return json ANSIS data
+#' @export
+#'
 
 apiDownloadQueryData <- function(reqID, outDir=NULL){
   
@@ -573,10 +667,10 @@ getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soil
 
 
 #' Get a single site
-#' @param username ANSIS account username
-#' @param password ANSIS account password
-#' @examples AuthoriseMe(username='Bob', password='123')
-#' @details  Before you can use this package you need to provide your ANSIS account credentials. If you do not already have a valid ANSIS user account please go to the ANSI website to creat an account.
+#' @param providerID ANSIS Data Provider ID
+#' @param siteID ANSIS site ID
+
+#' @details Returns all the data for a single site in a number of formats. These are raw json (JSON), a parsed object for easier access to data (ANSISDataObject), a flat csv file (CSV) or a HTML site description (HTML)
 #' @author Ross Searle
 #' @return logical
 #' @export
