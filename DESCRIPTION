@@ -9,9 +9,11 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
+Year: 2025
 Description: More about what it does (maybe more than one line).
     Continuation lines should be indented.
-License: None
+License: CCBy
+URL: https://github.com/RossDSearle/ANSR
 Encoding: UTF-8
 LazyData: true
 Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, parallel

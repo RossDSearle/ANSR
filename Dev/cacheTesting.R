@@ -3,6 +3,7 @@ dsm <- getDSMtable(Name='ANSISDemo3', Description = "This is a description of th
 
 showCachedQueries()
 showCacheFileSizes(T)
+describeCache()
 
 
 dsmrepeat <- getDSMtable(Name='ANSISDemoBig1', Description = "This is a description of the purpose of the query", minx=141.1, maxx=152.1, miny=-25.4, maxy=-25.1, propertyName='Concentration of organic Carbon')

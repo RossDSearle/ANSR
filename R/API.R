@@ -130,7 +130,7 @@ apiCatalogueSummary  <- function(){
 #' Returns a list of ANSIS site numbers along with locations and a list of properties for each site.
 #' 
 #' @author Ross Searle
-#' @return datafram
+#' @return dataframe
 #' @export
 apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outputFormat='dataframe', ViewIt=F){
   

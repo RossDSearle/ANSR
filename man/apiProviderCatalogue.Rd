@@ -21,7 +21,7 @@ apiProviderCatalogue(
 \item{ViewIt}{View the raw json output.}
 }
 \value{
-datafram
+dataframe
 }
 \description{
 Shows details for specified ANSIS data providers
