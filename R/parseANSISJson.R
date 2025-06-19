@@ -91,7 +91,8 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
   nsites <- length(r$data)
   
   if(is.null(numCPUs)){
-    numCPUs = min(nsites, parallel::detectCores()-1)
+    #numCPUs = min(nsites, parallel::detectCores()-1)
+    numCPUs = 4
   }
   
   cl <- parallel::makePSOCKcluster(numCPUs)

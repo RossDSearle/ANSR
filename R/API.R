@@ -113,7 +113,7 @@ apiGenerateToken <- function(user, pwd, verbose=F){
   #jsnb = jsonlite::toJSON(bdyL)
   
   resp <- httr::POST(url=url, body=bdyL, encode='form')
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   auth = jsonlite::fromJSON(jsn)
   
   if(verbose){
@@ -135,7 +135,7 @@ apiCatalogueSummary  <- function(){
   
   url <- paste0('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/catalogue-summary')
   resp <- httr::GET(url=url)
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   smry <- jsonlite::fromJSON(jsn, simplifyDataFrame = T)
   return(smry)
 }
@@ -171,7 +171,7 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outpu
       
       url <- paste0(Constants@ANSISAPIurlV1, '/provider/', p)
       resp <- httr::GET(url=url)
-      jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+      jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
       jdf <- jsonlite::fromJSON(jsn)
       
       
@@ -236,7 +236,7 @@ apiPropertyDefinitions <- function(){
   
   resp <- httr::GET(paste0(Constants@ANSISAPIurlV1, '/definitions'))
 
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   
   defs <- jsonlite::fromJSON(jsn)
   # defs[grepl("^0-0", names(defs))]
@@ -377,7 +377,7 @@ apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
   resp <- httr::POST(url=paste0(Constants@ANSISAPIurlV2, '/create-query-request'),
                body=qryJSON,
                httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   reqID <- stringr::str_split(jsn, ': ')[[1]][2]
   if(is.null(reqID)){
     stop(paste0('There is a problem with your query - ', qryJSON))
@@ -428,7 +428,7 @@ apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
 #         resp <- httr::POST(url=paste0(Constants@ANSISAPIurlV2, '/create-query-request'),
 #                            body=ql[[i]],
 #                            httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-#         jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+#         jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
 #         reqID <- stringr::str_split(jsn, ': ')[[1]][2]
 #         if(is.null(reqID)){
 #           stop(paste0('There is a problem with your query - ', qryJSON))
@@ -466,7 +466,7 @@ apiQueryStatus_Monitor <- function(reqID){
           
           resp <- httr::GET(url=paste0(Constants@ANSISAPIurlV2, '/get-query-request-status?requestId=', reqID),
                             httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-          jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+          jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
           status <- jsonlite::fromJSON(httr::content(resp, 'text', encoding = 'UTF8'), simplifyDataFrame = F)
           cat(length(status$sdrRequest$files))
 
@@ -495,7 +495,7 @@ apiQueryStatus_All <- function(statusTypes=NULL){
   
   stat <- paste0(Constants@ANSISAPIurlV2, '/get-all-query-requests-statuses')
   resp <- httr::GET(url=stat,  httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   
   if(jsn=='[]'){
     cat('\nNo queries in the queue.\n\n')
@@ -539,7 +539,7 @@ apiQueryStatus_Single <- function(reqID, verbose=F){
   
   stat <- paste0(Constants@ANSISAPIurlV2, '/get-query-request-status?requestId=', reqID)
   resp <- httr::GET(url=stat, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   rq <- jsonlite::fromJSON(jsn, simplifyDataFrame = T, simplifyVector = T)
   
   if(verbose){
@@ -564,7 +564,7 @@ apiDeleteQuery <- function(reqID){
   #tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
   url=paste0(Constants@ANSISAPIurlV2, '/cancel-query-request?requestId=', reqID)
   resp <- httr::POST(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   return(jsn)
   
 }
@@ -641,7 +641,7 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
     
         resp <- httr::GET(url=paste0(Constants@ANSISAPIurlV2, '/download-response?fileId=', fls[i] ),
                           httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-        jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+        jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
         cat(jsn, file = fn)
     }
   }
@@ -704,7 +704,7 @@ getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
   
   url <- paste0('https://apim-ansis-hrm-test-ae.azure-api.net/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
   resp <- httr::GET(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-  jsn <- httr::content(resp, 'text', encoding = 'UTF8')
+  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   if(format=='JSON'){
     return(jsn)
   }else if(format=='ANSISDataObject'){
