@@ -80,7 +80,7 @@ ANSIS_Demos <- function(){
    lns <-  readLines(paste0(system.file(package = "ANSR"), "/extdata/ANSR_Demo.R"))
    lns <- paste0(lns, "\n")
    cat(lns)
-   cat(crayon::cyan('\nCopy and paste the text above into an R script file\n\n'))
+   cat(crayon::bold(crayon::red('\nCopy and paste the text above into an R script file\n\n')))
   }else{
   
       shell(paste0(system.file(package = "ANSR"), "/extdata/ANSR_Demo.R"), wait = F)
