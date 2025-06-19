@@ -16,7 +16,7 @@ License: CCBy
 URL: https://github.com/RossDSearle/ANSR
 Encoding: UTF-8
 LazyData: true
-Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, parallel
+Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, parallel, RSQLite, DBI
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 3.5)
