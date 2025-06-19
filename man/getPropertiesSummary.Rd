@@ -18,10 +18,6 @@ Return a summary of the number of soil properties
 \details{
 Return a summary of the number of soil properties in an ANSIS R object as a dataframe
 }
-\examples{
-ao <- getAO()
-getPropertiesSummary(ansisObject=ao)
-}
 \author{
 Ross Searle
 }

@@ -60,8 +60,17 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
 #' @author Ross Searle
 #' @return file
 #' @export
-ANSISAPIDocs <- function(){
-  shell(system.file(package = "ANSR", "/extdata/ANSIS_API_Docs.pdf"), wait = F)
+ANSIS_APIDocs <- function(){
+  shell(paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf"), wait = F)
+}
+
+#' Open a demo R Script
+#' @details  Opens up a script in RStudio which demonstrates the functionality in the 'ANSR' package.
+#' @author Ross Searle
+#' @return R script
+#' @export
+ANSIS_Demos <- function(){
+  shell(paste0(system.file(package = "ANSR"), "/extdata/ANSR_Demo.R"), wait = F)
 }
 
 
@@ -71,7 +80,7 @@ ANSISAPIDocs <- function(){
 #' @return url
 #' @export
 #' 
-ANSISOpenWebsite <- function(){
+ANSIS_OpenWebsite <- function(){
   browseURL('https://ansis.net/')
 }
 
@@ -644,10 +653,19 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
 
 
 #' Get a DSM Suitable Data Table
-#' @param Name ANSIS account username
-#' @param Description ANSIS account password
+#' @param Name A name for the query. Default is NULL.
+#' @param Description A description of the query.
+#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
+#' @param propertyName A specific form of the soil property.
+#' @param labCode Green Book standard lab method code.
+#' @param startYear Starting year of date range to return data for.
+#' @param endYear Finishing year of date range to return data for.
 
-#' @details  place holder
+#' @details This is a convenience function which returns data from An ANSIS query in a format for typical Digital Soil Mapping workflows. ie Site IDs, Locations, Dates, Depths and Soil Property values in a wide table format.
 #' @author Ross Searle
 #' @return logical
 #' @export
@@ -657,10 +675,15 @@ getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soil
   if(!checkIfAuthorised()){return(cat(''))}
     ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL)
   
-
+if(is.null(labCode)){
+  lc=NULL
+}else{
+  lc = labCode
+}
+    
     if(!is.null(ado)){
       cat('\nGenerating DSM Table....\n')
-        makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = '6A1')
+        makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = lc)
     }
 }
 
@@ -670,7 +693,7 @@ getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soil
 #' @param providerID ANSIS Data Provider ID
 #' @param siteID ANSIS site ID
 
-#' @details Returns all the data for a single site in a number of formats. These are raw json (JSON), a parsed object for easier access to data (ANSISDataObject), a flat csv file (CSV) or a HTML site description (HTML)
+#' @details Returns all the data for a single site in a number of formats. These are, raw json (JSON), a parsed object for easier access to data (ANSISDataObject), a flat csv file (CSV) or a HTML site description (HTML)
 #' @author Ross Searle
 #' @return logical
 #' @export

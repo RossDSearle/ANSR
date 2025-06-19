@@ -2,7 +2,15 @@
 % Please edit documentation in R/parseANSISJson.R
 \name{makeWideTable}
 \alias{makeWideTable}
-\title{Format the ANSIS response into a wide table}
+\title{# getAO
+#
+#' Example Data
+#' @export
+getAO <- function(){
+  ao <- ansisExampleObject
+  return(ao)
+}
+Format the ANSIS response into a wide table}
 \usage{
 makeWideTable(ansisObject, propertyType = NULL, labcodes = NULL, decode = F)
 }
@@ -17,15 +25,19 @@ makeWideTable(ansisObject, propertyType = NULL, labcodes = NULL, decode = F)
 dataframe
 }
 \description{
+# getAO
+#
+#' Example Data
+#' @export
+getAO <- function(){
+  ao <- ansisExampleObject
+  return(ao)
+}
 Format the ANSIS response into a wide table
 }
 \details{
 You need to specify a parameter value for either 'propertyType' or 'properties'. 
 The data frame contains SiteID, location, depths and soil property fields
-}
-\examples{
-ao <- getAO()
-makeWideTable(ansisObject=ao, propertyType='Horizons')
 }
 \author{
 Ross Searle

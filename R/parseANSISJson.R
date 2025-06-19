@@ -163,14 +163,14 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
 }
 
 
-# getAO
-#
-#' Example Data
-#' @export
-getAO <- function(){
-  ao <- ansisExampleObject
-  return(ao)
-}
+#' # getAO
+#' #
+#' #' Example Data
+#' #' @export
+#' getAO <- function(){
+#'   ao <- ansisExampleObject
+#'   return(ao)
+#' }
 
 
 # makeWideTable
@@ -184,9 +184,6 @@ getAO <- function(){
 #' @details  You need to specify a parameter value for either 'propertyType' or 'properties'. 
 #' The data frame contains SiteID, location, depths and soil property fields
 #' @author Ross Searle
-#' @examples 
-#' ao <- getAO()
-#' makeWideTable(ansisObject=ao, propertyType='Horizons')
 #' @return dataframe
 #' @export
 
@@ -264,9 +261,7 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 
 #' @details Return all of the soil properties names that are available in the ANSIS R object
 #' @author Ross Searle
-#' @examples 
-#' ao <- getAO()
-#' getSiteData(ansisObject=ao, propertyType='Lab')
+
 #' @return dataframe
 #' @export
 
@@ -294,9 +289,6 @@ getAvailableProperties <- function(anisObject, propertyType=NULL){
 
 #' @details Return all data for a site from an ANSIS R object as a dataframe
 #' @author Ross Searle
-#' @examples 
-#' ao <- getAO()
-#' getSiteData(ansisObject=ao, siteID='CSIRO+503+BIF+DIEM40')
 #' @return dataframe
 #' @export
 
@@ -315,10 +307,6 @@ getSiteData <- function(ansisObject, siteID){
 
 #' @details Return all site locations from an ANSIS R object as a dataframe
 #' @author Ross Searle
-#' @examples 
-#' ao <- getAO()
-#' getSiteLocations(ansisObject=ao)
-#' @return dataframe
 #' @export
 
 getSiteLocations <- function(ansisObject){
@@ -336,9 +324,6 @@ getSiteLocations <- function(ansisObject){
 
 #' @details Return a summary of the number of soil properties in an ANSIS R object as a dataframe
 #' @author Ross Searle
-#' @examples 
-#' ao <- getAO()
-#' getPropertiesSummary(ansisObject=ao)
 #' @return dataframe
 #' @export
 

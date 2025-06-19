@@ -7,9 +7,9 @@
 getSingleSite(providerID, siteID, format = "ANSISDataObject")
 }
 \arguments{
-\item{username}{ANSIS account username}
+\item{providerID}{ANSIS Data Provider ID}
 
-\item{password}{ANSIS account password}
+\item{siteID}{ANSIS site ID}
 }
 \value{
 logical
@@ -18,10 +18,7 @@ logical
 Get a single site
 }
 \details{
-Before you can use this package you need to provide your ANSIS account credentials. If you do not already have a valid ANSIS user account please go to the ANSI website to creat an account.
-}
-\examples{
-AuthoriseMe(username='Bob', password='123')
+Returns all the data for a single site in a number of formats. These are, raw json (JSON), a parsed object for easier access to data (ANSISDataObject), a flat csv file (CSV) or a HTML site description (HTML)
 }
 \author{
 Ross Searle

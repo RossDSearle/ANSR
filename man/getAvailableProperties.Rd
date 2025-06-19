@@ -20,10 +20,6 @@ Return all data for a site
 \details{
 Return all of the soil properties names that are available in the ANSIS R object
 }
-\examples{
-ao <- getAO()
-getSiteData(ansisObject=ao, propertyType='Lab')
-}
 \author{
 Ross Searle
 }

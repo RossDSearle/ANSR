@@ -9,18 +9,11 @@ getSiteLocations(ansisObject)
 \arguments{
 \item{anisObject}{An ANSIS R object}
 }
-\value{
-dataframe
-}
 \description{
 Return all site locations
 }
 \details{
 Return all site locations from an ANSIS R object as a dataframe
-}
-\examples{
-ao <- getAO()
-getSiteLocations(ansisObject=ao)
 }
 \author{
 Ross Searle

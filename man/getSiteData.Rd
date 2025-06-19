@@ -20,10 +20,6 @@ Return all data for a site
 \details{
 Return all data for a site from an ANSIS R object as a dataframe
 }
-\examples{
-ao <- getAO()
-getSiteData(ansisObject=ao, siteID='CSIRO+503+BIF+DIEM40')
-}
 \author{
 Ross Searle
 }
