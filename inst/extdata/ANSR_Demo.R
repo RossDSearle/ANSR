@@ -9,8 +9,10 @@
 ############################################################################################## #
 
 
-username = 'ross.searle@csiro.au'
-password = ''
+username = 'YourANSISUserName'
+password = 'YourANSISPassword'
+#DataStorePath = '/home/kubeflow/Data'
+DataStorePath = 'c:/temp/ansis'
 
 library(ANSR)
 

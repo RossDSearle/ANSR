@@ -12,6 +12,9 @@ password = 'RossTest29'
 username = 'ross.searle@csiro.au'
 password = 'Rossiscool01'
 
+#DataStorePath = '/home/kubeflow/Data'
+DataStorePath = 'c:/temp/ansis'
+
 NP <- function(jsn){
   
   tf <- tempfile(fileext = '.json')
