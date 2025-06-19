@@ -1,13 +1,13 @@
 
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/Constants.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/ansisPropertCodes.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/parseANSISJson.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/API.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/apiHelpers.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/parsingHelpers.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/siteParsing.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/packageData.R')
-source('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/R/QueryCache.R')
+source('./R/Constants.R')
+source('./R/ansisPropertCodes.R')
+source('./R/parseANSISJson.R')
+source('./R/API.R')
+source('./R/apiHelpers.R')
+source('./R/parsingHelpers.R')
+source('./R/siteParsing.R')
+source('./R/packageData.R')
+source('./R/QueryCache.R')
 
 
 

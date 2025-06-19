@@ -32,6 +32,8 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
     
     expire <- Sys.time() + as.numeric(tkn$expires_in)
     if(!dir.exists(DataStorePath)){dir.create(DataStorePath, recursive = T)}
+    if(!dir.exists(paste0(DataStorePath, '/ANSISDataObjects'))){dir.create(paste0(DataStorePath, '/ANSISDataObjects'), recursive = T)}
+    if(!dir.exists(paste0(DataStorePath, '/RawJSONResponses'))){dir.create(paste0(DataStorePath, '/RawJSONResponses'), recursive = T)}
     
     authANSIS <<- new("Authorisation", 
                 usr = username, 
@@ -63,7 +65,7 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
 ANSIS_APIDocs <- function(){
   
   if(Sys.info()["sysname"]=='Linux'){
-    readLines(paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf"))
+    cat("\nWe can't open the pdf file for you in this Linux environment but you can find it at - ", crayon::red( paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf\n")))
   }else{
     shell(paste0(system.file(package = "ANSR"), "/extdata/ANSIS_HTTP_API.pdf"), wait = F)
   }

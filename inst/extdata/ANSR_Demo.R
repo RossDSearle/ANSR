@@ -15,7 +15,7 @@ password = ''
 library(ANSR)
 
 
-apiAuthoriseMe(username = 'ross.searle@csiro.au', password = password, DataStorePath = 'c:/temp/Ansis/Data')
+apiAuthoriseMe(username = 'ross.searle@csiro.au', password = password, DataStorePath = '/home/kubeflow/Data')
 
 
 ####   Return a single site   #######
@@ -44,7 +44,7 @@ showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 ####  Get a wide format soil property table with location and site info - commonly used in modelling applications
 
-dsm <- getDSMtable(Name='ANSISDemo3', Description = "This is a description of the purpose of the query", minx=150, maxx=152, miny=-27, maxy=-25, propertyName='Concentration of organic Carbon')
+dsm <- getDSMtable(Name='ANSISDemo4', Description = "This is a description of the purpose of the query", minx=151.6, maxx=152, miny=-25.6, maxy=-25, propertyName='Concentration of organic Carbon')
 head(dsm)
 
 
