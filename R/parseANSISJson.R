@@ -11,7 +11,7 @@
 #' @return list
 #' @export
 
-parseANSISJson <- function(ansisResponse){
+parseANSISJson <- function(ansisResponse, numCPUs=NULL){
   
   if(class(ansisResponse)=='list'){
   #  print('using R list')
@@ -34,7 +34,7 @@ parseANSISJson <- function(ansisResponse){
   if(length(r$data) <= 1){
     return(parseANSISJsonSerial(r))
   }else{
-    return(parseANSISJsonParallel(r))
+    return(parseANSISJsonParallel(r, numCPUs))
   }
 }
 
@@ -91,9 +91,12 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
   nsites <- length(r$data)
   
   if(is.null(numCPUs)){
-    #numCPUs = min(nsites, parallel::detectCores()-1)
-    numCPUs = 4
+    numCPUs = min(nsites, parallel::detectCores()-1)
+  }else{
+    
   }
+  numCPUs <- min(20, numCPUs)
+  cat(paste0('\n\nNumber of CPUs = ', numCPUs, '. A maximum of 20 allowed.'))
   
   cl <- parallel::makePSOCKcluster(numCPUs)
   doSNOW::registerDoSNOW(cl)

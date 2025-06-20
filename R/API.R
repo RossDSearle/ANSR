@@ -320,7 +320,7 @@ apiPropertyDefinitions <- function(){
 
 apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
-                         startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
+                         startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
   
   if(!checkIfAuthorised()){return(cat(''))}
       
@@ -348,7 +348,7 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
         cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
         return(NULL)
       }
-      ado <- parseANSISJson(ansisResponse = sitesJSN)
+      ado <- parseANSISJson(ansisResponse = sitesJSN, numCPUs=numCPUs)
       
         if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
             addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
@@ -686,10 +686,10 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
 #' @return logical
 #' @export
 
-getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL, labCode=NULL, startYear=1900, endYear=NULL){
+getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL, labCode=NULL, startYear=1900, endYear=NULL, numCPUs=NULL){
   
   if(!checkIfAuthorised()){return(cat(''))}
-    ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL)
+    ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL, numCPUs=numCPUs)
   
 if(is.null(labCode)){
   lc=NULL

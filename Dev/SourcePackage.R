@@ -40,5 +40,9 @@ Constants <<- new("Constants",
 
 
 #apiAuthoriseMe(username = 'ross.searle@gmail.com', password = 'RossTest29')
+
 #apiAuthoriseMe(username = 'ross.searle@csiro.au', password = cp, DataStorePath  = 'c:/temp/Ansis/Data' )
-apiAuthoriseMe(username = 'ross.searle@csiro.au', password = cp, DataStorePath  = '/home/kubeflow/Data' )
+#apiAuthoriseMe(username = 'ross.searle@csiro.au', password = cp, DataStorePath  = '/home/kubeflow/Data' )
+
+#apiAuthoriseMe(username = 'ross.searle@csiro.au', password = password, DataStorePath  = 'c:/temp/Ansis/Data' )
+
