@@ -53,11 +53,11 @@ showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 ####  Get a wide format soil property table with location and site info - commonly used in modelling applications
 
-dsm <- getDSMtable(Name='ANSISDemo432', Description = "This is a description of the purpose of the query", minx=151.4, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
+dsm <- getDSMtable(Name='ANSISDemo4321', Description = "This is a description of the purpose of the query", minx=151.33, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
 head(dsm)
 
 ####  Now run the same query again to see the local data cache in action
-dsm <- getDSMtable(Name='ANSISDemo5', Description = "This is a description of the purpose of the query", minx=151.5, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
+dsm <- getDSMtable(Name='ANSISDemo5', Description = "This is a description of the purpose of the query", minx=151.33, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
 head(dsm)
 
 
