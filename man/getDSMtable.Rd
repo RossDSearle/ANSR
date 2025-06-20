@@ -15,7 +15,8 @@ getDSMtable(
   propertyName = NULL,
   labCode = NULL,
   startYear = 1900,
-  endYear = NULL
+  endYear = NULL,
+  numCPUs = NULL
 )
 }
 \arguments{

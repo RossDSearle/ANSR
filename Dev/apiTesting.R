@@ -25,14 +25,21 @@ NP <- function(jsn){
 }
   
 
+
+resp <- GET('https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/Authorise', add_headers(username=username, password=password))
+jsn <- content(resp, 'text', encoding = 'UTF-8')
+jl <- fromJSON(jsn)
+tkn <- jl$access_token
+
 ############# Catalogue Summary  ############ 
 
 ### Returns a JSON array of metadata describing the available data catalogues, including ID, file size and the time of the last update. 
 
 
 resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/catalogue-summary')
+resp <- GET('https://apim-ansis-app-prod-ac.azure-api.net/site-catalogue/v1/catalogue-summary')
 resp
-jsn <- content(resp, 'text', encoding = 'UTF8')
+jsn <- content(resp, 'text', encoding = 'UTF-8')
 listviewer::jsonedit(jsn)
 
 head(fromJSON(jsn))
@@ -44,6 +51,7 @@ head(fromJSON(jsn))
 ### Returns the catalogue for the provider specified in the {ID} parameter in JSON format. Valid IDs are provided via the “name” field of the Catalogue Summary methods response. 
 
 resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/provider/CSIRO_CSIS')
+resp <- GET('https://apim-ansis-app-prod-ac.azure-api.net/site-catalogue/v1/provider/CSIRO_CSIS')
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 listviewer::jsonedit(jsn)
@@ -56,6 +64,7 @@ head(fromJSON(jsn))
 ### Returns a JSON object/dictionary documenting all valid enumerations used in the properties field used in ANSIS provider catalogues. Each enumeration is documented with its standard ANSIS json code/path, the property name and the ID of child members of that property. 
 
 resp <- GET('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/definitions')
+resp <- GET('https://apim-ansis-app-prod-ac.azure-api.net/site-catalogue/v1/definitions')
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 listviewer::jsonedit(jsn)
@@ -95,10 +104,18 @@ for (i in 0:4) {
 }
 
 
+https://apim-ansis-app-prod-ac.azure-api.net/sdr-public/v1/SingleSite
 
 
-resp <- GET(url='https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/SingleSite?provider=CSIRO_CSIS&site=1',
-            add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+################################   HERE   ##############################################
+resp <- GET('https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/Authorise', add_headers(username=username, password=password))
+jsn <- content(resp, 'text', encoding = 'UTF-8')
+jl <- fromJSON(jsn)
+tkn <- jl$access_token
+
+
+resp <- GET(url='https://apim-ansis-app-prod-ac.azure-api.net/sdr-public/v1/SingleSite?provider=CSIRO_CSIS&site=1',
+            add_headers(Authorization = paste0("Bearer ", tkn)))
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 listviewer::jsonedit(jsn)
@@ -108,8 +125,8 @@ siteL$data[[1]]$siteVisit[[1]]$soilProfile[[1]]$soilLayer[[1]]$colour[[1]]$resul
 
 ####  Fetch a Single Site    ########
 
-resp <- GET(url='https://apim-ansis-hrm-test-ae.azure-api.net/sdr-public/v1/SingleSite?provider=CSIRO_CSIS&site=1',
-            add_headers(Authorization = paste0("Bearer ", auth$access_token)))
+resp <- GET(url='https://apim-ansis-app-prod-ac.azure-api.net/sdr-public/v2/SingleSite?provider=CSIRO_CSIS&site=1',
+            add_headers(Authorization = paste0("Bearer ", tkn)))
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 listviewer::jsonedit(jsn)
@@ -135,6 +152,10 @@ qry <- makeQuery(minx, maxx, miny, maxy, startYear=1900, endYear=NULL)
 resp <- POST(url='https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/create-query-request',
             body=qry,
             add_headers(Authorization = paste0("Bearer ", tkn)))
+
+resp <- POST(url='https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/create-query-request',
+             body=qry,
+             add_headers(Authorization = paste0("Bearer ", tkn)))
 resp
 jsn <- content(resp, 'text', encoding = 'UTF8')
 
@@ -150,6 +171,8 @@ h <- apiDownloadResponse('20604d96-a3fb-4fea-ad6e-47332c522e91')
 
 
 
+resp <- httr::GET(url=paste0('https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/get-query-request-status?requestId=', reqID),
+            add_headers(Authorization = paste0("Bearer ", tkn)))
 
 
 
@@ -160,8 +183,12 @@ files <- vector(mode = 'character', length = length(status$sdrRequest$files))
 for (i in 1:length(status$sdrRequest$files)) {
   resp <- GET(url=paste0('https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2/download-response?fileId=', status$sdrRequest$files[i] ),
               add_headers(Authorization = paste0("Bearer ", tkn)))
+  
+  resp <- GET(url=paste0('https://apim-ansis-app-prod-ac.azure-api.net/ansis-external-api/query-requests/v2/download-response?fileId=ae8862c9-32f2-44ed-9cfd-d88a04bc86df'),
+              add_headers(Authorization = paste0("Bearer ", tkn)))
+  
   resp
-  jsn <- content(resp, 'text', encoding = 'UTF8')
+  jsn <- content(resp, 'text', encoding = 'UTF-8')
   #down <- fromJSON(jsn, simplifyDataFrame = F)
   files[[i]] <- jsn
   

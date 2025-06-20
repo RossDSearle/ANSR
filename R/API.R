@@ -6,57 +6,6 @@
 ################################################################# #
 
 
-#' Authorise ANSIS Session
-#' @param username ANSIS account username
-#' @param password ANSIS account password
-#' @examples AuthoriseMe(username='Bob', password='123')
-#' @details  Before you can use this package you need to provide your ANSIS account credentials. If you do not already have a valid ANSIS user account please go to the ANSI website to creat an account.
-#' @author Ross Searle
-#' @return logical
-#' @export
-#'
-#'
-apiAuthoriseMe <- function(username, password, DataStorePath){
-  
-  tkn <-apiGenerateToken(username, password, verbose=T)
-
-  if(is.null(tkn)){
-    cat(paste0('\n', crayon::bold(crayon::red('Authorisation was not successful')), '\n\nThese are not valid ANSIS account credentials.\nPlease check your username and password supplied.\n\n',
-               'If you do not already have a valid ANSIS user account please go to ', Constants@ANSISguiURL, '\n\n' ))
-
-  }else if(!is.null(tkn$error)){
-    cat(paste0('\n', crayon::bold(crayon::red(tkn$error)), '\n\n', tkn$error_description, '\nPlease check your username and password supplied.\n\n',
-               'If you do not already have a valid ANSIS user account please go to ', 'Bobs place', '\n\n' ))
-    
-  }else{
-    
-    expire <- Sys.time() + as.numeric(tkn$expires_in)
-    if(!dir.exists(DataStorePath)){dir.create(DataStorePath, recursive = T)}
-    if(!dir.exists(paste0(DataStorePath, '/ANSISDataObjects'))){dir.create(paste0(DataStorePath, '/ANSISDataObjects'), recursive = T)}
-    if(!dir.exists(paste0(DataStorePath, '/RawJSONResponses'))){dir.create(paste0(DataStorePath, '/RawJSONResponses'), recursive = T)}
-    
-    authANSIS <<- new("Authorisation", 
-                usr = username, 
-                pwd = password,  
-                Authorised = T,
-                Token = tkn$access_token,
-                TokenExpiry=expire,
-                DataStorePath=DataStorePath)
-
-    tokenTime <- authANSIS@TokenExpiry - Sys.time()
-    cat(paste0('\n', crayon::bold(crayon::green('Authorisation successful')), '\n\nThis authorisation with ANSIS will remain valid for about ' , round(tokenTime), ' hours. You might have to reauthorise youself at some stage.\n' ))
-  
-    dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
-    if(!file.exists(dbp)){
-      createQueryDB(dbp)
-    }
-    
-    cacheDescribe()
-    
-    }
-}
-
-
 #' Get ANSIS API Documentation
 #' @details  Opens up the documentation of the ANSIS API upon wich this package has been developed
 #' @author Ross Searle
@@ -102,6 +51,59 @@ ANSIS_OpenWebsite <- function(){
 
 
 
+
+
+#' Authorise ANSIS Session
+#' @param username ANSIS account username
+#' @param password ANSIS account password
+#' @examples AuthoriseMe(username='Bob', password='123')
+#' @details  Before you can use this package you need to provide your ANSIS account credentials. If you do not already have a valid ANSIS user account please go to the ANSI website to creat an account.
+#' @author Ross Searle
+#' @return logical
+#' @export
+#'
+#'
+apiAuthoriseMe <- function(username, password, DataStorePath){
+  
+  tkn <-apiGenerateToken(username, password, verbose=T)
+  
+  if(is.null(tkn)){
+    cat(paste0('\n', crayon::bold(crayon::red('Authorisation was not successful')), '\n\nThese are not valid ANSIS account credentials.\nPlease check your username and password supplied.\n\n',
+               'If you do not already have a valid ANSIS user account please go to ', Constants@ANSISguiURL, '\n\n' ))
+    
+  }else if(!is.null(tkn$error)){
+    cat(paste0('\n', crayon::bold(crayon::red(tkn$error)), '\n\n', tkn$error_description, '\nPlease check your username and password supplied.\n\n',
+               'If you do not already have a valid ANSIS user account please go to ', crayon::bold(crayon::red('portal.ansis.net')), '\n\n' ))
+    
+  }else{
+    
+    expire <- Sys.time() + as.numeric(tkn$expires_in)
+    if(!dir.exists(DataStorePath)){dir.create(DataStorePath, recursive = T)}
+    if(!dir.exists(paste0(DataStorePath, '/ANSISDataObjects'))){dir.create(paste0(DataStorePath, '/ANSISDataObjects'), recursive = T)}
+    if(!dir.exists(paste0(DataStorePath, '/RawJSONResponses'))){dir.create(paste0(DataStorePath, '/RawJSONResponses'), recursive = T)}
+    
+    authANSIS <<- new("Authorisation", 
+                      usr = username, 
+                      pwd = password,  
+                      Authorised = T,
+                      Token = tkn$access_token,
+                      TokenExpiry=expire,
+                      DataStorePath=DataStorePath)
+    
+    tokenTime <- authANSIS@TokenExpiry - Sys.time()
+    cat(paste0('\n', crayon::bold(crayon::green('Authorisation successful')), '\n\nThis authorisation with ANSIS will remain valid for about ' , round(tokenTime), ' hours. You might have to reauthorise youself at some stage.\n' ))
+    
+    dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db') 
+    if(!file.exists(dbp)){
+      createQueryDB(dbp)
+    }
+    
+    cacheDescribe()
+    
+  }
+}
+
+
 #' Generate an Authorisation token
 #' @param user ANSIS account username
 #' @param pwd ANSIS account password
@@ -116,19 +118,21 @@ apiGenerateToken <- function(user, pwd, verbose=F){
   
   if(verbose){cat('Authorising user....\n')}
   
-  url <- 'https://b2cansishrmtestae.b2clogin.com/b2cansishrmtestae.onmicrosoft.com/B2C_1A_ROPC_AUTH/oauth2/v2.0/token?grant_type=password'
+  # url <- 'https://b2cansishrmtestae.b2clogin.com/b2cansishrmtestae.onmicrosoft.com/B2C_1A_ROPC_AUTH/oauth2/v2.0/token?grant_type=password'
+  # 
+  # 
+  # bdyL <- list()
+  # bdyL$username = user
+  # bdyL$password = URLencode(pwd, reserved = T)
+  # bdyL$scope = 'openid 44040d13-769e-4567-8bbe-b2109b42c939'
+  # bdyL$client_id = '44040d13-769e-4567-8bbe-b2109b42c939'
+  # bdyL$response_id = 'token id_token'
+  # 
+  # #jsnb = jsonlite::toJSON(bdyL)
+  # 
+  # resp <- httr::POST(url=url, body=bdyL, encode='form')
   
-
-  bdyL <- list()
-  bdyL$username = user
-  bdyL$password = URLencode(pwd, reserved = T)
-  bdyL$scope = 'openid 44040d13-769e-4567-8bbe-b2109b42c939'
-  bdyL$client_id = '44040d13-769e-4567-8bbe-b2109b42c939'
-  bdyL$response_id = 'token id_token'
-  
-  #jsnb = jsonlite::toJSON(bdyL)
-  
-  resp <- httr::POST(url=url, body=bdyL, encode='form')
+  resp <- httr::GET(paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/Authorise'), httr::add_headers(username=user, password=pwd))
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   auth = jsonlite::fromJSON(jsn)
   
@@ -149,7 +153,7 @@ apiGenerateToken <- function(user, pwd, verbose=F){
 
 apiCatalogueSummary  <- function(){
   
-  url <- paste0('https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1/catalogue-summary')
+  url <- paste0(Constants@ANSISAPIurlProd,'/site-catalogue/v1/catalogue-summary')
   resp <- httr::GET(url=url)
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   smry <- jsonlite::fromJSON(jsn, simplifyDataFrame = T)
@@ -175,7 +179,7 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outpu
   
   if(is.null(poviderNames)){
     prvs <- apiCatalogueSummary()
-    poviderNames <- prvs$name
+    poviderNames <- prvs$id
   }
   
   cdf <- data.frame()
@@ -185,7 +189,7 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outpu
       p <- poviderNames[i]
       cat(paste0('Getting catalogue information for ', p, '....\n'))
       
-      url <- paste0(Constants@ANSISAPIurlV1, '/provider/', p)
+      url <- paste0(Constants@ANSISAPIurlProd,'/site-catalogue/v1/provider/', p)
       resp <- httr::GET(url=url)
       jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
       jdf <- jsonlite::fromJSON(jsn)
@@ -250,7 +254,7 @@ apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outpu
 
 apiPropertyDefinitions <- function(){
   
-  resp <- httr::GET(paste0(Constants@ANSISAPIurlV1, '/definitions'))
+  resp <- httr::GET(paste0(Constants@ANSISAPIurlProd, '/site-catalogue/v1/definitions'))
 
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   
@@ -390,7 +394,7 @@ apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
   qryJSON <- makeQuery(minx=minx, maxx = maxx, miny = miny, maxy = maxy, ansisProperties=ansisProperties,
                               startYear=startYear, endYear=endYear, provider=provider, sites=sites)
   
-  resp <- httr::POST(url=paste0(Constants@ANSISAPIurlV2, '/create-query-request'),
+  resp <- httr::POST(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/create-query-request'),
                body=qryJSON,
                httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
@@ -480,10 +484,10 @@ apiQueryStatus_Monitor <- function(reqID){
         if(iter > 4){
           iter=1
           
-          resp <- httr::GET(url=paste0(Constants@ANSISAPIurlV2, '/get-query-request-status?requestId=', reqID),
+          resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/get-query-request-status?requestId=', reqID),
                             httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
           jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
-          status <- jsonlite::fromJSON(httr::content(resp, 'text', encoding = 'UTF8'), simplifyDataFrame = F)
+          status <- jsonlite::fromJSON(jsn, simplifyDataFrame = F)
           cat(length(status$sdrRequest$files))
 
           if(status$sdrRequest$status=='Completed'){
@@ -509,7 +513,7 @@ apiQueryStatus_All <- function(statusTypes=NULL){
   
   stats <- c('Processing', 'Completed', 'Queued', 'Error')
   
-  stat <- paste0(Constants@ANSISAPIurlV2, '/get-all-query-requests-statuses')
+  stat <- paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/get-all-query-requests-statuses')
   resp <- httr::GET(url=stat,  httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   
@@ -553,7 +557,7 @@ apiQueryStatus_Single <- function(reqID, verbose=F){
   
   if(!checkIfAuthorised()){return(cat(''))}
   
-  stat <- paste0(Constants@ANSISAPIurlV2, '/get-query-request-status?requestId=', reqID)
+  stat <- paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/get-query-request-status?requestId=', reqID)
   resp <- httr::GET(url=stat, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   rq <- jsonlite::fromJSON(jsn, simplifyDataFrame = T, simplifyVector = T)
@@ -578,7 +582,7 @@ apiDeleteQuery <- function(reqID){
   
   if(!checkIfAuthorised()){return(cat(''))}
   #tkn <- apiGenerateToken(user = authANSIS$usr, pwd=authANSIS$pwd)
-  url=paste0(Constants@ANSISAPIurlV2, '/cancel-query-request?requestId=', reqID)
+  url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/cancel-query-request?requestId=', reqID)
   resp <- httr::POST(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   return(jsn)
@@ -655,7 +659,7 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
     fn <- paste0(outDir, '/',fls[i], '.json')
     if(!file.exists(fn)){
     
-        resp <- httr::GET(url=paste0(Constants@ANSISAPIurlV2, '/download-response?fileId=', fls[i] ),
+        resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
                           httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
         jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
         cat(jsn, file = fn)
@@ -718,7 +722,7 @@ getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
   
   if(!checkIfAuthorised()){return(cat(''))}
   
-  url <- paste0('https://apim-ansis-hrm-test-ae.azure-api.net/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
+  url <- paste0(Constants@ANSISAPIurlProd, '/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
   resp <- httr::GET(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
   if(format=='JSON'){

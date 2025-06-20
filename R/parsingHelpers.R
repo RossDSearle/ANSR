@@ -38,9 +38,6 @@ makeSiteCSV <- function(sl){
   odf <- data.frame()
 
   sid <- s$Site
-  #head(s$data)
-  # sdf <- data.frame(ud='', ld='', property='Location', propType='SiteVisit', field=c('Longitude, Latitude'),  value=c(s$X, s$Y), desc='')
-  # odf <- rbind(odf, sdf)
   svdf <- data.frame(ud='', ld='', property='SiteVisit', propType='SiteVisit',field=s$siteVisitTable$property, value=s$siteVisitTable$value, desc=s$siteVisitTable$desc)
   odf <- rbind(odf, svdf)
   odf <- rbind(odf, s$data)
@@ -48,10 +45,11 @@ makeSiteCSV <- function(sl){
   colnames(sitedf) <- c("Site", "Longitude", "Latitude", "UpperDepth", "LowerDepth", "Group", "PropertyType", "Property", "Value", "Description" )
   return(sitedf)
 }
-# 
-# 
-# 
-# 
+
+
+
+
+
 parseANSISSiteLayersToDenormalisedTable <- function(siteAsList){
 
   

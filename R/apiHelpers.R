@@ -1,4 +1,27 @@
 
+
+#' Get Properties in an ANSIS Response
+#' @param ANSISObject An ANSIS data object
+#' @param PropertyType Used to filter the response on a property 
+#' @details  Returns the status of a specific requiest ID.
+#' @author Ross Searle
+#' @return ANSIS query status
+#' @export
+#' 
+
+getPropertiesInANSISResponse <- function(ANSISObject, PropertyType=NULL){
+  
+  d <- ANSISObject$CSV
+  if(!is.null(PropertyType)){
+    return(unique(d$Property)) 
+  }else{
+    d2 <- d[d$PropertyType==PropertyType, ]
+    return(unique(d2$Property)) 
+  }
+}
+
+
+
 checkIfAuthorised <- function(){
   
 

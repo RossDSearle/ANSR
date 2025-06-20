@@ -142,26 +142,12 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
   cat('\nCreating the ANSIS Data Object .....\n\n')
   locsDF <- makeSitesLocationTableFromDataList(sol)
   jL <- list()
- # jL$dfDenorm <- sol
+
   jL$locsDF <- locsDF
   jL$jsonList <- r
   
-  jL$CSV <- makeAllDataCSV(sol)
+  jL$CSV <- makeAllDataCSV(allsites=sol)
   
-  # if(!is.null(saveFilePath)){
-  #   bn <- basename(tools::file_path_sans_ext(saveFilePath))
-  #   outDir <- dirname(saveFilePath)
-  #   outFile <- paste0(outDir, '/', bn, '.rds')
-  #   #bn <- paste0("ANSISDataObject_", stringr::str_replace_all( Sys.time(), ":", "-" ))
-  #   if(!dir.exists(outDir)){
-  #     cat('Specified output directory does not exist so it will be created.\n')
-  #     dir.create(outDir, recursive = T)
-  #   }
-  #   saveRDS(jL, paste0(outFile))
-  #   cat(paste0('ANSIS Data Object saved to - ', outFile, '.\n'))
-  # }
-  
- # print(nrow(jL$locsDF))
   
   return(jL)
 }

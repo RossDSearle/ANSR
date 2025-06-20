@@ -10,8 +10,8 @@
 )
   
   Constants <<- new("Constants", 
-                    ANSISAPIurlV1 =  'https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1',
-                    ANSISAPIurlV2 =  'https://apim-ansis-hrm-test-ae.azure-api.net/ansis-external-api/query-requests/v2',
+                    ANSISAPIurlDev =  'https://apim-ansis-hrm-test-ae.azure-api.net/site-catalogue/v1',
+                    ANSISAPIurlProd =  'https://apim-ansis-app-prod-ac.azure-api.net',
                     ANSISguiURL = 'https://app-ansis-hrm-portal-test-ae.azurewebsites.net/'
   )
      

@@ -17,7 +17,8 @@ apiGetANSISData(
   startYear = NULL,
   endYear = NULL,
   provider = NULL,
-  sites = NULL
+  sites = NULL,
+  numCPUs = NULL
 )
 }
 \arguments{

@@ -12,8 +12,14 @@ password = 'RossTest29'
 username = 'ross.searle@csiro.au'
 password = 'Rossiscool01'
 
+username = 'ross.searle+@gmail.com'
+password = "Rtsh5gena792j@"
+
 #DataStorePath = '/home/kubeflow/Data'
 DataStorePath = 'c:/temp/ansis'
+
+username = 'ansisuser3@gmail.com'
+password = "4Nsisuser"
 
 NP <- function(jsn){
   

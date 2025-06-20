@@ -23,8 +23,8 @@ setClass("Authorisation",
 
 setClass("Constants", 
          slots = c(
-           ANSISAPIurlV1 = "character", 
-           ANSISAPIurlV2 = "character",
+           ANSISAPIurlDev = "character", 
+           ANSISAPIurlProd = "character",
            ANSISguiURL = 'character'      
          )
 )
