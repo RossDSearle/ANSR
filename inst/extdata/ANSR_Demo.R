@@ -78,7 +78,7 @@ head(dsm)
 apiAuthoriseMe(username = username, password = password, DataStorePath = DataStorePath)
 
 # define a bounding box for the query
-minx=151.1;maxx=152;miny=-27.5;maxy=-26.2
+minx=151.5;maxx=152;miny=-27.5;maxy=-27
 
 # select the ANSIS Property Name for the data you wish to retrieve
 propertyName='Concentration of organic Carbon'
