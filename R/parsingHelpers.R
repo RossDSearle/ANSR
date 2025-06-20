@@ -191,8 +191,8 @@ parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
   alldf <- data.frame(property=character(), propType=character(), schemaPath=character(), value=character(), desc=character() )
 
   alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$value, att='S_ID', alldf, schemaPath='/SoilSite/data/scopedIdentifier/value', mps=mps)
-  alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$authority, att='AGENCY_CODE', alldf, schemaPath='/SoilSite/data/scopedIdentifier/authority', mps, mps=mps)
-  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$usedProcedure, att='O_TYPE', alldf, schemaPath='/SoilSite/data/siteVisit/soilProfile/usedProcedure', mps, mps=mps)
+  alldf <- getSiteVisitVals(val=sv$scopedIdentifier[[1]]$authority, att='AGENCY_CODE', alldf, schemaPath='/SoilSite/data/scopedIdentifier/authority', mps=mps)
+  alldf <- getSiteVisitVals(val=sv$siteVisit[[1]]$soilProfile[[1]]$usedProcedure, att='O_TYPE', alldf, schemaPath='/SoilSite/data/siteVisit/soilProfile/usedProcedure', mps=mps)
 
   dt <-  sv$siteVisit[[1]]$startedAtTime
 

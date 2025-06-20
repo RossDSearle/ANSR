@@ -9,6 +9,13 @@
 ############################################################################################## #
 
 
+#### If you don't have the "ANSR" package already installed on your machine, install it as per below
+
+library(devtools)
+devtools::install_github("RossDSearle/ANSR", auth_token = "YourGitHubAuthToken")
+
+
+
 username = 'YourANSISUserName'
 password = 'YourANSISPassword'
 #DataStorePath = '/home/kubeflow/Data'
@@ -17,7 +24,7 @@ DataStorePath = 'c:/temp/ansis'
 library(ANSR)
 
 
-apiAuthoriseMe(username = 'ross.searle@csiro.au', password = password, DataStorePath = '/home/kubeflow/Data')
+apiAuthoriseMe(username = username, password = password, DataStorePath = DataStorePath)
 
 
 ####   Return a single site   #######
@@ -38,7 +45,7 @@ makeWideTable(ao, propertyType = 'SiteVisit')
 
 ####  Chemical and Physical soil property mappings
 showAnsisPropertyCodes()
-showAnsisPropertyCodes(soilProperty = 'Nitrogen')
+showAnsisPropertyCodes(soilProperty = 'Chloride')
 showAnsisPropertyCodes(labCode = '6B2')
 showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
@@ -46,9 +53,12 @@ showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 ####  Get a wide format soil property table with location and site info - commonly used in modelling applications
 
-dsm <- getDSMtable(Name='ANSISDemo4', Description = "This is a description of the purpose of the query", minx=151.6, maxx=152, miny=-25.6, maxy=-25, propertyName='Concentration of organic Carbon')
+dsm <- getDSMtable(Name='ANSISDemo432', Description = "This is a description of the purpose of the query", minx=151.4, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
 head(dsm)
 
+####  Now run the same query again to see the local data cache in action
+dsm <- getDSMtable(Name='ANSISDemo5', Description = "This is a description of the purpose of the query", minx=151.5, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
+head(dsm)
 
 
 
@@ -65,7 +75,7 @@ head(dsm)
 # first step - Authorise with ANSIS. This sends back a token which is passed in with all the subsequent calls to the ANSIA API
 
 # The package needs to know where we can save the ANSIS data when it is downloaded - this is given in the "DataStorePath" parameter
-apiAuthoriseMe(username = 'ross.searle@csiro.au', password = pc, DataStorePath = 'c:/temp/Ansis/Data')
+apiAuthoriseMe(username = username, password = password, DataStorePath = DataStorePath)
 
 # define a bounding box for the query
 minx=151.1;maxx=152;miny=-27.5;maxy=-26.2
@@ -143,7 +153,7 @@ str(ado$jsonList, max.level = 1)
 apiDeleteQuery(reqID = reqID)
 
 # or delete all your queries
-
+apiDeleteAllQueries()
 
 
 ##########  So there you have it. ANSIS data to use however you like. Free and to your door.
