@@ -16,7 +16,7 @@ getAnsisPropertyCodes <- function(soilProperty=NULL, propertyName=NULL, labCode=
     
   }else if(!is.null(soilProperty)){
     
-    idxs <- which(DataSets@labcodesMapping$soilProperty  == soilProperty)
+    idxs <- which(DataSets@labcodesMapping$Property  == soilProperty)
     ansisProperties <- DataSets@labcodesMapping$ANSISCode[idxs] 
     return(unique(ansisProperties))
     
@@ -57,7 +57,7 @@ showAnsisPropertyCodes <- function(soilProperty=NULL, propertyName=NULL, labCode
     
   }else if(!is.null(soilProperty)){
     
-    idxs <- which(DataSets@labcodesMapping$soilProperty == soilProperty)
+    idxs <- which(DataSets@labcodesMapping$Property == soilProperty)
     ansisProperties <- DataSets@labcodesMapping[idxs,]    
     
   }else if(!is.null(propertyName)){

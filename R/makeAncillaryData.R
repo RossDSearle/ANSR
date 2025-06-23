@@ -11,5 +11,5 @@
 # dput(CodesTable, file='c:/temp/CodesTable.txt')
 
 
- # df <- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/inst/extdata/LabANSISSchemaMethodsMappings.csv')
- # dput(df, file='c:/temp/LabANSISSchemaMethodsMappings.txt')
+#  df <- read.csv('C:/Users/sea084/OneDrive - CSIRO/RossRCode/Git/Packages/ANSR/inst/extdata/shemaMappings.csv')
+ # dput(df, file='c:/temp/shemaMappings.txt')

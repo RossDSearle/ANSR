@@ -322,10 +322,15 @@ apiPropertyDefinitions <- function(){
 #' @return ANSIS Data Object
 #' @export
 
-apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
+apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
                          startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
-  
+
+# labcode parameter removed
+# apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL, 
+#                             soilProperty=NULL, propertyName=NULL, 
+#                             startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
+#   
   if(!checkIfAuthorised()){return(cat(''))}
       
       qo <- makeQueryObject(Name, Description, minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
@@ -691,6 +696,7 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
 #' @export
 
 getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL, labCode=NULL, startYear=1900, endYear=NULL, numCPUs=NULL){
+#getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL,  startYear=1900, endYear=NULL, numCPUs=NULL){
   
   if(!checkIfAuthorised()){return(cat(''))}
     ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL, numCPUs=numCPUs)

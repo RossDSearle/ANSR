@@ -7,6 +7,7 @@ library(lubridate)
 
 username = 'ross.searle@gmail.com'
 password = 'RossTest29'
+DataStorePath = 'c:/temp/ansis'
 
 
 username = 'ross.searle@csiro.au'
