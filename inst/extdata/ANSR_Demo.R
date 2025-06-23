@@ -46,27 +46,24 @@ makeWideTable(ao, propertyType = 'SiteVisit')
 ####  Chemical and Physical soil property mappings
 showAnsisPropertyCodes()
 showAnsisPropertyCodes(soilProperty = 'Chloride')
-showAnsisPropertyCodes(labCode = '6B2')
 showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 
 
 ####  Get a wide format soil property table with location and site info - commonly used in modelling applications
 
-<<<<<<< HEAD
-dsm <- getDSMtable(Name='ANSISDemo432e', Description = "This is a description of the purpose of the query", minx=151.45, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
+
+dsm <- getDSMtable(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=151.4, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
 head(dsm)
+nrow(dsm)
 
 ####  Now run the same query again to see the local data cache in action
-dsm <- getDSMtable(Name='ANSISDemo5s', Description = "This is a description of the purpose of the query", minx=151.45, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
-=======
-dsm <- getDSMtable(Name='ANSISDemo4321', Description = "This is a description of the purpose of the query", minx=151.33, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
-head(dsm)
+dsm <- getDSMtable(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=151.4, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
 
-####  Now run the same query again to see the local data cache in action
-dsm <- getDSMtable(Name='ANSISDemo5', Description = "This is a description of the purpose of the query", minx=151.33, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
->>>>>>> 44cc75f825d8ade6e142898b2a68ccc27d3faf56
-head(dsm)
+
+
+
+
 
 
 
@@ -162,6 +159,20 @@ apiDeleteQuery(reqID = reqID)
 
 # or delete all your queries
 apiDeleteAllQueries()
+
+
+
+
+##### and finally, some ANSIS metadata functions
+
+# Get the available property groups
+apiPropertyDefinitions()
+
+# Lists the ANSIS data providers
+apiCatalogueSummary()
+
+# Shows details for specified ANSIS data providers
+apiProviderCatalogue(poviderNames = 'CSIRO_CSIS')
 
 
 ##########  So there you have it. ANSIS data to use however you like. Free and to your door.
