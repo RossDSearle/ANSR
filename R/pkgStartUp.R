@@ -23,7 +23,7 @@
   
   msg <- paste0(crayon::bold( crayon::green( paste0("\n\n#########     Welcome to the ANSR Package     ##########\n\n"))),
                 crayon::bold( crayon::blue(paste0('This package is designed for interacting with the Australian National Soil Information System (ANSIS).
-                                                  \nBefore any of the API functions will work you need to authorise access using the AuthoriseMe() function\nusing your ANSIS account Username and Password.\n\n'), paste0(crayon::magenta('Visit https://ansis.net\n\n')))))
+                                                  \nBefore any of the API functions will work you need to authorise access using the apiAuthoriseMe() function\nusing your ANSIS account Username and Password. You also need to supply a DataStore path.\n\n'), paste0(crayon::magenta('Visit https://ansis.net\n\n')))))
   
 
 
