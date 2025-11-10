@@ -30,12 +30,44 @@ parseANSISJson <- function(ansisResponse, numCPUs=NULL){
   }
   
   
+  cat('\nParsing the ANSIS JSON Response .....\n\n')
+  
   
   if(length(r$data) <= 1){
     return(parseANSISJsonSerial(r))
   }else{
     return(parseANSISJsonParallel(r, numCPUs))
   }
+}
+
+
+parseANSISJson2 <- function(jsnDir, numCPUs=NULL){
+  
+  # if(class(ansisResponse)=='list'){
+  #   #  print('using R list')
+  #   r <- ansisResponse
+  # } else{
+  #   #  cat('Reading the JSON data .....\n\n')
+  #  # sl <- jsonlite::fromJSON(ansisResponse , simplifyDataFrame = F)
+  #  #  r <- sl
+  #   
+  #   # isansis <- r$`$schema`
+  #   # if(is.null(isansis)){
+  #   #   stop('This is not a valid ANSIS JSON response')
+  #   # }else if (isansis!='https://anzsoildata.github.io/def-au-schema-json/schema/domain/2023-07-31/ansis.json'){
+  #   #   stop('This is not a valid ANSIS JSON response')
+  #   # }
+  # }
+  
+  
+  cat('\nParsing the ANSIS JSON Response .....\n\n')
+  
+  
+  # if(length(r$data) <= 1){
+  #   return(parseANSISJsonSerial(r))
+  # }else{
+    return(parseANSISJsonParallel2(jsnDir, numCPUs))
+  # }
 }
 
 
@@ -109,7 +141,7 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
   pb <- txtProgressBar(max=nsites, style=3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress=progress)
-  pout <-  foreach::foreach(k=1:nsites, .options.snow=opts, .packages=c(), 
+  pout <-  foreach::foreach(k=1:nsites, .options.snow=opts, .packages=c('stringr'), 
                .export = c('getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
                            'mps', 'CodesTable', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
     
@@ -136,21 +168,119 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
   close(pb)
   parallel::stopCluster(cl)
 
+
   sol <- do.call(c, pout)
-  
+
   
   cat('\nCreating the ANSIS Data Object .....\n\n')
-  locsDF <- makeSitesLocationTableFromDataList(sol)
+  
+  cat('\nMaking the Site Locations table .....\n\n')
+  locsDF <- makeSitesLocationTableFromDataList(dl=sol)
   jL <- list()
 
   jL$locsDF <- locsDF
   jL$jsonList <- r
-  
+  cat('\nMaking the CSV data table .....\n\n')
   jL$CSV <- makeAllDataCSV(allsites=sol)
   
   
   return(jL)
 }
+
+
+
+parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
+  
+  #fls <- list.files(jsnDir, pattern = '.jsn$')
+  fls <- list.files(jsnDir, pattern = '.json$', full.names = T)
+  
+  
+  nfiles <- length(fls)
+  
+  if(is.null(numCPUs)){
+    numCPUs = min(nfiles, parallel::detectCores()-1)
+  }else{
+    
+  }
+  numCPUs <- min(20, numCPUs)
+  cat(paste0('\n\nNumber of CPUs = ', numCPUs, '. A maximum of 20 allowed.'))
+  
+  cl <- parallel::makePSOCKcluster(numCPUs)
+  doSNOW::registerDoSNOW(cl)
+  
+  mps <- DataSets@mps
+  CodesTable <- DataSets@CodesTable
+  
+  `%dopar%` <- foreach::`%dopar%`
+  
+  pb <- txtProgressBar(max=nfiles, style=3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts <- list(progress=progress)
+  pout <-  foreach::foreach(k=1:nfiles, .options.snow=opts, .packages=c('stringr'), 
+                            .export = c('normaliseSite', 'getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
+                                        'mps', 'CodesTable', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
+                                          
+                                          
+                                          r <- jsonlite::fromJSON(fls[k], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+                                          # tictoc::tic()
+                                          # sol2 <- lapply(r$data, normaliseSite)
+                                          # tictoc::toc()
+                                          
+                                        #for (i in 1:length(fls)) {
+                                        #  r <- jsonlite::fromJSON(fls[k], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
+                                        #ol$data <- append(ol$data,jl$data)
+                                            
+                                          sol2 <- list()
+
+                                         for (i in 1:length(r$data )) {
+                                         
+                                          s <- r$data[[i]]
+                                          sid <- getSiteID(siteAsList=s)
+
+                                          layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
+                                          siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
+
+                                          loc <- getSiteLocation(siteAsList=s)
+                                          pl <- list()
+                                          pl$Site=sid
+                                          pl$X=loc$X
+                                          pl$Y=loc$Y
+                                          pl$data <-  layersTable
+                                          pl$siteVisitTable <- siteVistTable
+                                        
+
+                                          sol2[[sid]] <- pl
+
+                                         }
+
+                                          return(sol2)
+                                       
+                                        }
+  
+  close(pb)
+  parallel::stopCluster(cl)
+  
+  
+  sol <- do.call(c, pout)
+  
+  
+  cat('\nCreating the ANSIS Data Object .....\n\n')
+  
+  cat('\nMaking the Site Locations table .....\n\n')
+  locsDF <- makeSitesLocationTableFromDataList(dl=sol)
+  jL <- list()
+  
+  jL$locsDF <- locsDF
+  #jL$jsonList <- r
+  cat('\nMaking the CSV data table .....\n\n')
+  jL$CSV <- makeAllDataCSV(allsites=sol)
+  
+  
+  return(jL)
+}
+
+
+
 
 
 #' # getAO

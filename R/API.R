@@ -352,12 +352,14 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
       apiQueryStatus_Monitor(reqID)
       outDir <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', Name)
       if(!dir.exists(outDir)){dir.create(outDir, recursive = T, showWarnings = F)}
-      sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
-      if(length(sitesJSN$data)==0){
+      #sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
+      od <- apiDownloadQueryData2(reqID, outDir = outDir )
+      
+      if(is.null(od)){
         cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
         return(NULL)
       }
-      ado <- parseANSISJson(ansisResponse = sitesJSN, numCPUs=numCPUs)
+      ado <- parseANSISJson2(jsnDir = outDir, numCPUs=numCPUs)
       
         if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
             addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
@@ -674,6 +676,54 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
  jl <-  mergeResponseFiles(outDir)
  
  return(jl)
+}
+
+
+apiDownloadQueryData2 <- function(reqID, outDir=NULL){
+  
+  if(!checkIfAuthorised()){return(cat(''))}
+  
+  qStat <- apiQueryStatus_Single(reqID = reqID,  verbose=T)
+  fls <- qStat$sdrRequest$files
+  
+  if(length(fls)==0){
+    return(NULL)
+  }
+  
+  cat('Downloading data from ANSIS server....\n')
+  
+  
+  if(is.null(outDir)){
+    outDir <- paste0(tempdir(), '/tmp_', as.numeric(Sys.time()))
+  }else{
+    if(!dir.exists(outDir)){
+      dir.create(outDir, recursive = T)
+    }else{
+      prevfls <- list.files(outDir, recursive = T, full.names = T)
+      unlink(prevfls)
+    }
+  }
+  print(outDir)
+  
+  files <- vector(mode = 'character', length = length(fls))
+  for (i in 1:length(fls)) {
+    
+    if(length(fls)>10){
+      cat(paste0('\rDownloading ', i, ' of ', length(fls) ))
+    }
+    fn <- paste0(outDir, '/',fls[i], '.json')
+    if(!file.exists(fn)){
+      
+      resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
+                        httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+      jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
+      cat(jsn, file = fn)
+    }
+  }
+  
+ # jl <-  mergeResponseFiles(outDir)
+  
+  return(outDir)
 }
 
 

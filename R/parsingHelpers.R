@@ -1,6 +1,26 @@
 # 
 # 
 # 
+
+
+normaliseSite <- function(s){
+  #s <- r$data[[i]]
+  sid <- getSiteID(siteAsList=s)
+  
+  layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
+  siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
+  
+  loc <- getSiteLocation(siteAsList=s)
+  pl <- list()
+  pl$Site=sid
+  pl$X=loc$X
+  pl$Y=loc$Y
+  pl$data <-  layersTable
+  pl$siteVisitTable <- siteVistTable
+  return(pl)
+}
+
+
 getSiteID <- function(siteAsList){
 
   scopeID <- siteAsList$scopedIdentifier[[1]]$value
@@ -21,13 +41,19 @@ dumpCSV <- function(anisObject){
 # 
 # 
 makeAllDataCSV <- function(allsites){
+  # tic()
+  # alldf <- data.frame()
+  # for (i in 1:length(allsites)) {
+  #   s <- allsites[[i]]
+  #   sitedf<- makeSiteCSV(sl=s)
+  #   alldf <- rbind(alldf, sitedf)
+  # }
+  # toc()
+  
 
-  alldf <- data.frame()
-  for (i in 1:length(allsites)) {
-    s <- allsites[[i]]
-    sitedf<- makeSiteCSV(sl=s)
-    alldf <- rbind(alldf, sitedf)
-  }
+  sites <- pbapply::pbsapply(allsites, makeSiteCSV, simplify = F)
+ # sites <- sapply(allsites, makeSiteCSV, simplify = F)
+  alldf <- dplyr::bind_rows(sites)
 
   return(alldf)
 }
@@ -358,27 +384,30 @@ getSiteLocation <- function(siteAsList){
   ol$Y <- as.numeric(bits3[2])
   return(ol)
 }
-# 
+
+getSiteLocation2 <- function(dl){
+  sid <- dl$Site
+  x <- dl$X
+  y <- dl$Y
+  df <-  data.frame(sid=sid, X=x, Y=y)
+  return(df)
+}
+ 
 makeSitesLocationTableFromDataList <- function(dl){
 
-  locDF <- data.frame(sid=character(), X=numeric(), Y=numeric())
-
-  for (i in 1:length(dl)) {
-    sid <- dl[[i]]$Site
-    x <- dl[[i]]$X
-    y <- dl[[i]]$Y
-    df <-  data.frame(sid=sid, X=x, Y=y)
-    locDF <- rbind(locDF, df)
-  }
+  # locDF <- data.frame(sid=character(), X=numeric(), Y=numeric())
+  # 
+  # for (i in 1:length(dl)) {
+  #   sid <- dl[[i]]$Site
+  #   x <- dl[[i]]$X
+  #   y <- dl[[i]]$Y
+  #   df <-  data.frame(sid=sid, X=x, Y=y)
+  #   locDF <- rbind(locDF, df)
+  # }
+  
+  sites <- pbapply::pbsapply(dl, getSiteLocation2, simplify = F)
+  locDF <- dplyr::bind_rows(sites)
+  
   return(locDF)
 }
-# 
-# 
-# 
-# 
 
-# 
-# 
-# 
-# 
-# 

@@ -18,6 +18,9 @@ devtools::install_github("RossDSearle/ANSR", auth_token = "YourGitHubAuthToken")
 
 username = 'YourANSISUserName'
 password = 'YourANSISPassword'
+
+
+
 #DataStorePath = '/home/kubeflow/Data'
 DataStorePath = 'c:/temp/ansis'
 
