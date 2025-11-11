@@ -235,7 +235,8 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
                                          for (i in 1:length(r$data )) {
                                          
                                           s <- r$data[[i]]
-                                          sid <- getSiteID(siteAsList=s)
+                                          p <- r$included$projects
+                                          sid <- getSiteID(siteAsList=s, projects=p)
 
                                           layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
                                           siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
@@ -350,6 +351,10 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 
   bt <- baseCols
   nt <- alldf
+  
+ 
+  
+  pb <- progress::progress_bar$new(total = nrow(bt))
   for (i in 1:nrow(bt)) {
     rec <- bt[i, ]
     sid <- rec$Site
@@ -358,19 +363,43 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
     for (j in 1:length(cols)) {
       att <- cols[j]
 
-      if(decode){
-        v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Description
-      }else{
+      # if(decode){
+      #   v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Description
+      # }else{
         v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Value
-      }
+     # }
 
       vc <- paste(v, sep = " ", collapse = '; ')
       bt[i, ][att] <- vc
     }
-
+    pb$tick()
   }
   return(bt)
 }
+
+ # rows <- pbapply:::pbapply(bt[1:100,], 1, FUN = makeWideRow, nt, simplify = T )
+ # z <- do.call(rbind, rows)
+# 
+# makeWideRow <- function(rec, nt){
+#   #rec <- bt[i, ]
+#   #print(str(rec))
+#      sid <- rec[['Site']]
+#      ud <- rec[['UpperDepth']]
+#      ld <- rec[['LowerDepth']]
+#     for (j in 1:length(cols)) {
+#       att <- cols[j]
+# 
+#       # if(decode){
+#       #   v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Description
+#       # }else{
+#         v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Value
+#      # }
+# 
+#       vc <- paste(v, sep = " ", collapse = '; ')
+#       rec[att] <- vc
+#     }
+#      return(as.data.frame(rec))
+# }
 
 
 # getAvailableProperties

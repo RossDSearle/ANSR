@@ -21,14 +21,20 @@ normaliseSite <- function(s){
 }
 
 
-getSiteID <- function(siteAsList){
+getSiteID <- function(siteAsList, projects){
 
   scopeID <- siteAsList$scopedIdentifier[[1]]$value
+  relproj <- siteAsList$relatedProject
+  
+  pids <- sapply(projects, function (x) x[['id']])
+  idx <- which(pids==relproj)
+  proj <- projects[[idx]]$label
+  
   if(is.null(scopeID)){
-    sid <- siteAsList$id
+    sid <- paste0( proj, '+', siteAsList$id)
   }else{
     auth <- siteAsList$scopedIdentifier[[1]]$authority
-    sid <- paste0(auth, '+', scopeID)
+    sid <- paste0(auth, '+', proj, '+', scopeID)
   }
   return(sid)
 }
