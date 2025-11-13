@@ -216,7 +216,7 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
   pb <- txtProgressBar(max=nfiles, style=3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress=progress)
-  pout <-  foreach::foreach(k=1:nfiles, .options.snow=opts, .packages=c('stringr'), 
+  pout <-  foreach::foreach(k=1:nfiles,  .options.snow=opts, .packages=c('stringr'), 
                             .export = c('normaliseSite', 'getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
                                         'mps', 'CodesTable', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
                                           
@@ -233,24 +233,24 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
                                           sol2 <- list()
 
                                          for (i in 1:length(r$data )) {
-                                         
-                                          s <- r$data[[i]]
-                                          p <- r$included$projects
-                                          sid <- getSiteID(siteAsList=s, projects=p)
-
-                                          layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
-                                          siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
-
-                                          loc <- getSiteLocation(siteAsList=s)
-                                          pl <- list()
-                                          pl$Site=sid
-                                          pl$X=loc$X
-                                          pl$Y=loc$Y
-                                          pl$data <-  layersTable
-                                          pl$siteVisitTable <- siteVistTable
-                                        
-
-                                          sol2[[sid]] <- pl
+                                             try({
+                                                s <- r$data[[i]]
+                                                p <- r$included$projects
+                                                sid <- getSiteID(siteAsList=s, projects=p)
+      
+                                                layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
+                                                siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
+      
+                                                loc <- getSiteLocation(siteAsList=s)
+                                                pl <- list()
+                                                pl$Site=sid
+                                                pl$X=loc$X
+                                                pl$Y=loc$Y
+                                                pl$data <-  layersTable
+                                                pl$siteVisitTable <- siteVistTable
+                                            
+                                              sol2[[sid]] <- pl
+                                              })
 
                                          }
 
