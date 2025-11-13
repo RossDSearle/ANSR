@@ -41,10 +41,10 @@ showAnsisPropertyCodes(labCode = '6B2')
 showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 
-ado <- apiGetANSISData(Name='ANSISDemo3xxdgdhdxz', Description = "This is a description of the purpose of the query", minx=150.123, maxx=151, miny=-26, maxy=-25, propertyName='Concentration of organic Carbon')
-
-jsn <- jsonlite::toJSON(ado$jsonList)
-cat(jsn , file = 'c:/temp/7kodd.json')
+ado <- apiGetANSISData(Name='ANSISDemo3xxdgdhdxzs', Description = "This is a description of the purpose of the query", minx=150.124, maxx=151, miny=-26, maxy=-25, propertyName='Concentration of organic Carbon')
+str(ado)
+# jsn <- jsonlite::toJSON(ado$jsonList)
+# cat(jsn , file = 'c:/temp/7kodd.json')
 
 ####  Get a wide format soil property table with location and site info - commonly used in modelling applications
 
