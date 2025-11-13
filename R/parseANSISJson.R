@@ -85,7 +85,7 @@ parseANSISJsonSerial <- function(r){
   for (k in  1:nsites) {
 
       s <- r$data[[k]]
-      sid <- getSiteID(siteAsList=s)
+      sid <- getSiteID(siteAsList=s, projects = r$included$projects)
 
         pb$tick(tokens = list(what = stringr::str_pad(sid, 20, 'left')))
       layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
@@ -401,6 +401,16 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 #      return(as.data.frame(rec))
 # }
 
+
+makeDSMTable <- function(ansisObject, propertyCode=NULL){
+  
+  adf <- ansisObject$CSV
+  idxs <- which(adf$Property == propertyCode )
+  odf <- adf[idxs,]
+  return(odf)
+}
+  
+  
 
 # getAvailableProperties
 #

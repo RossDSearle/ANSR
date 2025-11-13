@@ -744,24 +744,39 @@ apiDownloadQueryData2 <- function(reqID, outDir=NULL){
 #' @author Ross Searle
 #' @return logical
 #' @export
+#' 
+#' 
+getDSMtable <- function(ansisObject=NULL, propertyCode=NULL){
 
-getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL, labCode=NULL, startYear=1900, endYear=NULL, numCPUs=NULL){
-#getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL,  startYear=1900, endYear=NULL, numCPUs=NULL){
+  if(is.null(propertyCode)){
+    stop('You must specify a property code.')
+  }
   
-  if(!checkIfAuthorised()){return(cat(''))}
-    ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL, numCPUs=numCPUs)
-  
-if(is.null(labCode)){
-  lc=NULL
-}else{
-  lc = labCode
+  if(is.null(ansisObject)){
+    stop('You must supply an ANSIS object.')
+  }
+    cat('\nGenerating DSM Table....\n')
+    dsm <- makeDSMTable(ansisObject, propertyCode)
+    return(dsm)
 }
-    
-    if(!is.null(ado)){
-      cat('\nGenerating DSM Table....\n')
-        makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = lc)
-    }
-}
+# 
+# getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL, labCode=NULL, startYear=1900, endYear=NULL, numCPUs=NULL){
+# #getDSMtable <- function(Name=NULL, Description=NULL, minx, maxx, miny, maxy,soilProperty=NULL, propertyName=NULL,  startYear=1900, endYear=NULL, numCPUs=NULL){
+#   
+#   if(!checkIfAuthorised()){return(cat(''))}
+#     ado <- apiGetANSISData(Name, Description,minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=soilProperty, propertyName=propertyName, labCode=labCode, startYear=1900, endYear=NULL, numCPUs=numCPUs)
+#   
+# if(is.null(labCode)){
+#   lc=NULL
+# }else{
+#   lc = labCode
+# }
+#     
+#     if(!is.null(ado)){
+#       cat('\nGenerating DSM Table....\n')
+#         makeWideTable(ansisObject=ado, propertyType = 'Lab', labcodes = lc)
+#     }
+# }
 
 
 
@@ -784,7 +799,7 @@ getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
   if(format=='JSON'){
     return(jsn)
   }else if(format=='ANSISDataObject'){
-    ado <- parseANSISJson(jsn)
+    ado <- parseANSISJson(ansisResponse = jsn)
     return(ado)
   }else if(format=='CSV'){
     ado <- parseANSISJson(ansisResponse = jsn)

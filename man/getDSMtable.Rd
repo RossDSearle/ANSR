@@ -4,20 +4,7 @@
 \alias{getDSMtable}
 \title{Get a DSM Suitable Data Table}
 \usage{
-getDSMtable(
-  Name = NULL,
-  Description = NULL,
-  minx,
-  maxx,
-  miny,
-  maxy,
-  soilProperty = NULL,
-  propertyName = NULL,
-  labCode = NULL,
-  startYear = 1900,
-  endYear = NULL,
-  numCPUs = NULL
-)
+getDSMtable(ansisObject = NULL, propertyCode = NULL)
 }
 \arguments{
 \item{Name}{A name for the query. Default is NULL.}
