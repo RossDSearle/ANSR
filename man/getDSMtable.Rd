@@ -7,27 +7,9 @@
 getDSMtable(ansisObject = NULL, propertyCode = NULL)
 }
 \arguments{
-\item{Name}{A name for the query. Default is NULL.}
+\item{ansisObject}{an ANSIS data object.}
 
-\item{Description}{A description of the query.}
-
-\item{minx}{Western extent of the bounding box of the query. CRS WGS84. Default is NULL.}
-
-\item{maxx}{Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
-
-\item{miny}{Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
-
-\item{maxy}{Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
-
-\item{soilProperty}{Soil property element to query on. This is the broadest ANSIS attribute grouping.}
-
-\item{propertyName}{A specific form of the soil property.}
-
-\item{labCode}{Green Book standard lab method code.}
-
-\item{startYear}{Starting year of date range to return data for.}
-
-\item{endYear}{Finishing year of date range to return data for.}
+\item{propertyCode}{Soil property code.}
 }
 \value{
 logical

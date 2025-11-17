@@ -728,18 +728,8 @@ apiDownloadQueryData2 <- function(reqID, outDir=NULL){
 
 
 #' Get a DSM Suitable Data Table
-#' @param Name A name for the query. Default is NULL.
-#' @param Description A description of the query.
-#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
-#' @param propertyName A specific form of the soil property.
-#' @param labCode Green Book standard lab method code.
-#' @param startYear Starting year of date range to return data for.
-#' @param endYear Finishing year of date range to return data for.
-
+#' @param ansisObject an ANSIS data object.
+#' @param propertyCode Soil property code.
 #' @details This is a convenience function which returns data from An ANSIS query in a format for typical Digital Soil Mapping workflows. ie Site IDs, Locations, Dates, Depths and Soil Property values in a wide table format.
 #' @author Ross Searle
 #' @return logical

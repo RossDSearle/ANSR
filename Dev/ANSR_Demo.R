@@ -22,7 +22,7 @@ apiAuthoriseMe(username = 'ross.searle@csiro.au', password = password, DataStore
 ao <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "ANSISDataObject")
 listviewer::jsonedit(ao)
 
-html <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "HTML") # need to be finished
+html <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "HTML") # needs to be finished
 
 jsn <- getSingleSite(providerID='CSIRO_CSIS', siteID=1, format = "JSON")
 listviewer::jsonedit(ao)
@@ -41,17 +41,14 @@ showAnsisPropertyCodes(labCode = '6B2')
 showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 
-ado <- apiGetANSISData(Name='ANSISDemo3xxdgdhdxzs', Description = "This is a description of the purpose of the query", minx=150.124, maxx=151, miny=-26, maxy=-25, propertyName='Concentration of organic Carbon')
-str(ado)
-# jsn <- jsonlite::toJSON(ado$jsonList)
-# cat(jsn , file = 'c:/temp/7kodd.json')
+ado <- apiGetANSISData(Name='ANSISDemo4', Description = "This is a description of the purpose of the query", minx=150.1244, maxx=151, miny=-26, maxy=-25, propertyName='Concentration of organic Carbon')
 
 ####  Get a wide format soil property table with location and site info - commonly used in modelling applications
-
-
 dsm <- getDSMtable(ansisObject=ado, propertyCode='6A1')
-head(dsm)
+head(dsm, 15)
 
 
-
-
+##### Miscellaneous functions 
+ANSR::ANSIS_Ackowledgement()
+ANSIS_Citation()
+ANSIS_Disclaimer()
