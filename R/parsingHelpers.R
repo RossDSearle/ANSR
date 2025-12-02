@@ -48,12 +48,12 @@ dumpCSV <- function(anisObject){
 # 
 makeAllDataCSV <- function(allsites){
   # tic()
-  # alldf <- data.frame()
-  # for (i in 1:length(allsites)) {
-  #   s <- allsites[[i]]
-  #   sitedf<- makeSiteCSV(sl=s)
-  #   alldf <- rbind(alldf, sitedf)
-  # }
+  alldf <- data.frame()
+  for (i in 1:length(allsites)) {
+    s <- allsites[[i]]
+    sitedf<- makeSiteCSV(sl=s)
+    alldf <- rbind(alldf, sitedf)
+  }
   # toc()
   
 
@@ -66,15 +66,21 @@ makeAllDataCSV <- function(allsites){
 # 
 makeSiteCSV <- function(sl){
 
-  s<-sl
+  sv<-sl
   odf <- data.frame()
 
-  sid <- s$Site
-  svdf <- data.frame(ud='', ld='', property='SiteVisit', propType='SiteVisit',field=s$siteVisitTable$property, value=s$siteVisitTable$value, desc=s$siteVisitTable$desc)
+  sid <- sv$Site
+  dt <- sv$Date
+  bits <- stringr::str_split(dt, 'T')
+  thedate <- bits[[1]][1]
+  svdf <- data.frame(ud='', ld='',  property='SiteVisit', propType='SiteVisit',field=sv$siteVisitTable$property, value=sv$siteVisitTable$value, desc=sv$siteVisitTable$desc)
   odf <- rbind(odf, svdf)
-  odf <- rbind(odf, s$data)
-  sitedf <- data.frame(site=sid, Longitude=s$X, Latitude=s$Y, odf)
-  colnames(sitedf) <- c("Site", "Longitude", "Latitude", "UpperDepth", "LowerDepth", "Group", "PropertyType", "Property", "Value", "Description" )
+  hors <- sv$data
+  #hors <- data.frame(ud = hors$ud, ld= hors$ld,Date=dt, hors[,3:ncol(hors)]  )
+  
+  odf <- rbind(odf, hors)
+  sitedf <- data.frame(site=sid, Longitude=sv$X, Latitude=sv$Y, Date=thedate, odf)
+  colnames(sitedf) <- c("Site", "Longitude", "Latitude", "Date", "UpperDepth", "LowerDepth",  "Group", "PropertyType", "Property", "Value", "Description" )
   return(sitedf)
 }
 
@@ -390,6 +396,11 @@ getSiteLocation <- function(siteAsList){
   ol$Y <- as.numeric(bits3[2])
   return(ol)
 }
+
+getSiteDate <- function(siteAsList){
+  return(siteAsList$siteVisit[[1]]$startedAtTime)
+}
+
 
 getSiteLocation2 <- function(dl){
   sid <- dl$Site

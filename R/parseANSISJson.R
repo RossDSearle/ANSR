@@ -87,7 +87,7 @@ parseANSISJsonSerial <- function(r){
       s <- r$data[[k]]
       sid <- getSiteID(siteAsList=s, projects = r$included$projects)
 
-        pb$tick(tokens = list(what = stringr::str_pad(sid, 20, 'left')))
+      pb$tick(tokens = list(what = stringr::str_pad(sid, 20, 'left')))
       layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
       siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
 
@@ -96,6 +96,8 @@ parseANSISJsonSerial <- function(r){
       pl$Site=sid
       pl$X=loc$X
       pl$Y=loc$Y
+      dt <- getSiteDate(siteAsList=s)
+      pl$Date=dt
       pl$data <-  layersTable
       pl$siteVisitTable <- siteVistTable
 
@@ -157,6 +159,8 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
     pl$Site=sid
     pl$X=loc$X
     pl$Y=loc$Y
+    dt <- getSiteDate(siteAsList=s)
+    pl$Date=dt
     pl$data <-  layersTable
     pl$siteVisitTable <- siteVistTable
     
@@ -242,10 +246,13 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
                                                 siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
       
                                                 loc <- getSiteLocation(siteAsList=s)
+                                                
                                                 pl <- list()
                                                 pl$Site=sid
                                                 pl$X=loc$X
                                                 pl$Y=loc$Y
+                                                dt <- getSiteDate(siteAsList=s)
+                                                pl$Date=dt
                                                 pl$data <-  layersTable
                                                 pl$siteVisitTable <- siteVistTable
                                             
