@@ -53,17 +53,24 @@ showAnsisPropertyCodes(propertyName = 'Lime (CaCO3) requirement')
 
 
 
-####  Get a wide format soil property table with location and site info - commonly used in modelling applications
+### Now send a query to retrieve soil carbon data within a specified bounding box.
+### This is the main ANSIS querying function. See the package help for more info.
+ado <- apiGetANSISData(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=150.124443, maxx=151, miny=-26, maxy=-25, propertyName='Concentration of organic Carbon')
 
-
-dsm <- getDSMtable(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=151.4, maxx=152, miny=-25.5, maxy=-25, labCode = '6A1', numCPUs = 15)
-head(dsm)
-nrow(dsm)
 
 ####  Now run the same query again to see the local data cache in action
-dsm <- getDSMtable(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=151.4, maxx=152, miny=-25.5, maxy=-25, labCode = '4A1', numCPUs = 15)
+ado <- apiGetANSISData(Name='ANSISDemo', Description = "This is a description of the purpose of the query", minx=150.124444, maxx=151, miny=-26, maxy=-25, propertyName='Concentration of organic Carbon')
 
 
+####  Get a wide format soil property table with location and site info - commonly used in modelling applications
+dsm <- getDSMtable(ansisObject=ado, propertyCode='6A1')
+head(dsm, 15)
+
+
+##### Miscellaneous functions
+ANSR::ANSIS_Ackowledgement()
+ANSIS_Citation()
+ANSIS_Disclaimer()
 
 
 
@@ -77,7 +84,7 @@ dsm <- getDSMtable(Name='ANSISDemo', Description = "This is a description of the
 
 #################  All the bits of the API functions strung together for making and processing a request   ###################
 
-#### These are all strung together in the apiGetANSISData() function along with some other goodness 
+#### These are all strung together in the apiGetANSISData() function along with some other goodness
 
 
 # first step - Authorise with ANSIS. This sends back a token which is passed in with all the subsequent calls to the ANSIA API
@@ -100,7 +107,7 @@ reqID <- apiSendQuery(minx=minx, maxx=maxx, miny=miny, maxy=maxy, soilProperty=N
 apiQueryStatus_Single(reqID = reqID, verbose = F)
 apiQueryStatus_Single(reqID = reqID, verbose = T)
 
-# Or we can check on all of our query statuses 
+# Or we can check on all of our query statuses
 apiQueryStatus_All()
 apiQueryStatus_All(statusTypes='Processing') # filter on status - 'Processing', 'Completed', 'Queued', 'Error'
 
@@ -144,7 +151,7 @@ listviewer::jsonedit(ANSISL)
 ado <- parseANSISJson(ansisResponse = sitesJSN)
 
 # The ANSIS Data Object produced above contains three forms of the data
-# 1. A data frame of site locations 
+# 1. A data frame of site locations
 head(ado$locsDF)
 
 # 2. A data frame with one record for each bit of data returned - in both coded and decoded form
