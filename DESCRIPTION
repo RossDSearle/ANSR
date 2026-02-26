@@ -9,7 +9,7 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: The Australian National Soil Information System (ANSIS) brings together a range of publicly available soil data sets from across the nation.
+Description: The Australian National Soil Information System (ANSIS) brings together a range of publicly available soil data sets from across Australia.
     It delivers data in the form of a standardised JSON Schema preserving complex relationships within the data.
     This JSON data can be daunting to untangle.
     ANSR does all the hard work of querying ANSIS and parsing the JSON response data into simpler formats - mainly CSV files.
