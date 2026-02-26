@@ -15,9 +15,7 @@ ANSR does all the hard work of querying ANSIS and parsing the JSON response data
 ## How to Install the package
 
 library(devtools)\
-devtools::install_github("RossDSearle/ANSR", auth_token = "YourGitHubAuthToken")  
-  
-  
+devtools::install_github("RossDSearle/ANSR", auth_token = "YourGitHubAuthToken")
 
 ## About ANSR
 
@@ -27,7 +25,7 @@ The ANSIS information model was developed to deliver the soil data concepts desc
 
 ANSIS data can be queried and downloaded from the ANSIS [Data Portal](https://portal.ansis.net/). Data from the ANSIS Portal is delivered to the user as JavaScript Object Notation ([JSON](https://en.wikipedia.org/wiki/JSON)) which allows it to maintain the complex relational data objects inherent in the Schema.
 
-While the information model is a powerful tool, it can be tricky for us mere mortals to access end use the required bits of soil data we are chasing from with the Schema.
+While the information model is a powerful tool, it can be tricky for us mere mortals to access and use the required bits of soil data we are chasing from within the JSON Schema.
 
 This is where ANSR comes in. [R](https://www.r-project.org/) is a data centric programming language widely used by scientists, especially in the soil science domain. The ANSR package allows R users to query the ANSIS data directly from R, download the JSON query responses and reformat the JSON data into simpler data analysis ready formats.
 
@@ -43,4 +41,4 @@ Data and other content made accessible via ANSIS is provided by multiple provide
 
 Contact the [ANSIS help desk](https://ansis.net/contact/) with any questions about ANSIS or ANSIS data
 
-Contact [Ross Searle](href="ross.searle@csiro.au") for any issues with the ANSR package.
+Contact [Ross Searle](mailto:ross.searle@csiro.au) for any issues with the ANSR package.
