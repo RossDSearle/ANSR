@@ -93,12 +93,12 @@ apiAuthoriseMe <- function(username, password, DataStorePath){
     tokenTime <- authANSIS@TokenExpiry - Sys.time()
     cat(paste0('\n', crayon::bold(crayon::green('Authorisation successful')), '\n\nThis authorisation with ANSIS will remain valid for about ' , round(tokenTime), ' hours. You might have to reauthorise youself at some stage.\n' ))
 
-    dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db')
-    if(!file.exists(dbp)){
-      createQueryDB(dbp)
-    }
-
-    cacheDescribe()
+    # dbp <- paste0(authANSIS@DataStorePath, '/ANSISQueryCache.db')
+    # if(!file.exists(dbp)){
+    #   createQueryDB(dbp)
+    # }
+    #
+    # cacheDescribe()
 
   }
 }
@@ -334,19 +334,19 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
   if(!checkIfAuthorised()){return(cat(''))}
 
       qo <- makeQueryObject(Name, Description, minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
-      dataInCache <- checkCache(authANSIS=authANSIS, qObj=qo)
+    #  dataInCache <- checkCache(authANSIS=authANSIS, qObj=qo)
 
-  if(!is.null(dataInCache)){
-    if(dataInCache == 'NewNameRequired'){
-      return(NULL)
-    }else{
-      cat(paste0('\nRetrieving ANSIS data from the local cache....\n\n'))
-      ado <- cacheRetrieveData(dataInCache)
-      return(ado)
-    }
-
-
-  }else{
+  # if(!is.null(dataInCache)){
+  #   if(dataInCache == 'NewNameRequired'){
+  #     return(NULL)
+  #   }else{
+  #     cat(paste0('\nRetrieving ANSIS data from the local cache....\n\n'))
+  #     ado <- cacheRetrieveData(dataInCache)
+  #     return(ado)
+  #   }
+  #
+  #
+  # }else{
 
       reqID <- apiSendQuery(minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
       apiQueryStatus_Monitor(reqID)
@@ -361,11 +361,11 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
       }
       ado <- parseANSISJson2(jsnDir = outDir, numCPUs=numCPUs)
 
-        if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
-            addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
-        }
+        # if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
+        #     addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
+        # }
       return(ado)
-  }
+ # }
 }
 
 

@@ -2,28 +2,28 @@
 
 #' Get Properties in an ANSIS Response
 #' @param ANSISObject An ANSIS data object
-#' @param PropertyType Used to filter the response on a property 
+#' @param PropertyType Used to filter the response on a property
 #' @details  Returns the status of a specific requiest ID.
 #' @author Ross Searle
 #' @return ANSIS query status
 #' @export
-#' 
+#'
 
 getPropertiesInANSISResponse <- function(ANSISObject, PropertyType=NULL){
-  
+
   d <- ANSISObject$CSV
   if(!is.null(PropertyType)){
-    return(unique(d$Property)) 
+    return(unique(d$Property))
   }else{
     d2 <- d[d$PropertyType==PropertyType, ]
-    return(unique(d2$Property)) 
+    return(unique(d2$Property))
   }
 }
 
 
 
 checkIfAuthorised <- function(){
-  
+
 
   if(!exists('authANSIS')){
     cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
@@ -35,47 +35,47 @@ checkIfAuthorised <- function(){
     cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
     return(F)
   }
-  
+
   ### reauthorise if the token has expired
   if(authANSIS@TokenExpiry <= Sys.time()){
     cat('\nReauthorising with ANSIS...\n')
     apiAuthoriseMe(authANSIS@usr, authANSIS@pwd, authANSIS@DataStorePath)
   }
-  
+
   return(T)
 }
 
 makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisProperties=NULL,
                       sites=NULL, provider=NULL, startYear=1900, endYear=NULL){
-  
+
   query <- list()
-  
+
   if(is.null(endYear)){
     endYear<-lubridate::year(Sys.Date())
   }
-  
+
   if(!is.null(sites)){
-    
+
     so <- vector(mode='list', length = 1)
-    
+
     s <- list()
     s$provider = jsonlite::unbox(provider)
     s$sites <- sites
     so[[1]] <- s
-    
+
    query$sites <- so
   }
-  
+
   if(!(is.null(minx))){
       bds <- makeBoundingBox(minx, maxx, miny, maxy)
       query$bounds[[1]] <- bds
   }
-  
+
   # if(!is.null(propertyName)){
-  #   
+  #
   #   idxs <- which(schemaMaps$PropertyName == propertyName)
-  #   properties <- schemaMaps$ANSISCode[idxs]    
-  #   
+  #   properties <- schemaMaps$ANSISCode[idxs]
+  #
   # }else if(!is.null(labCode)){
   #   idxs <- which(labcodesMapping$meths==labCode)
   #   properties = labcodesMapping$ANSISCode[idxs]
@@ -85,20 +85,20 @@ makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisPropertie
   query$maxYear=jsonlite::unbox(endYear)
   query$useSDR=jsonlite::unbox(T)
   query$propertyGroups <- ansisProperties
-  
- 
-  
+
+
+
   jsnQry <- jsonlite::toJSON(query, auto_unbox = F)
   #cat(jsnQry, file = 'c:/temp/query.json')
-  
-  return(jsnQry) 
+
+  return(jsnQry)
 }
 
 
 
 
 makeBoundingBox <- function(minx, maxx, miny, maxy){
-  
+
   bds <- vector(mode = 'list', length = 5)
   bds[[1]] <- c(minx, maxy)
   bds[[2]] <- c(minx, miny)
@@ -111,10 +111,10 @@ makeBoundingBox <- function(minx, maxx, miny, maxy){
 
 
 mergeResponseFiles <- function(outDir, pattern=NULL){
-  
-  
+
+
   fls <- list.files(outDir, pattern = pattern, full.names = T)
-  
+
   ol <- list()
   ol['$schema'] <- "https://anzsoildata.github.io/def-au-schema-json/schema/domain/2023-07-31/ansis.json"
   ol$data <-list()
@@ -123,21 +123,21 @@ mergeResponseFiles <- function(outDir, pattern=NULL){
   ol$included$persons <- list()
   ol$included$projects <- list()
   ol$meta <- list()
-  
+
   persons <- list()
   orgs <- list()
   projs <- list()
-  
+
   for (i in 1:length(fls)) {
    # for (i in 1:10) {
-    
+
     print(paste0(i , ' of ', length(fls)))
-    
+
     jl <- jsonlite::fromJSON(fls[i], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
     ol$data <- append(ol$data,jl$data)
-    
+
    if(length(jl$included$persons))
-   {    
+   {
       for (j in 1:length(jl$included$persons)) {
         pid <- jl$included$persons[[j]]$id
         if(!pid %in% persons){
@@ -148,10 +148,10 @@ mergeResponseFiles <- function(outDir, pattern=NULL){
         }
       }
    }
-    
-    
+
+
     if(length(jl$included$organizations))
-    {   
+    {
       for (j in 1:length(jl$included$organizations)) {
         oid <- jl$included$organizations[[j]]$id
         if(!oid %in% orgs){
@@ -162,13 +162,13 @@ mergeResponseFiles <- function(outDir, pattern=NULL){
         }
       }
     }
-    
-    
+
+
     if(length(jl$included$projects))
-    { 
+    {
       for (j in 1:length(jl$included$projects)) {
         prid <- jl$included$projects[[j]]$scopedIdentifier$value
-        
+
         if(!prid %in% projs){
           prnl <- vector(mode = 'list', length=1)
           prnl[[1]] <- jl$included$projects[[j]]
@@ -177,7 +177,7 @@ mergeResponseFiles <- function(outDir, pattern=NULL){
         }
       }
     }
-    
+
 
   }
 
@@ -188,7 +188,7 @@ mergeResponseFiles <- function(outDir, pattern=NULL){
   ol$meta$curiPrefix <- jl$meta$curiPrefix
 
 return(ol)
-  
+
 }
 
 
