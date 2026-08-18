@@ -12,7 +12,7 @@
 #' @export
 
 parseANSISJson <- function(ansisResponse, numCPUs=NULL){
-  
+
   if(class(ansisResponse)=='list'){
   #  print('using R list')
     r <- ansisResponse
@@ -20,7 +20,7 @@ parseANSISJson <- function(ansisResponse, numCPUs=NULL){
   #  cat('Reading the JSON data .....\n\n')
     sl <- jsonlite::fromJSON(ansisResponse , simplifyDataFrame = F)
     r <- sl
-    
+
     isansis <- r$`$schema`
     if(is.null(isansis)){
       stop('This is not a valid ANSIS JSON response')
@@ -28,11 +28,11 @@ parseANSISJson <- function(ansisResponse, numCPUs=NULL){
       stop('This is not a valid ANSIS JSON response')
     }
   }
-  
-  
+
+
   cat('\nParsing the ANSIS JSON Response .....\n\n')
-  
-  
+
+
   if(length(r$data) <= 1){
     return(parseANSISJsonSerial(r))
   }else{
@@ -42,7 +42,7 @@ parseANSISJson <- function(ansisResponse, numCPUs=NULL){
 
 
 parseANSISJson2 <- function(jsnDir, numCPUs=NULL){
-  
+
   # if(class(ansisResponse)=='list'){
   #   #  print('using R list')
   #   r <- ansisResponse
@@ -50,7 +50,7 @@ parseANSISJson2 <- function(jsnDir, numCPUs=NULL){
   #   #  cat('Reading the JSON data .....\n\n')
   #  # sl <- jsonlite::fromJSON(ansisResponse , simplifyDataFrame = F)
   #  #  r <- sl
-  #   
+  #
   #   # isansis <- r$`$schema`
   #   # if(is.null(isansis)){
   #   #   stop('This is not a valid ANSIS JSON response')
@@ -58,11 +58,11 @@ parseANSISJson2 <- function(jsnDir, numCPUs=NULL){
   #   #   stop('This is not a valid ANSIS JSON response')
   #   # }
   # }
-  
-  
+
+
   cat('\nParsing the ANSIS JSON Response .....\n\n')
-  
-  
+
+
   # if(length(r$data) <= 1){
   #   return(parseANSISJsonSerial(r))
   # }else{
@@ -121,39 +121,39 @@ parseANSISJsonSerial <- function(r){
 
 
 parseANSISJsonParallel <- function(r, numCPUs=NULL){
-  
+
   nsites <- length(r$data)
-  
+
   if(is.null(numCPUs)){
     numCPUs = min(nsites, parallel::detectCores()-1)
   }else{
-    
+
   }
   numCPUs <- min(20, numCPUs)
   cat(paste0('\n\nNumber of CPUs = ', numCPUs, '. A maximum of 20 allowed.'))
-  
+
   cl <- parallel::makePSOCKcluster(numCPUs)
   doSNOW::registerDoSNOW(cl)
-  
+
  mps <- DataSets@mps
  CodesTable <- DataSets@CodesTable
-  
+
  `%dopar%` <- foreach::`%dopar%`
-  
+
   pb <- txtProgressBar(max=nsites, style=3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress=progress)
-  pout <-  foreach::foreach(k=1:nsites, .options.snow=opts, .packages=c('stringr'), 
-               .export = c('getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
+  pout <-  foreach::foreach(k=1:nsites, .options.snow=opts, .packages=c('stringr'),
+               .export = c('getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation',
                            'mps', 'CodesTable', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
-    
+
     sol2 <- list()
     s <- r$data[[k]]
     sid <- getSiteID(siteAsList=s)
-    
+
     layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
     siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
-    
+
     loc <- getSiteLocation(siteAsList=s)
     pl <- list()
     pl$Site=sid
@@ -163,21 +163,21 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
     pl$Date=dt
     pl$data <-  layersTable
     pl$siteVisitTable <- siteVistTable
-    
+
     sol2[[sid]] <- pl
     return(sol2)
-    
+
     }
-  
+
   close(pb)
   parallel::stopCluster(cl)
 
 
   sol <- do.call(c, pout)
 
-  
+
   cat('\nCreating the ANSIS Data Object .....\n\n')
-  
+
   cat('\nMaking the Site Locations table .....\n\n')
   locsDF <- makeSitesLocationTableFromDataList(dl=sol)
   jL <- list()
@@ -186,54 +186,54 @@ parseANSISJsonParallel <- function(r, numCPUs=NULL){
   jL$jsonList <- r
   cat('\nMaking the CSV data table .....\n\n')
   jL$CSV <- makeAllDataCSV(allsites=sol)
-  
-  
+
+
   return(jL)
 }
 
 
 
 parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
-  
+
   #fls <- list.files(jsnDir, pattern = '.jsn$')
   fls <- list.files(jsnDir, pattern = '.json$', full.names = T)
-  
-  
+
+
   nfiles <- length(fls)
-  
+
   if(is.null(numCPUs)){
     numCPUs = min(nfiles, parallel::detectCores()-1)
   }else{
-    
+
   }
-  numCPUs <- min(20, numCPUs)
+  #numCPUs <- min(20, numCPUs)
   cat(paste0('\n\nNumber of CPUs = ', numCPUs, '. A maximum of 20 allowed.'))
-  
+
   cl <- parallel::makePSOCKcluster(numCPUs)
   doSNOW::registerDoSNOW(cl)
-  
+
   mps <- DataSets@mps
   CodesTable <- DataSets@CodesTable
-  
+
   `%dopar%` <- foreach::`%dopar%`
-  
+
   pb <- txtProgressBar(max=nfiles, style=3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress=progress)
-  pout <-  foreach::foreach(k=1:nfiles,  .options.snow=opts, .packages=c('stringr'), 
-                            .export = c('normaliseSite', 'getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation', 
+  pout <-  foreach::foreach(k=1:nfiles,  .options.snow=opts, .packages=c('stringr'),
+                            .export = c('normaliseSite', 'getSiteID', 'parseANSISSiteLayersToDenormalisedTable', 'parseANSISSiteVistToDenormalisedTable', 'getSiteLocation',
                                         'mps', 'CodesTable', 'isLabProperty', 'getMorphVals', 'CodesTable', 'getLabVals', 'getSiteVisitVals', 'getSlope', 'getSlopeUnit')) %dopar% {
-                                          
-                                          
+
+
                                           r <- jsonlite::fromJSON(fls[k], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
                                           # tictoc::tic()
                                           # sol2 <- lapply(r$data, normaliseSite)
                                           # tictoc::toc()
-                                          
+
                                         #for (i in 1:length(fls)) {
                                         #  r <- jsonlite::fromJSON(fls[k], simplifyDataFrame = F, simplifyVector = F, simplifyMatrix = F)
                                         #ol$data <- append(ol$data,jl$data)
-                                            
+
                                           sol2 <- list()
 
                                          for (i in 1:length(r$data )) {
@@ -241,12 +241,12 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
                                                 s <- r$data[[i]]
                                                 p <- r$included$projects
                                                 sid <- getSiteID(siteAsList=s, projects=p)
-      
+
                                                 layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
                                                 siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
-      
+
                                                 loc <- getSiteLocation(siteAsList=s)
-                                                
+
                                                 pl <- list()
                                                 pl$Site=sid
                                                 pl$X=loc$X
@@ -255,35 +255,35 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
                                                 pl$Date=dt
                                                 pl$data <-  layersTable
                                                 pl$siteVisitTable <- siteVistTable
-                                            
+
                                               sol2[[sid]] <- pl
                                               })
 
                                          }
 
                                           return(sol2)
-                                       
+
                                         }
-  
+
   close(pb)
   parallel::stopCluster(cl)
-  
-  
+
+
   sol <- do.call(c, pout)
-  
-  
+
+
   cat('\nCreating the ANSIS Data Object .....\n\n')
-  
+
   cat('\nMaking the Site Locations table .....\n\n')
   locsDF <- makeSitesLocationTableFromDataList(dl=sol)
   jL <- list()
-  
+
   jL$locsDF <- locsDF
   #jL$jsonList <- r
   cat('\nMaking the CSV data table .....\n\n')
   jL$CSV <- makeAllDataCSV(allsites=sol)
-  
-  
+
+
   return(jL)
 }
 
@@ -303,13 +303,13 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
 
 # makeWideTable
 #
-#' Format the ANSIS response into a wide table 
+#' Format the ANSIS response into a wide table
 #' @param anisObject An ANSIS R object
 #' @param propertyType Return data for either 'SiteVisit', 'Horizons' or 'Lab'
 #' @param propertyType Return data for a specific list of soil properties
 #' @param decode return either coded or decoded values (default=F)
 
-#' @details  You need to specify a parameter value for either 'propertyType' or 'properties'. 
+#' @details  You need to specify a parameter value for either 'propertyType' or 'properties'.
 #' The data frame contains SiteID, location, depths and soil property fields
 #' @author Ross Searle
 #' @return dataframe
@@ -321,15 +321,15 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
   if(is.null(propertyType) & is.null(labcodes)){
     stop('You have to specify a value for either the propertyType or properties parameter')
   }
-  
+
   alldf <- ansisObject$CSV
-  
+
   alldf$Longitude <- as.numeric(alldf$Longitude)
   alldf$Latitude <- as.numeric(alldf$Latitude)
   alldf$UpperDepth <- as.numeric(alldf$UpperDepth)
   alldf$LowerDepth <- as.numeric(alldf$LowerDepth)
-  
- 
+
+
   if(!is.null(labcodes)){
     idxs <- which(!labcodes %in% unique(alldf$Property))
     if(length(idxs) > 0){
@@ -341,16 +341,16 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
   }else if(!is.null(propertyType)){
     alldf <- alldf[alldf$PropertyType==propertyType,]
     cols <- unique(alldf$Property)
-    
+
   }
 
   baseCols <- unique(alldf[c('Site','Longitude', 'Latitude',  'UpperDepth', 'LowerDepth')])
   baseCols$UpperDepth <- as.numeric(baseCols$UpperDepth)
   baseCols$LowerDepth <- as.numeric(baseCols$LowerDepth)
   baseCols <- baseCols[with(baseCols, order(Site, UpperDepth, LowerDepth)), ]
-  
-  
-  
+
+
+
   for (i in 1:length(cols)) {
     c <- cols[i]
     baseCols[c] <- rep('', nrow(baseCols))
@@ -358,9 +358,9 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 
   bt <- baseCols
   nt <- alldf
-  
- 
-  
+
+
+
   pb <- progress::progress_bar$new(total = nrow(bt))
   for (i in 1:nrow(bt)) {
     rec <- bt[i, ]
@@ -386,7 +386,7 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 
  # rows <- pbapply:::pbapply(bt[1:100,], 1, FUN = makeWideRow, nt, simplify = T )
  # z <- do.call(rbind, rows)
-# 
+#
 # makeWideRow <- function(rec, nt){
 #   #rec <- bt[i, ]
 #   #print(str(rec))
@@ -395,13 +395,13 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 #      ld <- rec[['LowerDepth']]
 #     for (j in 1:length(cols)) {
 #       att <- cols[j]
-# 
+#
 #       # if(decode){
 #       #   v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Description
 #       # }else{
 #         v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Value
 #      # }
-# 
+#
 #       vc <- paste(v, sep = " ", collapse = '; ')
 #       rec[att] <- vc
 #     }
@@ -410,14 +410,14 @@ makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=
 
 
 makeDSMTable <- function(ansisObject, propertyCode=NULL){
-  
+
   adf <- ansisObject$CSV
   idxs <- which(adf$Property == propertyCode )
   odf <- adf[idxs,]
   return(odf)
 }
-  
-  
+
+
 
 # getAvailableProperties
 #
@@ -434,7 +434,7 @@ makeDSMTable <- function(ansisObject, propertyCode=NULL){
 getAvailableProperties <- function(anisObject, propertyType=NULL){
 
  # alldf <- makeAllDataCSV(allsites=anisObject$dfDenorm)
-  
+
   alldf <- anisObject$CSV
 
   if(is.null(propertyType)){
@@ -459,10 +459,10 @@ getAvailableProperties <- function(anisObject, propertyType=NULL){
 #' @export
 
 getSiteData <- function(ansisObject, siteID){
- 
- s <- ansisObject$CSV[ansisObject$CSV$Site==siteID,] 
+
+ s <- ansisObject$CSV[ansisObject$CSV$Site==siteID,]
  return(s)
-  
+
 }
 
 
@@ -476,7 +476,7 @@ getSiteData <- function(ansisObject, siteID){
 #' @export
 
 getSiteLocations <- function(ansisObject){
-  
+
   sites <- ansisObject$locsDF
   colnames(sites) <- c( 'Site', 'Longitude', 'Latitude')
   return(sites)
@@ -494,9 +494,9 @@ getSiteLocations <- function(ansisObject){
 #' @export
 
 getPropertiesSummary<- function(ansisObject){
-  
+
   grp = as.data.frame(ansisObject$CSV %>% group_by(Property) %>%
-    summarise(Count = n(), 
+    summarise(Count = n(),
    .groups = 'drop'))
   return(grp)
 }
@@ -511,10 +511,10 @@ getPropertiesSummary<- function(ansisObject){
 
 
 getSitesSummary <- function(){
-  
+
   as.data.frame(ansisObject$CSV %>% group_by(Site, PropertyType) %>%
-                        summarise(Count = n(), 
+                        summarise(Count = n(),
                                   .groups = 'drop'))
-  
+
 }
 
