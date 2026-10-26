@@ -23,9 +23,9 @@ setClass("Constants",
 
 setClass("DataSets",
          slots = c(
-           mps = "data.frame",
-           CodesTable = "data.frame",
-           labcodesMapping = "data.frame"
+           mappingInfo = "data.frame",
+           CodesTable = "data.frame"
+           #labcodesMapping = "data.frame"
          )
 )
 

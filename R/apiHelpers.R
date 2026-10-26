@@ -45,7 +45,7 @@ checkIfAuthorised <- function(){
   return(T)
 }
 
-makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisProperties=NULL,
+makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisIDs=NULL,
                       sites=NULL, provider=NULL, startYear=1900, endYear=NULL){
 
   query <- list()
@@ -71,27 +71,24 @@ makeQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisPropertie
       query$bounds[[1]] <- bds
   }
 
-  # if(!is.null(propertyName)){
-  #
-  #   idxs <- which(schemaMaps$PropertyName == propertyName)
-  #   properties <- schemaMaps$ANSISCode[idxs]
-  #
-  # }else if(!is.null(labCode)){
-  #   idxs <- which(labcodesMapping$meths==labCode)
-  #   properties = labcodesMapping$ANSISCode[idxs]
-  # }
-
   query$minYear=jsonlite::unbox(startYear)
   query$maxYear=jsonlite::unbox(endYear)
   query$useSDR=jsonlite::unbox(T)
-  query$propertyGroups <- ansisProperties
+  query$propertyGroups <- ansisIDs
 
 
 
   jsnQry <- jsonlite::toJSON(query, auto_unbox = F)
-  #cat(jsnQry, file = 'c:/temp/query.json')
 
-  return(jsnQry)
+  qfields <- list('minx','maxx','miny','maxy','ansisIDs','startYear','endYear','provider','sites', 'ANSISQueryJSON')
+  qvals <-    list(minx,  maxx,  miny,  maxy,  ansisIDs,  startYear,  endYear,  provider, sites, jsnQry)
+  idxs <- which(sapply(qvals, is.null))
+  if(length(idxs)>0){
+    qvals[idxs] <- NA
+  }
+  qdf <- data.frame(QueryField=unlist(qfields), QueryValue=sapply(qvals, function(x) paste(x, collapse = ", ")))
+
+  return(qdf)
 }
 
 

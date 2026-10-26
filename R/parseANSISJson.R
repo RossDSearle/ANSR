@@ -71,6 +71,7 @@ parseANSISJson2 <- function(jsnDir, numCPUs=NULL){
 }
 
 
+
 parseANSISJsonSerial <- function(r){
 
 
@@ -286,6 +287,62 @@ parseANSISJsonParallel2 <- function(jsnDir, numCPUs=NULL){
 
   return(jL)
 }
+
+
+parseANSISJsonParallel3 <- function(zipFile, numCPUs=NULL, propertiesToParse=NULL, verbose=F, parseAll=T){
+
+  outDir <- stringr::str_split(paste0(tempdir(), '/tmp_', as.numeric(Sys.time())), '[.]')[[1]][1]
+  if(!dir.exists(outDir)){dir.create(outDir, recursive = T)}
+
+  cat(paste0('\nExtracting files from the zip archive into - ', outDir, '\n'))
+
+  unzip(
+    zipfile = zipFile,
+    exdir = outDir
+  )
+
+  if(parseAll){
+    ansisData <- ANSIS_JSON_parsing_All(inDir=outDir)
+  }else{
+    ansisData <- ANSIS_JSON_parsing_specific_Fields(inDir=outDir, propertiesToParse=propertiesToParse)
+  }
+
+  # Post-processing and export
+  if (nrow(ansisData) > 0) {
+
+    if(!verbose){
+      ansisData <- ansisData[, -c(1,2)]
+    }
+
+    ansisData <- ansisData %>% arrange(scopedIdentifier, endAtTime, fieldName )
+
+    d1 <- stringr::str_replace(zipFile, 'RawJSONResponses', 'ANSISDataObjects')
+    ofData <- stringr::str_replace(d1, '.zip$', '.rds')
+
+    cat('\nCreating the ANSIS Data Object .....\n\n')
+
+    cat('\nMaking the Site Locations table .....\n\n')
+    locsDF <- makeSitesLocationTable(df=ansisData)
+    summ <- summariseOutputs(df=ansisData)
+
+    jL <- list()
+    jL$locations <- locsDF
+    jL$Data <- ansisData
+    jL$DataSummary <- summ
+
+    saveRDS(jL, ofData)
+
+    unlink(outDir, recursive = TRUE)
+    message(sprintf("Success! Exported %s rows to %s", nrow(ansisData), ofData))
+    return(jL)
+
+    } else {
+      message("No records found for any of the target fields. No output created.")
+      return(NULL)
+  }
+
+}
+
 
 
 

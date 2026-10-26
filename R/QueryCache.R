@@ -1,29 +1,7 @@
 #' library(DBI)
 #'
 #'
-makeQueryObject <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
-                            soilProperty=NULL, propertyName=NULL, labCode=NULL,
-                            startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
 
-
-  queryObject <- list()
-  queryObject$Name <- Name
-  queryObject$Description <- Description
-  queryObject$Time <- Sys.time()
-  queryObject$User <- authANSIS@usr
-  queryObject$Query$Bdy$Minx <- if(is.null(minx)){minx=''}else{minx=minx}
-  queryObject$Query$Bdy$Maxx <- if(is.null(maxx)){maxx=''}else{maxx=maxx}
-  queryObject$Query$Bdy$Miny <- if(is.null(miny)){miny=''}else{miny=miny}
-  queryObject$Query$Bdy$Maxy <-  if(is.null(maxy)){maxy=''}else{maxy=maxy}
-  queryObject$Query$SoilProperty = if(is.null(soilProperty)){soilProperty=''}else{soilProperty=soilProperty }
-  queryObject$Query$PropertyName =  if(is.null(propertyName)){propertyName=''}else{propertyName=propertyName}
-  queryObject$Query$LabCode =  if(is.null(labCode)){labCode=''}else{labCode=labCode}
-  queryObject$Query$StartYear =  if(is.null(startYear)){startYear=''}else{startYear=startYear}
-  queryObject$Query$EndYear = if(is.null(endYear)){endYear=''}else{endYear=endYear}
-  queryObject$Query$Provider =  if(is.null(provider)){provider=''}else{provider=provider}
-  queryObject$Query$Sites =  if(is.null(sites)){sites=''}else{sites=sites}
-  return(queryObject)
-}
 #'
 #'
 #' checkCache <- function(authANSIS, qObj){

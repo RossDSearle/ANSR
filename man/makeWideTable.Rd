@@ -36,7 +36,7 @@ getAO <- function(){
 Format the ANSIS response into a wide table
 }
 \details{
-You need to specify a parameter value for either 'propertyType' or 'properties'. 
+You need to specify a parameter value for either 'propertyType' or 'properties'.
 The data frame contains SiteID, location, depths and soil property fields
 }
 \author{

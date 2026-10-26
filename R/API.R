@@ -6,6 +6,72 @@
 ################################################################# #
 
 
+
+#' Get ANSIS Data
+#'
+#' @import data.table
+#'
+#' @param Name A name for the query. Default is NULL.
+#' @param Description A description of the query.
+#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
+#' @param propertyName A specific form of the soil property.
+#' @param labCode Green Book standard lab method code.
+#' @param startYear Starting year of date range to return data for.
+#' @param endYear Finishing year of date range to return data for.
+#' @param provider The Data Provider to return data for.
+#' @param sites A list of ANSIS Site IDs to return data for.
+#' @details This is the main function to use to retrieve data form the ANSIS Data System. It wraps a number of individual functions contained in this package to process a query of the ANSIS Data System from start to finish. THis function sends a query to the ANSIS Data System, retrieves the data and massages the response into and ANSIS Data Object.
+#' @author Ross Searle
+#' @return ANSIS Data Object
+#' @export
+#'
+#'
+apiGetANSISData <- function(queryName=NULL, description=NULL, ansisProperties=NULL, parseAll=T,
+                            minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
+                            startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL,
+                            overwrite=F, verbose=F){
+
+  if(!checkIfAuthorised()){return(cat(''))}
+
+
+  #qo <- makeQueryObject(ansisProperty, ansisID, labCode, minx, maxx, miny, maxy,  startYear, endYear, provider, sites)
+
+  qry <- apiSendQuery(minx=minx, maxx=maxx, miny=miny, maxy=maxy, ansisProperties=ansisProperties, startYear=startYear, endYear=endYear, provider=provider, sites=sites)
+  reqID <- qry$reqID
+  apiQueryStatus_Monitor(reqID)
+
+  of <- getOutputFileName(queryName=queryName, overwrite=overwrite)
+
+  zipFile <- apiDownloadQueryData3(reqID, outZipFile = of )
+
+  # if(is.null(od)){
+  #   cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
+  #   return(NULL)
+  # }
+
+
+  if(parseAll){
+    parseProps=NULL
+  }else{
+    ansisPropertyRecs = getAnsisPropertyInfo(ansisProperties = ansisProperties)
+    parseProps <- unique(ansisPropertyRecs$ANSIS_Code)
+  }
+
+  res <- parseANSISJsonParallel3(zipFile = zipFile, numCPUs=numCPUs, propertiesToParse = parseProps, verbose=verbose, parseAll=parseAll)
+  res$QueryParameters <- qry
+
+
+  return(res)
+
+}
+
+
+
+
 #' Get ANSIS API Documentation
 #' @details  Opens up the documentation of the ANSIS API upon wich this package has been developed
 #' @author Ross Searle
@@ -303,70 +369,114 @@ apiPropertyDefinitions <- function(){
 
 
 
-#' Get ANSIS Data
-#' @param Name A name for the query. Default is NULL.
-#' @param Description A description of the query.
-#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
-#' @param propertyName A specific form of the soil property.
-#' @param labCode Green Book standard lab method code.
-#' @param startYear Starting year of date range to return data for.
-#' @param endYear Finishing year of date range to return data for.
-#' @param provider The Data Provider to return data for.
-#' @param sites A list of ANSIS Site IDs to return data for.
-#' @details This is the main function to use to retrieve data form the ANSIS Data System. It wraps a number of individual functions contained in this package to process a query of the ANSIS Data System from start to finish. THis function sends a query to the ANSIS Data System, retrieves the data and massages the response into and ANSIS Data Object.
-#' @author Ross Searle
-#' @return ANSIS Data Object
-#' @export
 
-apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
-                         soilProperty=NULL, propertyName=NULL, labCode=NULL,
-                         startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
+getOutputFileName <- function(queryName, overwrite=F){
 
-# labcode parameter removed
-# apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
-#                             soilProperty=NULL, propertyName=NULL,
-#                             startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
-#
-  if(!checkIfAuthorised()){return(cat(''))}
+  ### get an auto file name
+  if(is.null(queryName)){
+    inDir <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/')
+    fls <- list.files(inDir, recursive = F, full.names = F, pattern = '.zip$')
+    idxs <- which(grepl('ansisQueryJsonFiles_', fls))
+    if(length(idxs) > 0){
+      efls <- fls[idxs]
+      xf <- stringr::str_remove(efls, '.zip')
+      nums <- as.numeric(stringr::str_remove(xf, 'ansisQueryJsonFiles_'))
+      nextNum <- max(nums)+1
+      outJsonZipFile <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/ansisQueryJsonFiles_', nextNum, '.zip')
+    }else{
+      outJsonZipFile <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/ansisQueryJsonFiles_', 1, '.zip')
+    }
+  }else{
+    outJsonZipFile <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', queryName, '.zip')
+    if(file.exists(outJsonZipFile)){
 
-      qo <- makeQueryObject(Name, Description, minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
-    #  dataInCache <- checkCache(authANSIS=authANSIS, qObj=qo)
-
-  # if(!is.null(dataInCache)){
-  #   if(dataInCache == 'NewNameRequired'){
-  #     return(NULL)
-  #   }else{
-  #     cat(paste0('\nRetrieving ANSIS data from the local cache....\n\n'))
-  #     ado <- cacheRetrieveData(dataInCache)
-  #     return(ado)
-  #   }
-  #
-  #
-  # }else{
-
-      reqID <- apiSendQuery(minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
-      apiQueryStatus_Monitor(reqID)
-      outDir <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', Name)
-      if(!dir.exists(outDir)){dir.create(outDir, recursive = T, showWarnings = F)}
-      #sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
-      od <- apiDownloadQueryData2(reqID, outDir = outDir )
-
-      if(is.null(od)){
-        cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
-        return(NULL)
+      if(overwrite){
+        unlink(outJsonZipFile)
+      }else{
+        killit <- readline(prompt = crayon::red("A file with this name already exists. Do you want to overwrite it? (Y/n) : "))
+        if(stringr::str_to_upper(killit) == 'Y'){
+          unlink(outJsonZipFile)
+        }else{
+          stop(cat(crayon::green("Please chosse another query name.")))
+        }
       }
-      ado <- parseANSISJson2(jsnDir = outDir, numCPUs=numCPUs)
+    }
+  }
+  return(outJsonZipFile)
 
-        # if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
-        #     addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
-        # }
-      return(ado)
- # }
 }
+
+
+makeQueryObject <- function(ansisProperty=NULL, ansisID=NULL, labCode=NULL,
+                            minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
+                            startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
+
+  queryObject <- list()
+  # queryObject$Name <- Name
+  # queryObject$Description <- Description
+  queryObject$Time <- Sys.time()
+  queryObject$User <- authANSIS@usr
+  queryObject$Query$Bdy$Minx <- if(is.null(minx)){minx=''}else{minx=minx}
+  queryObject$Query$Bdy$Maxx <- if(is.null(maxx)){maxx=''}else{maxx=maxx}
+  queryObject$Query$Bdy$Miny <- if(is.null(miny)){miny=''}else{miny=miny}
+  queryObject$Query$Bdy$Maxy <-  if(is.null(maxy)){maxy=''}else{maxy=maxy}
+  queryObject$Query$ansisProperty = if(is.null(ansisProperty)){ansisProperty=''}else{ansisProperty=ansisProperty }
+  queryObject$Query$ansisID =  if(is.null(ansisID)){ansisID=''}else{ansisID=ansisID}
+  queryObject$Query$LabCode =  if(is.null(labCode)){labCode=''}else{labCode=labCode}
+  queryObject$Query$StartYear =  if(is.null(startYear)){startYear=''}else{startYear=startYear}
+  queryObject$Query$EndYear = if(is.null(endYear)){endYear=''}else{endYear=endYear}
+  queryObject$Query$Provider =  if(is.null(provider)){provider=''}else{provider=provider}
+  queryObject$Query$Sites =  if(is.null(sites)){sites=''}else{sites=sites}
+  return(queryObject)
+}
+
+
+
+# apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
+#                          soilProperty=NULL, propertyName=NULL, labCode=NULL,
+#                          startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
+#
+# # labcode parameter removed
+# # apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
+# #                             soilProperty=NULL, propertyName=NULL,
+# #                             startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL ){
+# #
+#   if(!checkIfAuthorised()){return(cat(''))}
+#
+#       qo <- makeQueryObject(Name, Description, minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
+#     #  dataInCache <- checkCache(authANSIS=authANSIS, qObj=qo)
+#
+#   # if(!is.null(dataInCache)){
+#   #   if(dataInCache == 'NewNameRequired'){
+#   #     return(NULL)
+#   #   }else{
+#   #     cat(paste0('\nRetrieving ANSIS data from the local cache....\n\n'))
+#   #     ado <- cacheRetrieveData(dataInCache)
+#   #     return(ado)
+#   #   }
+#   #
+#   #
+#   # }else{
+#
+#       reqID <- apiSendQuery(minx, maxx, miny, maxy, soilProperty, propertyName, labCode, startYear, endYear, provider, sites)
+#       apiQueryStatus_Monitor(reqID)
+#       outDir <- paste0(authANSIS@DataStorePath, '/RawJSONResponses/', Name)
+#       if(!dir.exists(outDir)){dir.create(outDir, recursive = T, showWarnings = F)}
+#       #sitesJSN <- apiDownloadQueryData(reqID, outDir = outDir )
+#       od <- apiDownloadQueryData2(reqID, outDir = outDir )
+#
+#       if(is.null(od)){
+#         cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
+#         return(NULL)
+#       }
+#       ado <- parseANSISJson2(jsnDir = outDir, numCPUs=numCPUs)
+#
+#         # if(!is.null(authANSIS@DataStorePath) & !is.null(Name)){
+#         #     addQueryToCache(authANSIS, qObj=qo, ANSISObj=ado)
+#         # }
+#       return(ado)
+#  # }
+# }
 
 
 
@@ -388,19 +498,22 @@ apiGetANSISData <- function(Name=NULL, Description=NULL, minx=minx, maxx=NULL, m
 #' @author Ross Searle
 #' @return Request ID
 #' @export
-apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
-                         soilProperty=NULL, propertyName=NULL, labCode=NULL,
-                         startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
+apiSendQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisProperties=NULL, startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
+
 
   if(!checkIfAuthorised()){return(cat(''))}
 
-  cat('Sending query to the ANSIS server....\n')
+  ansisPropertyRecs = getAnsisPropertyInfo(ansisProperties)
 
-  ansisProperties = getAnsisPropertyCodes( soilProperty, propertyName, labCode)
+  if(!is.null(ansisPropertyRecs)){
+    ids <- unique(ansisPropertyRecs$ANSIS_ID)
+  }
 
-  qryJSON <- makeQuery(minx=minx, maxx = maxx, miny = miny, maxy = maxy, ansisProperties=ansisProperties,
+  qryDF <- makeQuery(minx=minx, maxx = maxx, miny = miny, maxy = maxy, ansisIDs=ids,
                               startYear=startYear, endYear=endYear, provider=provider, sites=sites)
+  qryJSON <- qryDF[qryDF$QueryField=='ANSISQueryJSON',]$QueryValue
 
+  cat('Sending query to the ANSIS server....\n')
   resp <- httr::POST(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/create-query-request'),
                body=qryJSON,
                httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
@@ -409,7 +522,13 @@ apiSendQuery <- function(minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
   if(is.null(reqID)){
     stop(paste0('There is a problem with your query - ', qryJSON))
   }
-  return(reqID)
+
+
+  ol <- list()
+  ol$reqID <- reqID
+  ol$queryParameters <- qryDF
+
+  return(ol)
 }
 
 # Was testing to see if this approach would speed up reponses from the ANSIS Server but alas it did not. The ANSIS system seems to be optimised to process queries at its end
@@ -724,6 +843,58 @@ apiDownloadQueryData2 <- function(reqID, outDir=NULL){
 
   return(outDir)
 }
+
+
+
+apiDownloadQueryData3 <- function(reqID, outZipFile=NULL){
+
+  if(!checkIfAuthorised()){return(cat(''))}
+
+  qStat <- apiQueryStatus_Single(reqID = reqID,  verbose=T)
+  fls <- qStat$sdrRequest$files
+
+  if(length(fls)==0){
+    return(NULL)
+  }
+
+  cat('Downloading data from ANSIS server....\n')
+
+  outDir <- stringr::str_split(paste0(tempdir(), '/tmp_', as.numeric(Sys.time())), '[.]')[[1]][1]
+  if(!dir.exists(outDir)){dir.create(outDir, recursive = T)}
+
+  print(outDir)
+
+  files <- vector(mode = 'character', length = length(fls))
+  for (i in 1:length(fls)) {
+
+    if(length(fls)>10){
+      cat(paste0('\rDownloading ', i, ' of ', length(fls) ))
+    }
+    fn <- paste0(outDir, '/',fls[i], '.json')
+    if(!file.exists(fn)){
+
+      resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
+                        httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+      jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
+      cat(jsn, file = fn)
+    }
+  }
+
+  cat('\nZipping json files....')
+  old_wd <- getwd()
+  setwd(outDir)
+  files_to_zip <- list.files(path = outDir, full.names = F)
+  zip::zip(zipfile = outZipFile, files = files_to_zip)
+  setwd(old_wd)
+
+  unlink(outDir, recursive = TRUE)
+
+  return(outZipFile)
+}
+
+
+
+
 
 
 #' Get a DSM Suitable Data Table

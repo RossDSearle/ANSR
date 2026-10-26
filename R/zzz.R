@@ -1,11 +1,13 @@
 .onAttach <- function(lib, pkg) {
 
-
+  .datatable.aware <- TRUE
 
   DataSets <<- new("DataSets",
-                 mps = getPackageData_mps(),
-                 CodesTable = getPackageData_CodesTable(),
-                 labcodesMapping = getPackageData_labcodesMapping()
+                 # mps = getPackageData_mps(),
+                 mappingInfo = generateANSISSchemaMappingTable()
+                 #CodesTable = getPackageData_CodesTable()
+                # CodesTable = jsonlite::fromJSON('https://soils.csiro.au/data/natsoil-api/codes')
+                # labcodesMapping = getPackageData_labcodesMapping()
 
 )
 
@@ -15,11 +17,14 @@
                     ANSISguiURL = 'https://portal.ansis.net/'
   )
 
-  mps <<- getPackageData_mps()
-  CodesTable <<- getPackageData_CodesTable()
-  labcodesMapping <<- getPackageData_labcodesMapping()
+ # mps <<- getPackageData_mps()
+ # mps <- DataSets@mps
+ # CodesTable <<- getPackageData_CodesTable()
+ # labcodesMapping <<- getPackageData_labcodesMapping()
 
-
+  #
+  # mps = generateANSISSchemaMappingTable()
+  # CodesTable <<-  jsonlite::fromJSON('https://soils.csiro.au/data/natsoil-api/codes')
 
   msg <- paste0(crayon::bold( crayon::green( paste0("\n\n#########     Welcome to the ANSR Package     ##########\n\n"))),
                 crayon::bold( crayon::blue(paste0('This package is designed for interacting with the Australian National Soil Information System (ANSIS).
@@ -32,3 +37,6 @@
 
 
 }
+
+
+

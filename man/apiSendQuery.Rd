@@ -9,9 +9,7 @@ apiSendQuery(
   maxx = NULL,
   miny = NULL,
   maxy = NULL,
-  soilProperty = NULL,
-  propertyName = NULL,
-  labCode = NULL,
+  ansisProperties = NULL,
   startYear = NULL,
   endYear = NULL,
   provider = NULL,
@@ -27,12 +25,6 @@ apiSendQuery(
 
 \item{maxy}{Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
 
-\item{soilProperty}{Soil property element to query on. This is the broadest ANSIS attribute grouping.}
-
-\item{propertyName}{A specific form of the soil property.}
-
-\item{labCode}{Green Book standard lab method code.}
-
 \item{startYear}{Starting year of date range to return data for.}
 
 \item{endYear}{Finishing year of date range to return data for.}
@@ -44,6 +36,12 @@ apiSendQuery(
 \item{Name}{A name for the query. Default is NULL.}
 
 \item{Description}{A description of the query.}
+
+\item{soilProperty}{Soil property element to query on. This is the broadest ANSIS attribute grouping.}
+
+\item{propertyName}{A specific form of the soil property.}
+
+\item{labCode}{Green Book standard lab method code.}
 }
 \value{
 Request ID

@@ -1,15 +1,15 @@
-# 
-# 
-# 
+#
+#
+#
 
 
 normaliseSite <- function(s){
   #s <- r$data[[i]]
   sid <- getSiteID(siteAsList=s)
-  
+
   layersTable <- parseANSISSiteLayersToDenormalisedTable(siteAsList=s)
   siteVistTable <- parseANSISSiteVistToDenormalisedTable(siteAsList=s)
-  
+
   loc <- getSiteLocation(siteAsList=s)
   pl <- list()
   pl$Site=sid
@@ -25,11 +25,11 @@ getSiteID <- function(siteAsList, projects){
 
   scopeID <- siteAsList$scopedIdentifier[[1]]$value
   relproj <- siteAsList$relatedProject
-  
+
   pids <- sapply(projects, function (x) x[['id']])
   idx <- which(pids==relproj)
   proj <- projects[[idx]]$label
-  
+
   if(is.null(scopeID)){
     sid <- paste0( proj, '+', siteAsList$id)
   }else{
@@ -38,14 +38,14 @@ getSiteID <- function(siteAsList, projects){
   }
   return(sid)
 }
-# 
-# 
-# 
+#
+#
+#
 dumpCSV <- function(anisObject){
   makeAllDataCSV(allsites=anisObject$dfDenorm)
 }
-# 
-# 
+#
+#
 makeAllDataCSV <- function(allsites){
   # tic()
   alldf <- data.frame()
@@ -55,7 +55,7 @@ makeAllDataCSV <- function(allsites){
     alldf <- rbind(alldf, sitedf)
   }
   # toc()
-  
+
 
   sites <- pbapply::pbsapply(allsites, makeSiteCSV, simplify = F)
  # sites <- sapply(allsites, makeSiteCSV, simplify = F)
@@ -63,7 +63,7 @@ makeAllDataCSV <- function(allsites){
 
   return(alldf)
 }
-# 
+#
 makeSiteCSV <- function(sl){
 
   sv<-sl
@@ -77,7 +77,7 @@ makeSiteCSV <- function(sl){
   odf <- rbind(odf, svdf)
   hors <- sv$data
   #hors <- data.frame(ud = hors$ud, ld= hors$ld,Date=dt, hors[,3:ncol(hors)]  )
-  
+
   odf <- rbind(odf, hors)
   sitedf <- data.frame(site=sid, Longitude=sv$X, Latitude=sv$Y, Date=thedate, odf)
   colnames(sitedf) <- c("Site", "Longitude", "Latitude", "Date", "UpperDepth", "LowerDepth",  "Group", "PropertyType", "Property", "Value", "Description" )
@@ -90,7 +90,7 @@ makeSiteCSV <- function(sl){
 
 parseANSISSiteLayersToDenormalisedTable <- function(siteAsList){
 
-  
+
  # mps <- DataSets@mps
  # CodesTable <- DataSets@CodesTable
   mp <- unique(mps[mps$Domain!='' & mps$SchemaLocation=='Horizons', ]$Domain )
@@ -117,13 +117,13 @@ parseANSISSiteLayersToDenormalisedTable <- function(siteAsList){
         }else if(isLabProperty(layer=l, prop=att)){
           alldf <- getLabVals(layer=l, prop=att, mps=mps, ud, ld, alldf)
         }
-      } 
+      }
     }
     return(alldf)
   }
 }
-# 
-# 
+#
+#
 isLabProperty <- function(layer, prop){
 
   tryCatch({
@@ -135,12 +135,12 @@ isLabProperty <- function(layer, prop){
   return(F)
 
 }
-# 
-# 
+#
+#
 getMorphVals <- function(layer, att, mps, ud, ld, alldf){
 
   l=layer
-  
+
   # CodesTable <- DataSets@CodesTable
 
   schRoot <- '/SoilSite/data/siteVisit/soilProfile/soilLayer/'
@@ -201,7 +201,7 @@ getMorphVals <- function(layer, att, mps, ud, ld, alldf){
 
   return(alldf)
 }
-# 
+#
 getLabVals <- function(layer, prop, mps, ud, ld, alldf){
 
   desc=''
@@ -216,11 +216,11 @@ getLabVals <- function(layer, prop, mps, ud, ld, alldf){
 
   return(alldf)
 }
-# 
-# 
+#
+#
 parseANSISSiteVistToDenormalisedTable <- function(siteAsList){
 
-  
+
   #mps <- DataSets@mps
   sv <- siteAsList
 
@@ -409,22 +409,104 @@ getSiteLocation2 <- function(dl){
   df <-  data.frame(sid=sid, X=x, Y=y)
   return(df)
 }
- 
-makeSitesLocationTableFromDataList <- function(dl){
 
-  # locDF <- data.frame(sid=character(), X=numeric(), Y=numeric())
-  # 
-  # for (i in 1:length(dl)) {
-  #   sid <- dl[[i]]$Site
-  #   x <- dl[[i]]$X
-  #   y <- dl[[i]]$Y
-  #   df <-  data.frame(sid=sid, X=x, Y=y)
-  #   locDF <- rbind(locDF, df)
-  # }
-  
-  sites <- pbapply::pbsapply(dl, getSiteLocation2, simplify = F)
-  locDF <- dplyr::bind_rows(sites)
-  
-  return(locDF)
+makeSitesLocationTable <- function(df){
+
+  dt <- data.table::data.table(df)
+  unique_combos <- unique(dt, by = c("scopedIdentifier", "SRID", "Longitude", 'Latitude'))[, c('scopedIdentifier', 'SRID', 'Longitude', 'Latitude')]
+  return(unique_combos)
 }
+
+summariseOutputsYeOlde <- function(df){
+
+  # 1. Force the object to be a strict data.table
+  dt <- data.table::as.data.table(df)
+
+  # 2. Explicitly invoke the data.table subset method to bypass fallback bugs
+  totCnts <-  data.table:::`[.data.table`(dt, , list(count = .N), by = c('fieldName'))
+  siteCnts <- data.table:::`[.data.table`(dt, , list(count = .N), by = c("scopedIdentifier", "fieldName"))
+
+  ol <- list()
+  ol$Totals$ANSISPropertyCounts <- tibble::tibble(totCnts)
+  ol$Sites$ANSISPropertyCounts <- tibble::tibble(siteCnts)
+
+  methIdxs <- which(!is.na(df$UsedProcedure))
+  if(length(methIdxs) > 0){
+
+    # Use the explicit method here as well
+    meths <- data.table:::`[.data.table`(dt, methIdxs, )
+
+    totMethCnts <-  data.table:::`[.data.table`(meths, , list(count = .N), by = c('fieldName', 'UsedProcedure'))
+    data.table::setorder(totMethCnts, fieldName , UsedProcedure )
+
+    siteMethCnts <-  data.table:::`[.data.table`(meths, , list(count = .N), by = c('scopedIdentifier', 'fieldName', 'UsedProcedure'))
+    data.table::setorder(siteMethCnts, scopedIdentifier, fieldName , UsedProcedure )
+
+    ol$Totals$LabMethodCounts <- tibble::tibble(totMethCnts)
+    ol$Sites$LabMethodCounts <- tibble::tibble(siteMethCnts)
+  }
+
+  return(ol)
+}
+
+
+library(dplyr)
+library(tibble)
+
+summariseOutputs <- function(df) {
+
+  # Ensure input is a tibble/data.frame to work seamlessly with dplyr
+  df <- tibble::as_tibble(df)
+
+  # 1. Calculate overall counts using count()
+  totCnts  <- df %>% count(fieldName, name = "count")
+  siteCnts <- df %>% count(scopedIdentifier, fieldName, name = "count")
+
+  ol <- list()
+  ol$Totals$ANSISPropertyCounts <- totCnts
+  ol$Sites$ANSISPropertyCounts  <- siteCnts
+
+  # 2. Handle conditional counts for UsedProcedure
+  meths <- df %>% filter(!is.na(UsedProcedure))
+
+  if (nrow(meths) > 0) {
+
+    # count() automatically handles groupings.
+    # arrange() replaces data.table::setorder to sort the output.
+    totMethCnts <- meths %>%
+      count(fieldName, UsedProcedure, name = "count") %>%
+      arrange(fieldName, UsedProcedure)
+
+    siteMethCnts <- meths %>%
+      count(scopedIdentifier, fieldName, UsedProcedure, name = "count") %>%
+      arrange(scopedIdentifier, fieldName, UsedProcedure)
+
+    ol$Totals$LabMethodCounts <- totMethCnts
+    ol$Sites$LabMethodCounts  <- siteMethCnts
+  }
+
+  return(ol)
+}
+
+
+
+
+
+# makeSitesLocationTableFromDataList <- function(dl){
+#
+#   # locDF <- data.frame(sid=character(), X=numeric(), Y=numeric())
+#   #
+#   # for (i in 1:length(dl)) {
+#   #   sid <- dl[[i]]$Site
+#   #   x <- dl[[i]]$X
+#   #   y <- dl[[i]]$Y
+#   #   df <-  data.frame(sid=sid, X=x, Y=y)
+#   #   locDF <- rbind(locDF, df)
+#   # }
+#
+#   sites <- pbapply::pbsapply(dl, getSiteLocation2, simplify = F)
+#   locDF <- dplyr::bind_rows(sites)
+#
+#   return(locDF)
+# }
 

@@ -5,15 +5,14 @@
 \title{Get ANSIS Data}
 \usage{
 apiGetANSISData(
-  Name = NULL,
-  Description = NULL,
+  queryName = NULL,
+  description = NULL,
+  ansisProperties = NULL,
+  parseAll = T,
   minx = minx,
   maxx = NULL,
   miny = NULL,
   maxy = NULL,
-  soilProperty = NULL,
-  propertyName = NULL,
-  labCode = NULL,
   startYear = NULL,
   endYear = NULL,
   provider = NULL,
@@ -22,10 +21,6 @@ apiGetANSISData(
 )
 }
 \arguments{
-\item{Name}{A name for the query. Default is NULL.}
-
-\item{Description}{A description of the query.}
-
 \item{minx}{Western extent of the bounding box of the query. CRS WGS84. Default is NULL.}
 
 \item{maxx}{Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
@@ -34,12 +29,6 @@ apiGetANSISData(
 
 \item{maxy}{Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
 
-\item{soilProperty}{Soil property element to query on. This is the broadest ANSIS attribute grouping.}
-
-\item{propertyName}{A specific form of the soil property.}
-
-\item{labCode}{Green Book standard lab method code.}
-
 \item{startYear}{Starting year of date range to return data for.}
 
 \item{endYear}{Finishing year of date range to return data for.}
@@ -47,6 +36,16 @@ apiGetANSISData(
 \item{provider}{The Data Provider to return data for.}
 
 \item{sites}{A list of ANSIS Site IDs to return data for.}
+
+\item{Name}{A name for the query. Default is NULL.}
+
+\item{Description}{A description of the query.}
+
+\item{soilProperty}{Soil property element to query on. This is the broadest ANSIS attribute grouping.}
+
+\item{propertyName}{A specific form of the soil property.}
+
+\item{labCode}{Green Book standard lab method code.}
 }
 \value{
 ANSIS Data Object
