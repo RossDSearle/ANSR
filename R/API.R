@@ -498,10 +498,13 @@ makeQueryObject <- function(ansisProperty=NULL, ansisID=NULL, labCode=NULL,
 #' @author Ross Searle
 #' @return Request ID
 #' @export
-apiSendQuery <- function(minx=NULL, maxx=NULL, miny=NULL, maxy=NULL, ansisProperties=NULL, startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
+apiSendQuery <- function(ansisProperties=NULL, minx=NULL, maxx=NULL, miny=NULL, maxy=NULL,  startYear=NULL, endYear=NULL, provider=NULL, sites=NULL ){
 
 
-  if(!checkIfAuthorised()){return(cat(''))}
+  if(!checkIfAuthorised()){return()}
+
+  if(!validateQueryParameters(ansisProperties, minx, maxx, miny, maxy,  startYear, endYear, provider, sites)){return()}
+
 
   ansisPropertyRecs = getAnsisPropertyInfo(ansisProperties)
 

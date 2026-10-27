@@ -1,7 +1,7 @@
 Package: ANSR
 Type: Package
 Title: Query ANSIS and massage the responses into various useful formats
-Version: 1.0.0
+Version: 2.0.0
 Authors@R: c(
     person(
       "Ross", "Searle",
@@ -17,7 +17,12 @@ License: MIT
 URL: https://github.com/RossDSearle/ANSR
 Encoding: UTF-8
 LazyData: true
-Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, parallel, RSQLite, DBI
+Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, 
+         parallel, RSQLite, DBI, data.table, purrr, pbapply, tidyr, methods
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1.0)
 Config/roxygen2/version: 8.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

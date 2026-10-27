@@ -5,11 +5,11 @@
 \title{Send a Query to the ANSIS API}
 \usage{
 apiSendQuery(
-  minx = minx,
+  ansisProperties = NULL,
+  minx = NULL,
   maxx = NULL,
   miny = NULL,
   maxy = NULL,
-  ansisProperties = NULL,
   startYear = NULL,
   endYear = NULL,
   provider = NULL,

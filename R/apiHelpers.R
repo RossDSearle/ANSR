@@ -21,19 +21,67 @@ getPropertiesInANSISResponse <- function(ANSISObject, PropertyType=NULL){
 }
 
 
+validateQueryParameters <- function(ansisProperties, minx, maxx, miny, maxy,  startYear, endYear, provider, sites){
+
+  ### Not sure if ANSIS lets you dump the whole DB by not having any properties but leaving this constraint just in case
+  if(is.null(ansisProperties)){
+    stop(crayon::red('\nYou need to supply at least one value for the ansisProperties parameter.'))
+  }
+
+  idxs <- which(!ansisProperties %in% DataSets@mappingInfo$ANSIS_Property)
+  if(length(idxs)>0){
+
+    vals <- paste0( ansisProperties[idxs], collapse = ", ")
+    msg <- crayon::red('\nThe value/s for at least one of the ansisProperties you supplied is not a valid ANSIS Property. These values are case sensitive.\n
+                        Have a look at the values in the ', crayon::blue('getAnsisPropertyInfo()'),  'function to see the valid values.\n\nThe problematic values are ',crayon::cyan(vals))
+    x <- stringr::str_replace_all(msg, "[[:blank:]]+", " ")
+    stop(x)
+  }
+
+  if(!is.null(startYear)){is_valid_year(startYear)}
+  if(!is.null(endYear)){is_valid_year(endYear)}
+  if(!is.null(provider)){
+    p <- DataSets@Providers
+    idxs <- which(!provider %in% p$name)
+    if(length(idxs)>0){
+      stop(crayon::red('\nThe data provider parameter value is not a valid ANSIS Data Provider name.'))
+    }
+  }
+
+
+return(T)
+
+}
+
+
+is_valid_year <- function(x) {
+  # Convert to numeric (silently converts invalid strings to NA)
+  num <- suppressWarnings(as.numeric(x))
+  if(is.na(num)){
+    stop(crayon::red(paste0('\n\nThe year values needs to be a numeric value')))
+  }
+
+  maxYr <- as.numeric(lubridate::year(Sys.Date()))
+  # Check it isn't NA, is a whole number, and falls in range
+   if(!(!is.na(num) & (num %% 1 == 0) & (num >= 1900) & (num <= maxYr))){
+     stop(crayon::red(paste0('\n\nThe year values have to be between 1900 and ', maxYr)))
+   }
+    return(T)
+}
+
 
 checkIfAuthorised <- function(){
 
 
   if(!exists('authANSIS')){
-    cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
-    return(F)
+    stop(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
+    #return(F)
   }
 
 
   if(!authANSIS@Authorised){
-    cat(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
-    return(F)
+    stop(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
+    #return(F)
   }
 
   ### reauthorise if the token has expired

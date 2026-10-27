@@ -24,17 +24,9 @@ setClass("Constants",
 setClass("DataSets",
          slots = c(
            mappingInfo = "data.frame",
-           CodesTable = "data.frame"
+           CodesTable = "data.frame",
+           Providers = "data.frame"
            #labcodesMapping = "data.frame"
          )
 )
-
-
-
-
-
-
-
-# mps <- getPackageData_mps()
-# CodesTable <- getPackageData_CodesTable()
 
