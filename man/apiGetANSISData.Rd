@@ -19,7 +19,8 @@ apiGetANSISData(
   sites = NULL,
   numCPUs = NULL,
   overwrite = F,
-  verbose = F
+  verbose = F,
+  viewSummaries = F
 )
 }
 \arguments{

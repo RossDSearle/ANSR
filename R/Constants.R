@@ -25,7 +25,8 @@ setClass("DataSets",
          slots = c(
            mappingInfo = "data.frame",
            CodesTable = "data.frame",
-           Providers = "data.frame"
+           Providers = "data.frame",
+           Enums = "data.frame"
            #labcodesMapping = "data.frame"
          )
 )

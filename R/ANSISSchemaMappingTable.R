@@ -179,7 +179,58 @@ getANSISProerties <- function(outFile=NULL){
 }
 
 
+getEnums <- function(){
 
+ url <- 'https://raw.githubusercontent.com/ANZSoilData/def-au-schema-json/main/schema/domain/2023-07-31/enum.json'
+
+ # Load the JSON file
+ json_data <- jsonlite::fromJSON(url, simplifyVector = FALSE)
+ defs <- json_data$`$defs`
+
+ # Unpack each object in $defs and flatten its inner 'oneOf' elements
+ parsed_enums <- purrr::imap_dfr(defs, function(def_obj, def_key) {
+
+   # Handle '@id' whether it's a single string, a vector, or NULL
+   id_val <- if (is.list(def_obj$`@id`) || length(def_obj$`@id`) > 1) {
+     paste(unlist(def_obj$`@id`), collapse = "; ")
+   } else if (!is.null(def_obj$`@id`)) {
+     as.character(def_obj$`@id`)
+   } else {
+     NA_character_
+   }
+
+   title_val   <- def_obj$title %||% NA_character_
+   def_desc    <- def_obj$description %||% NA_character_
+   type_val    <- def_obj$type %||% NA_character_
+   anchor_val  <- def_obj$`$anchor` %||% NA_character_
+   def_comment <- def_obj$`$comment` %||% NA_character_
+
+   one_of <- def_obj$oneOf %||% list()
+
+   # Iterate over each item in the 'oneOf' array
+   purrr::map_dfr(one_of, function(item) {
+     tibble::tibble(
+       Definition             = def_key,
+       `@id`                  = id_val,
+       title                  = title_val,
+       definition_description = def_desc,
+       type                   = type_val,
+       `$anchor`              = anchor_val,
+       definition_comment     = def_comment,
+       const                  = item$const %||% NA_character_,
+       const_description      = item$description %||% NA_character_,
+       const_comment          = item$`$comment` %||% NA_character_
+     )
+   })
+ })
+
+ # # Export to CSV
+ # readr::write_csv(parsed_enums, "ansis_enums.csv")
+
+
+
+
+}
 
 getANSISPhysChemProcedures <- function(outFile=NULL){
 

@@ -33,7 +33,7 @@
 apiGetANSISData <- function(queryName=NULL, description=NULL, ansisProperties=NULL, parseAll=T,
                             minx=minx, maxx=NULL, miny=NULL, maxy=NULL,
                             startYear=NULL, endYear=NULL, provider=NULL, sites=NULL, numCPUs=NULL,
-                            overwrite=F, verbose=F){
+                            overwrite=F, verbose=F, viewSummaries=F){
 
   if(!checkIfAuthorised()){return(cat(''))}
 
@@ -61,8 +61,10 @@ apiGetANSISData <- function(queryName=NULL, description=NULL, ansisProperties=NU
     parseProps <- unique(ansisPropertyRecs$ANSIS_Code)
   }
 
-  res <- parseANSISJsonParallel3(zipFile = zipFile, numCPUs=numCPUs, propertiesToParse = parseProps, verbose=verbose, parseAll=parseAll)
+  res <- parseANSISJsonParallel3(zipFile = zipFile, numCPUs=numCPUs, propertiesToParse = parseProps, verbose=verbose, parseAll=parseAll, viewSummaries=viewSummaries)
   res$QueryParameters <- qry
+
+
 
 
   return(res)
@@ -230,7 +232,7 @@ apiCatalogueSummary  <- function(){
 #' ANSIS Provider Catalogue
 #'
 #' Shows details for specified ANSIS data providers
-#' @param poviderNames A list of ANSIS Provider names.
+#' @param providerNames A list of ANSIS Provider names.
 #' @param includeProperties Include the list of ANSIS Soil properties associated with each site.
 #' @param outputFormat Either a dataframe or JSON
 #' @param ViewIt View the raw json output.
@@ -241,18 +243,18 @@ apiCatalogueSummary  <- function(){
 #' @return dataframe
 #' @export
 #'
-apiProviderCatalogue   <- function(poviderNames=NULL, includeProperties=F, outputFormat='dataframe', ViewIt=F){
+apiProviderCatalogue   <- function(providerNames=NULL, includeProperties=F, outputFormat='dataframe', ViewIt=F){
 
-  if(is.null(poviderNames)){
+  if(is.null(providerNames)){
     prvs <- apiCatalogueSummary()
-    poviderNames <- prvs$id
+    providerNames <- prvs$id
   }
 
   cdf <- data.frame()
 
-    for (i in 1:length(poviderNames)) {
+    for (i in 1:length(providerNames)) {
 
-      p <- poviderNames[i]
+      p <- providerNames[i]
       cat(paste0('Getting catalogue information for ', p, '....\n'))
 
       url <- paste0(Constants@ANSISAPIurlProd,'/site-catalogue/v1/provider/', p)
