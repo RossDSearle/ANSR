@@ -28,7 +28,7 @@ apiGetANSISData(
 
 \item{maxx}{Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
 
-\item{miny}{Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
+\item{miny}{Southern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
 
 \item{maxy}{Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
 

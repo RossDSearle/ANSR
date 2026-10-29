@@ -10,7 +10,13 @@ getSitesTable <- function(providerNames){
 
 
 
-# The Gadget Wrapper
+#' Site Data Map Viewer
+#' @param providers a list of data provider sites to display on the map
+
+#' @details Displays an interactive map that you can click on sites and view their site data
+#' @return leaflet Map
+#' @export
+
 siteDataMapViewer <- function(providers=NULL) {
 
  sites <-  getSitesTable(providerNames = providers )

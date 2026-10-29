@@ -4,7 +4,7 @@
 \alias{apiDownloadQueryData}
 \title{Download Query Data}
 \usage{
-apiDownloadQueryData(reqID, outDir = NULL)
+apiDownloadQueryData(reqID, outZipFile = NULL)
 }
 \arguments{
 \item{reqID}{Request ID}
