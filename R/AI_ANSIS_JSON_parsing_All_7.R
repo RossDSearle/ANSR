@@ -303,6 +303,8 @@ ANSIS_JSON_parsing_All <- function(inDir, target_fields = NULL, num_cores = NULL
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
 
+  `%dopar%` <- foreach::`%dopar%`
+
   parsed_robust_df <- foreach::foreach(
     file = json_files,
     .combine = dplyr::bind_rows,
@@ -318,3 +320,15 @@ ANSIS_JSON_parsing_All <- function(inDir, target_fields = NULL, num_cores = NULL
 
   return(parsed_robust_df)
 }
+
+
+
+ANSIS_JSON_parsing_SingleSite <- function(jsnFileName, target_fields = NULL){
+
+  singleDF <- process_json_fileAll(jsnFileName, target_fields = target_fields)
+  return(singleDF)
+}
+
+
+
+

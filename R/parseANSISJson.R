@@ -349,6 +349,52 @@ parseANSISJsonParallel3 <- function(zipFile, numCPUs=NULL, propertiesToParse=NUL
 }
 
 
+parseANSISJsonSingleSite3 <- function(jsnFileName, propertiesToParse=NULL, verbose=F, parseAll=T, viewSummaries=F){
+
+  ansisData <- ANSIS_JSON_parsing_SingleSite(jsnFileName, target_fields=propertiesToParse)
+
+  # Post-processing and export
+  if (nrow(ansisData) > 0) {
+
+    if(!verbose){
+      ansisData <- ansisData[, -c(12,19,20,21)]
+    }
+
+    ansisData <- ansisData %>% arrange(SiteID, endAtTime, fieldDepth, Property , depthUpper, depthLower )
+
+    # d1 <- stringr::str_replace(zipFile, 'RawJSONResponses', 'ANSISDataObjects')
+    # ofData <- stringr::str_replace(d1, '.zip$', '.rds')
+    #
+    # cat('\nCreating the ANSIS Data Object .....\n\n')
+
+    #cat('\nMaking the Site Locations table .....\n\n')
+    locsDF <- makeSitesLocationTable(df=ansisData)
+    summ <- summariseOutputs(df=ansisData)
+
+    jL <- list()
+    jL$locations <- locsDF
+    jL$Data <- ansisData
+    jL$DataSummary <- summ
+
+    #saveRDS(jL, ofData)
+
+    # unlink(outDir, recursive = TRUE)
+    # message(sprintf("Success! Exported %s rows to %s", nrow(ansisData), ofData))
+    # print(head(jL$DataSummary$Totals))
+    # if(viewSummaries){
+    #   print(listviewer::jsonedit(jL$DataSummary))
+    # }
+
+    return(jL)
+
+  } else {
+    message("No records found for any of the target fields. No output created.")
+    return(NULL)
+  }
+
+}
+
+
 
 
 # makeWideTable

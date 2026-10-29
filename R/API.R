@@ -954,30 +954,54 @@ getDSMtable <- function(ansisObject=NULL, propertyCode=NULL){
 #' @return logical
 #' @export
 
-getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
 
-  if(!checkIfAuthorised()){return(cat(''))}
+getSingleSite <- function(providerID, siteID, target_fields=NULL, format = "ANSISDataObject"){
 
-  url <- paste0(Constants@ANSISAPIurlProd, '/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
-  resp <- httr::GET(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-  jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
-  if(format=='JSON'){
-    return(jsn)
-  }else if(format=='ANSISDataObject'){
-    ado <- parseANSISJson(ansisResponse = jsn)
-    return(ado)
-  }else if(format=='CSV'){
-    ado <- parseANSISJson(ansisResponse = jsn)
-    return(ado$CSV)
-  }else if(format=='HTML'){
-    ado <- parseANSISJson(ansisResponse = jsn)
-    html <- generateSiteDescription(ado)
-    tf <- tempfile(pattern = 'ANSIS_', fileext = '.html')
-    cat(html, file = tf)
-    browseURL(paste('file://', tf, sep='/'))
-    return(html)
+      if(!checkIfAuthorised()){return(cat(''))}
 
-  }
+      url <- paste0(Constants@ANSISAPIurlProd, '/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
+      print(url)
+      resp <- httr::GET(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+      jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
 
+
+         if(format=='JSON'){
+           return(jsn)
+         }else if(format=='ANSISDataObject'){
+           jf <- tempfile(pattern = 'ANSIS_Site', fileext = '.json')
+           cat(jsn, file=jf)
+           ol <- parseANSISJsonSingleSite3(jsnFileName = jf,propertiesToParse = target_fields)
+           unlink(jf)
+           return(ol)
+         }else{
+           stop('Specify an output format')
+         }
 }
+
+# getSingleSite <- function(providerID, siteID, format='ANSISDataObject'){
+#
+#   if(!checkIfAuthorised()){return(cat(''))}
+#
+#   url <- paste0(Constants@ANSISAPIurlProd, '/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
+#   resp <- httr::GET(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+#   jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
+#   if(format=='JSON'){
+#     return(jsn)
+#   }else if(format=='ANSISDataObject'){
+#     ado <- parseANSISJson(ansisResponse = jsn)
+#     return(ado)
+#   }else if(format=='CSV'){
+#     ado <- parseANSISJson(ansisResponse = jsn)
+#     return(ado$CSV)
+#   }else if(format=='HTML'){
+#     ado <- parseANSISJson(ansisResponse = jsn)
+#     html <- generateSiteDescription(ado)
+#     tf <- tempfile(pattern = 'ANSIS_', fileext = '.html')
+#     cat(html, file = tf)
+#     browseURL(paste('file://', tf, sep='/'))
+#     return(html)
+#
+#   }
+#
+# }
 
