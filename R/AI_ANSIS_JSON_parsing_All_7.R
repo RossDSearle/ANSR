@@ -183,9 +183,9 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
       .groups = "drop"
     ) |>
     dplyr::mutate(
-      Value = if_else(Value == "", NA_character_, Value),
-      Unit = if_else(Unit == "", NA_character_, Unit),
-      UsedProcedure = if_else(UsedProcedure == "", NA_character_, UsedProcedure)
+      Value = dplyr::if_else(Value == "", NA_character_, Value),
+      Unit = dplyr::if_else(Unit == "", NA_character_, Unit),
+      UsedProcedure = dplyr::if_else(UsedProcedure == "", NA_character_, UsedProcedure)
     )
 
   # Extract AnsisSiteID
@@ -210,9 +210,9 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
       .groups = "drop"
     ) |>
     dplyr::mutate(
-      projectName = if_else(projectName == "", NA_character_, projectName),
-      projectLabel = if_else(projectLabel == "", NA_character_, projectLabel),
-      projectAuthority = if_else(projectAuthority == "", NA_character_, projectAuthority)
+      projectName = dplyr::if_else(projectName == "", NA_character_, projectName),
+      projectLabel = dplyr::if_else(projectLabel == "", NA_character_, projectLabel),
+      projectAuthority = dplyr::if_else(projectAuthority == "", NA_character_, projectAuthority)
     )
 
   geoms <- flat_df |>
