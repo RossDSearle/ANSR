@@ -1,4 +1,3 @@
-
 # Helper 1: Recursively prune nested JSON list before flattening
 prune_json_tree <- function(node, target_pattern) {
   if (is.atomic(node) || is.null(node) || length(node) == 0) return(node)
@@ -179,9 +178,9 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
       UsedProcedure = dplyr::if_else(UsedProcedure == "", NA_character_, UsedProcedure)
     )
 
-  # Extract AnsisSiteID
+  # Extract AnsisSiteID (only top-level scopedIdentifier under site object 'data.N')
   scoped_ids <- flat_df |>
-    dplyr::filter(stringr::str_detect(path, "(?i)scopedIdentifier.*value$")) |>
+    dplyr::filter(stringr::str_detect(path, "(?i)^data\\.\\d+\\.scopedIdentifier\\..*value$")) |>
     dplyr::mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) |>
     dplyr::group_by(site_idx) |>
     dplyr::summarise(AnsisSiteID = paste(value, collapse = ", "), .groups = "drop")
@@ -206,8 +205,9 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
       projectAuthority = dplyr::if_else(projectAuthority == "", NA_character_, projectAuthority)
     )
 
+  # Extract Geometry (only top-level geometry under site object 'data.N')
   geoms <- flat_df |>
-    dplyr::filter(stringr::str_detect(path, "geometry\\.result|geometry$")) |>
+    dplyr::filter(stringr::str_detect(path, "(?i)^data\\.\\d+\\.geometry")) |>
     dplyr::mutate(
       site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+")),
       SRID = stringr::str_extract(value, "(?<=SRID=)\\d+"),
@@ -312,14 +312,8 @@ ANSIS_JSON_parsing_All <- function(inDir, target_fields = NULL, num_cores = NULL
   return(parsed_robust_df)
 }
 
-
-
 ANSIS_JSON_parsing_SingleSite <- function(jsnFileName, target_fields = NULL){
 
   singleDF <- process_json_fileAll(jsnFileName, target_fields = target_fields)
   return(singleDF)
 }
-
-
-
-
