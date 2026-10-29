@@ -175,7 +175,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
   wide_df <- parsed_df |>
     dplyr::select(sourceFile, hierarchyPath, site_idx, visit_idx, prof_idx, layer_idx, base_path, fieldName, attr_type, value) |>
     group_by(sourceFile, site_idx, visit_idx, prof_idx, layer_idx, base_path, fieldName) |>
-    summarise(
+    dplyr::summarise(
       hierarchyPath = first(hierarchyPath),
       Value = paste(value[attr_type == "Value"], collapse = ", "),
       Unit = paste(value[attr_type == "Unit"], collapse = ", "),
@@ -193,7 +193,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
     dplyr::filter(stringr::str_detect(path, "(?i)scopedIdentifier.*value$")) |>
     dplyr::mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) |>
     group_by(site_idx) |>
-    summarise(AnsisSiteID = paste(value, collapse = ", "), .groups = "drop")
+    dplyr::summarise(AnsisSiteID = paste(value, collapse = ", "), .groups = "drop")
 
   # Resolve relatedProject UUIDs against project_lookup
   rel_projects <- flat_df |>
@@ -203,7 +203,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
     tidyr::separate_rows(value, sep = ",\\s*") |>
     left_join(project_lookup, by = c("value" = "id")) |>
     group_by(site_idx) |>
-    summarise(
+    dplyr::summarise(
       projectName = paste(na.omit(unique(projectName)), collapse = ", "),
       projectLabel = paste(na.omit(unique(projectLabel)), collapse = ", "),
       projectAuthority = paste(na.omit(unique(projectAuthority)), collapse = ", "),
