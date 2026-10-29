@@ -5,14 +5,14 @@
 \title{ANSIS Provider Catalogue}
 \usage{
 apiProviderCatalogue(
-  poviderNames = NULL,
+  providerNames = NULL,
   includeProperties = F,
   outputFormat = "dataframe",
   ViewIt = F
 )
 }
 \arguments{
-\item{poviderNames}{A list of ANSIS Provider names.}
+\item{providerNames}{A list of ANSIS Provider names.}
 
 \item{includeProperties}{Include the list of ANSIS Soil properties associated with each site.}
 
