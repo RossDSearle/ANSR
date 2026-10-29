@@ -4,7 +4,12 @@
 \alias{getSingleSite}
 \title{Get a single site}
 \usage{
-getSingleSite(providerID, siteID, format = "ANSISDataObject")
+getSingleSite(
+  providerID,
+  siteID,
+  target_fields = NULL,
+  format = "ANSISDataObject"
+)
 }
 \arguments{
 \item{providerID}{ANSIS Data Provider ID}

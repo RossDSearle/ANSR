@@ -294,18 +294,15 @@ parseANSISJsonParallel3 <- function(zipFile, numCPUs=NULL, propertiesToParse=NUL
   outDir <- stringr::str_split(paste0(tempdir(), '/tmp_', as.numeric(Sys.time())), '[.]')[[1]][1]
   if(!dir.exists(outDir)){dir.create(outDir, recursive = T)}
 
-  cat(paste0('\nExtracting files from the zip archive into - ', outDir, '\n'))
+ # cat(paste0('\nExtracting files from the zip archive into - ', outDir, '\n'))
+  cat(paste0('\nParsing the ANSI json into a flat structure...\n'))
 
   unzip(
     zipfile = zipFile,
     exdir = outDir
   )
 
-  # if(parseAll){
-  #   ansisData <- ANSIS_JSON_parsing_All(inDir=outDir)
-  # }else{
     ansisData <- ANSIS_JSON_parsing_All(inDir=outDir, target_fields=propertiesToParse)
-  #}
 
   # Post-processing and export
   if (nrow(ansisData) > 0) {
