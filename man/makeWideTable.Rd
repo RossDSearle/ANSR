@@ -2,15 +2,7 @@
 % Please edit documentation in R/parseANSISJson.R
 \name{makeWideTable}
 \alias{makeWideTable}
-\title{# getAO
-#
-#' Example Data
-#' @export
-getAO <- function(){
-  ao <- ansisExampleObject
-  return(ao)
-}
-Format the ANSIS response into a wide table}
+\title{Format the ANSIS response into a wide table}
 \usage{
 makeWideTable(ansisObject, propertyType = NULL, labcodes = NULL, decode = F)
 }
@@ -25,14 +17,6 @@ makeWideTable(ansisObject, propertyType = NULL, labcodes = NULL, decode = F)
 dataframe
 }
 \description{
-# getAO
-#
-#' Example Data
-#' @export
-getAO <- function(){
-  ao <- ansisExampleObject
-  return(ao)
-}
 Format the ANSIS response into a wide table
 }
 \details{
