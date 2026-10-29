@@ -11,7 +11,7 @@ getSitesTable <- function(providerNames){
 
 
 # The Gadget Wrapper
-my_map_tool <- function(providers=NULL) {
+siteDataMapViewer <- function(providers=NULL) {
 
  sites <-  getSitesTable(providerNames = providers )
  sites$sid <- paste0(sites$Provider, '_', sites$SiteID)
