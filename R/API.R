@@ -968,7 +968,7 @@ getSingleSite <- function(providerID, siteID, target_fields=NULL, format = "ANSI
          }else if(format=='ANSISDataObject'){
            jf <- tempfile(pattern = 'ANSIS_Site', fileext = '.json')
            cat(jsn, file=jf)
-           ol <- parseANSISJsonSingleSite3(jsnFileName = jf,propertiesToParse = target_fields)
+           ol <- parseANSISJsonSingleSite3(jsnFileName = jf, propertiesToParse = target_fields)
            unlink(jf)
            return(ol)
          }else{
