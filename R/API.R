@@ -46,7 +46,7 @@ apiGetANSISData <- function(queryName=NULL, description=NULL, ansisProperties=NU
 
   of <- getOutputFileName(queryName=queryName, overwrite=overwrite)
 
-  zipFile <- apiDownloadQueryData3(reqID, outZipFile = of )
+  zipFile <- apiDownloadQueryData(reqID, outZipFile = of )
 
   # if(is.null(od)){
   #   cat(crayon::red(paste0('\nNo data returned by the query.\n\n')))
@@ -749,6 +749,101 @@ cat(paste0('\nDeleted ', nrow(queries), ' queries\n'))
 }
 
 
+
+# apiDownloadQueryData <- function(reqID, outDir=NULL){
+#
+#   if(!checkIfAuthorised()){return(cat(''))}
+#
+#   qStat <- apiQueryStatus_Single(reqID = reqID,  verbose=T)
+#   fls <- qStat$sdrRequest$files
+#
+#   cat('Downloading data from ANSIS server....\n')
+#
+#
+#   if(is.null(outDir)){
+#     outDir <- paste0(tempdir(), '/tmp_', as.numeric(Sys.time()))
+#   }else{
+#     if(!dir.exists(outDir)){
+#       dir.create(outDir, recursive = T)
+#     }else{
+#         prevfls <- list.files(outDir, recursive = T, full.names = T)
+#         unlink(prevfls)
+#       }
+#   }
+#
+#   files <- vector(mode = 'character', length = length(fls))
+#   for (i in 1:length(fls)) {
+#
+#     if(length(fls)>10){
+#       cat(paste0('\rDownloading ', i, ' of ', length(fls) ))
+#     }
+#     fn <- paste0(outDir, '/',fls[i], '.json')
+#     if(!file.exists(fn)){
+#
+#         resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
+#                           httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+#         jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
+#         cat(jsn, file = fn)
+#     }
+#   }
+#
+#  jl <-  mergeResponseFiles(outDir)
+#
+#  return(jl)
+# }
+#
+#
+# apiDownloadQueryData2 <- function(reqID, outDir=NULL){
+#
+#   if(!checkIfAuthorised()){return(cat(''))}
+#
+#   qStat <- apiQueryStatus_Single(reqID = reqID,  verbose=T)
+#   fls <- qStat$sdrRequest$files
+#
+#   if(length(fls)==0){
+#     return(NULL)
+#   }
+#
+#   cat('Downloading data from ANSIS server....\n')
+#
+#
+#   if(is.null(outDir)){
+#     outDir <- paste0(tempdir(), '/tmp_', as.numeric(Sys.time()))
+#   }else{
+#     if(!dir.exists(outDir)){
+#       dir.create(outDir, recursive = T)
+#     }else{
+#       prevfls <- list.files(outDir, recursive = T, full.names = T)
+#       unlink(prevfls)
+#     }
+#   }
+#   print(outDir)
+#
+#   files <- vector(mode = 'character', length = length(fls))
+#   for (i in 1:length(fls)) {
+#
+#     if(length(fls)>10){
+#       cat(paste0('\rDownloading ', i, ' of ', length(fls) ))
+#     }
+#     fn <- paste0(outDir, '/',fls[i], '.json')
+#     if(!file.exists(fn)){
+#
+#       resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
+#                         httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
+#       jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
+#       cat(jsn, file = fn)
+#     }
+#   }
+#
+#  # jl <-  mergeResponseFiles(outDir)
+#
+#   return(outDir)
+# }
+#
+
+
+
+
 #' Download Query Data
 #' @param reqID Request ID
 #' @param outDir A directory path that the data will be downloaded to.
@@ -758,99 +853,7 @@ cat(paste0('\nDeleted ', nrow(queries), ' queries\n'))
 #' @export
 #'
 
-apiDownloadQueryData <- function(reqID, outDir=NULL){
-
-  if(!checkIfAuthorised()){return(cat(''))}
-
-  qStat <- apiQueryStatus_Single(reqID = reqID,  verbose=T)
-  fls <- qStat$sdrRequest$files
-
-  cat('Downloading data from ANSIS server....\n')
-
-
-  if(is.null(outDir)){
-    outDir <- paste0(tempdir(), '/tmp_', as.numeric(Sys.time()))
-  }else{
-    if(!dir.exists(outDir)){
-      dir.create(outDir, recursive = T)
-    }else{
-        prevfls <- list.files(outDir, recursive = T, full.names = T)
-        unlink(prevfls)
-      }
-  }
-
-  files <- vector(mode = 'character', length = length(fls))
-  for (i in 1:length(fls)) {
-
-    if(length(fls)>10){
-      cat(paste0('\rDownloading ', i, ' of ', length(fls) ))
-    }
-    fn <- paste0(outDir, '/',fls[i], '.json')
-    if(!file.exists(fn)){
-
-        resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
-                          httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-        jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
-        cat(jsn, file = fn)
-    }
-  }
-
- jl <-  mergeResponseFiles(outDir)
-
- return(jl)
-}
-
-
-apiDownloadQueryData2 <- function(reqID, outDir=NULL){
-
-  if(!checkIfAuthorised()){return(cat(''))}
-
-  qStat <- apiQueryStatus_Single(reqID = reqID,  verbose=T)
-  fls <- qStat$sdrRequest$files
-
-  if(length(fls)==0){
-    return(NULL)
-  }
-
-  cat('Downloading data from ANSIS server....\n')
-
-
-  if(is.null(outDir)){
-    outDir <- paste0(tempdir(), '/tmp_', as.numeric(Sys.time()))
-  }else{
-    if(!dir.exists(outDir)){
-      dir.create(outDir, recursive = T)
-    }else{
-      prevfls <- list.files(outDir, recursive = T, full.names = T)
-      unlink(prevfls)
-    }
-  }
-  print(outDir)
-
-  files <- vector(mode = 'character', length = length(fls))
-  for (i in 1:length(fls)) {
-
-    if(length(fls)>10){
-      cat(paste0('\rDownloading ', i, ' of ', length(fls) ))
-    }
-    fn <- paste0(outDir, '/',fls[i], '.json')
-    if(!file.exists(fn)){
-
-      resp <- httr::GET(url=paste0(Constants@ANSISAPIurlProd, '/ansis-external-api/query-requests/v2/download-response?fileId=', fls[i] ),
-                        httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
-      jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
-      cat(jsn, file = fn)
-    }
-  }
-
- # jl <-  mergeResponseFiles(outDir)
-
-  return(outDir)
-}
-
-
-
-apiDownloadQueryData3 <- function(reqID, outZipFile=NULL){
+apiDownloadQueryData <- function(reqID, outZipFile=NULL){
 
   if(!checkIfAuthorised()){return(cat(''))}
 
