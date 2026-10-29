@@ -39,3 +39,4 @@ dev/
 .Rbuildignore
 APIDocs/
 inst/doc
+*.Rd
