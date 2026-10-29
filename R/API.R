@@ -15,7 +15,7 @@
 #' @param Description A description of the query.
 #' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
 #' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
-#' @param miny Sothern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param miny Southern extent of the bounding box of the query. CRS WGS84. Default is NULL.
 #' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
 #' @param soilProperty Soil property element to query on. This is the broadest ANSIS attribute grouping.
 #' @param propertyName A specific form of the soil property.
@@ -778,7 +778,6 @@ apiDownloadQueryData <- function(reqID, outDir=NULL){
         unlink(prevfls)
       }
   }
-  print(outDir)
 
   files <- vector(mode = 'character', length = length(fls))
   for (i in 1:length(fls)) {
@@ -866,8 +865,6 @@ apiDownloadQueryData3 <- function(reqID, outZipFile=NULL){
 
   outDir <- stringr::str_split(paste0(tempdir(), '/tmp_', as.numeric(Sys.time())), '[.]')[[1]][1]
   if(!dir.exists(outDir)){dir.create(outDir, recursive = T)}
-
-  print(outDir)
 
   files <- vector(mode = 'character', length = length(fls))
   for (i in 1:length(fls)) {
@@ -960,10 +957,8 @@ getSingleSite <- function(providerID, siteID, target_fields=NULL, format = "ANSI
       if(!checkIfAuthorised()){return(cat(''))}
 
       url <- paste0(Constants@ANSISAPIurlProd, '/sdr-public/v1/SingleSite?provider=' , providerID, '&site=', siteID )
-      print(url)
       resp <- httr::GET(url=url, httr::add_headers(Authorization = paste0("Bearer ", authANSIS@Token)))
       jsn <- httr::content(resp, 'text', encoding = 'UTF-8')
-
 
          if(format=='JSON'){
            return(jsn)

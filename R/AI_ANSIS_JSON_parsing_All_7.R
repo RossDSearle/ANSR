@@ -128,7 +128,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
         projectLabel = plabel,
         projectAuthority = pauth
       )
-    }) %>% distinct(id, .keep_all = TRUE)
+    }) |> dplyr::distinct(id, .keep_all = TRUE)
   }
 
   # Exclude top-level '$schema', 'meta', 'included', and 'include' fields
@@ -150,7 +150,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
   flat_df <- flatten_all_nodes_fast(json_data)
   if (nrow(flat_df) == 0) return(tibble::tibble())
 
-  parsed_df <- flat_df %>%
+  parsed_df <- flat_df |>
     mutate(
       sourceFile = basename(file_path),
       hierarchyPath = path,
@@ -172,16 +172,16 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
       fieldName = stringr::str_remove(base_path, "^.*(data|siteVisit|soilProfile|soilLayer)\\.\\d+\\.")
     )
 
-  wide_df <- parsed_df %>%
-    select(sourceFile, hierarchyPath, site_idx, visit_idx, prof_idx, layer_idx, base_path, fieldName, attr_type, value) %>%
-    group_by(sourceFile, site_idx, visit_idx, prof_idx, layer_idx, base_path, fieldName) %>%
+  wide_df <- parsed_df |>
+    select(sourceFile, hierarchyPath, site_idx, visit_idx, prof_idx, layer_idx, base_path, fieldName, attr_type, value) |>
+    group_by(sourceFile, site_idx, visit_idx, prof_idx, layer_idx, base_path, fieldName) |>
     summarise(
       hierarchyPath = first(hierarchyPath),
       Value = paste(value[attr_type == "Value"], collapse = ", "),
       Unit = paste(value[attr_type == "Unit"], collapse = ", "),
       UsedProcedure = paste(value[attr_type == "UsedProcedure"], collapse = ", "),
       .groups = "drop"
-    ) %>%
+    ) |>
     mutate(
       Value = if_else(Value == "", NA_character_, Value),
       Unit = if_else(Unit == "", NA_character_, Unit),
@@ -189,71 +189,71 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
     )
 
   # Extract AnsisSiteID
-  scoped_ids <- flat_df %>%
-    filter(stringr::str_detect(path, "(?i)scopedIdentifier.*value$")) %>%
-    mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) %>%
-    group_by(site_idx) %>%
+  scoped_ids <- flat_df |>
+    filter(stringr::str_detect(path, "(?i)scopedIdentifier.*value$")) |>
+    mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) |>
+    group_by(site_idx) |>
     summarise(AnsisSiteID = paste(value, collapse = ", "), .groups = "drop")
 
   # Resolve relatedProject UUIDs against project_lookup
-  rel_projects <- flat_df %>%
-    filter(stringr::str_detect(path, "relatedProject")) %>%
-    mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) %>%
-    filter(!is.na(value) & value != "") %>%
-    tidyr::separate_rows(value, sep = ",\\s*") %>%
-    left_join(project_lookup, by = c("value" = "id")) %>%
-    group_by(site_idx) %>%
+  rel_projects <- flat_df |>
+    filter(stringr::str_detect(path, "relatedProject")) |>
+    mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) |>
+    filter(!is.na(value) & value != "") |>
+    tidyr::separate_rows(value, sep = ",\\s*") |>
+    left_join(project_lookup, by = c("value" = "id")) |>
+    group_by(site_idx) |>
     summarise(
       projectName = paste(na.omit(unique(projectName)), collapse = ", "),
       projectLabel = paste(na.omit(unique(projectLabel)), collapse = ", "),
       projectAuthority = paste(na.omit(unique(projectAuthority)), collapse = ", "),
       .groups = "drop"
-    ) %>%
+    ) |>
     mutate(
       projectName = if_else(projectName == "", NA_character_, projectName),
       projectLabel = if_else(projectLabel == "", NA_character_, projectLabel),
       projectAuthority = if_else(projectAuthority == "", NA_character_, projectAuthority)
     )
 
-  geoms <- flat_df %>%
-    filter(stringr::str_detect(path, "geometry\\.result|geometry$")) %>%
+  geoms <- flat_df |>
+    filter(stringr::str_detect(path, "geometry\\.result|geometry$")) |>
     mutate(
       site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+")),
       SRID = stringr::str_extract(value, "(?<=SRID=)\\d+"),
       coords = stringr::str_extract(value, "(?<=POINT\\s?\\().*?(?=\\))"),
       Longitude = stringr::str_split_i(coords, "\\s+", 1),
       Latitude = stringr::str_split_i(coords, "\\s+", 2)
-    ) %>%
-    select(site_idx, SRID, Longitude, Latitude) %>% distinct()
+    ) |>
+    select(site_idx, SRID, Longitude, Latitude) |> dplyr::distinct()
 
-  end_times <- flat_df %>%
-    filter(stringr::str_detect(path, "endedAtTime")) %>%
+  end_times <- flat_df |>
+    filter(stringr::str_detect(path, "endedAtTime")) |>
     mutate(
       site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+")),
       visit_idx = as.integer(stringr::str_extract(path, "(?<=siteVisit\\.)\\d+"))
-    ) %>%
-    select(site_idx, visit_idx, endAtTime = value) %>% distinct()
+    ) |>
+    select(site_idx, visit_idx, endAtTime = value) |> dplyr::distinct()
 
-  depths <- wide_df %>%
-    filter(fieldName %in% c("depthUpper", "depthLower")) %>%
-    select(site_idx, visit_idx, prof_idx, layer_idx, fieldName, Value) %>%
+  depths <- wide_df |>
+    filter(fieldName %in% c("depthUpper", "depthLower")) |>
+    select(site_idx, visit_idx, prof_idx, layer_idx, fieldName, Value) |>
     pivot_wider(names_from = fieldName, values_from = Value)
 
   if (!"depthUpper" %in% names(depths)) depths$depthUpper <- NA_character_
   if (!"depthLower" %in% names(depths)) depths$depthLower <- NA_character_
 
-  depths <- depths %>%
+  depths <- depths |>
     mutate(
       depthUpper = stringr::str_remove_all(depthUpper, "[^0-9.-]"),
       depthLower = stringr::str_remove_all(depthLower, "[^0-9.-]")
     )
 
-  final_df <- wide_df %>%
-    left_join(scoped_ids, by = "site_idx") %>%
-    left_join(rel_projects, by = "site_idx") %>%
-    left_join(geoms, by = "site_idx") %>%
-    left_join(end_times, by = c("site_idx", "visit_idx")) %>%
-    left_join(depths, by = c("site_idx", "visit_idx", "prof_idx", "layer_idx")) %>%
+  final_df <- wide_df |>
+    left_join(scoped_ids, by = "site_idx") |>
+    left_join(rel_projects, by = "site_idx") |>
+    left_join(geoms, by = "site_idx") |>
+    left_join(end_times, by = c("site_idx", "visit_idx")) |>
+    left_join(depths, by = c("site_idx", "visit_idx", "prof_idx", "layer_idx")) |>
     mutate(
       fieldDepth = stringr::str_count(hierarchyPath, "\\.") + 1,
       SiteID = paste(projectAuthority, projectLabel, AnsisSiteID, sep = "_"),
@@ -264,13 +264,13 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
         is.na(PropertyIndex) & stringr::str_detect(fieldName, "\\.") ~ stringr::str_replace(fieldName, "^[^.]+\\.", ""),
         TRUE ~ NA_character_
       )
-    ) %>%
-    rename(PropertyPath = fieldName) %>%
+    ) |>
+    rename(PropertyPath = fieldName) |>
     select(
       fieldDepth, SiteID, projectAuthority, projectLabel, AnsisSiteID, SRID, Longitude, Latitude,
       endAtTime, depthUpper, depthLower, PropertyPath, Property, PropertyIndex,
       subProperty, Value, Unit, UsedProcedure, projectName, sourceFile, hierarchyPath
-    ) %>%
+    ) |>
     filter(
       !PropertyPath %in% c("depthUpper", "depthLower", "relatedProject", "relatedVisitor", "geometry", "srid", "SRID", "$schema"),
       !stringr::str_detect(PropertyPath, "(?i)(^|\\.)(@?type|ansisType|id|included|organizations|persons|projects|scopedIdentifier)"),
@@ -280,7 +280,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
   # Final case-insensitive check against target_fields
   if (!is.null(target_fields) && length(target_fields) > 0) {
     targets_lower <- tolower(target_fields)
-    final_df <- final_df %>%
+    final_df <- final_df |>
       filter(tolower(Property) %in% targets_lower | tolower(PropertyPath) %in% targets_lower)
   }
 
