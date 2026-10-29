@@ -19,6 +19,8 @@ getSitesTable <- function(providerNames){
 
 siteDataMapViewer <- function(providers=NULL) {
 
+  if(!checkIfAuthorised()){return(cat(''))}
+
  sites <-  getSitesTable(providerNames = providers )
  sites$sid <- paste0(sites$Provider, '_', sites$SiteID)
 
