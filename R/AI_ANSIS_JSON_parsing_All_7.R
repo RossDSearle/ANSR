@@ -1,12 +1,3 @@
-library(jsonlite)
-library(dplyr)
-library(purrr)
-library(tibble)
-library(foreach)
-library(doSNOW)
-library(parallel)
-library(stringr)
-library(tidyr)
 
 # Helper 1: Recursively prune nested JSON list before flattening
 prune_json_tree <- function(node, target_pattern) {
@@ -201,7 +192,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
     dplyr::mutate(site_idx = as.integer(stringr::str_extract(path, "(?<=data\\.)\\d+"))) |>
     dplyr::filter(!is.na(value) & value != "") |>
     tidyr::separate_rows(value, sep = ",\\s*") |>
-    left_join(project_lookup, by = c("value" = "id")) |>
+    dplyr::left_join(project_lookup, by = c("value" = "id")) |>
     dplyr::group_by(site_idx) |>
     dplyr::summarise(
       projectName = paste(na.omit(unique(projectName)), collapse = ", "),
@@ -237,7 +228,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
   depths <- wide_df |>
     dplyr::filter(fieldName %in% c("depthUpper", "depthLower")) |>
     dplyr::select(site_idx, visit_idx, prof_idx, layer_idx, fieldName, Value) |>
-    pivot_wider(names_from = fieldName, values_from = Value)
+    tidyr::pivot_wider(names_from = fieldName, values_from = Value)
 
   if (!"depthUpper" %in% names(depths)) depths$depthUpper <- NA_character_
   if (!"depthLower" %in% names(depths)) depths$depthLower <- NA_character_
@@ -249,11 +240,11 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
     )
 
   final_df <- wide_df |>
-    left_join(scoped_ids, by = "site_idx") |>
-    left_join(rel_projects, by = "site_idx") |>
-    left_join(geoms, by = "site_idx") |>
-    left_join(end_times, by = c("site_idx", "visit_idx")) |>
-    left_join(depths, by = c("site_idx", "visit_idx", "prof_idx", "layer_idx")) |>
+    dplyr::left_join(scoped_ids, by = "site_idx") |>
+    dplyr::left_join(rel_projects, by = "site_idx") |>
+    dplyr::left_join(geoms, by = "site_idx") |>
+    dplyr::left_join(end_times, by = c("site_idx", "visit_idx")) |>
+    dplyr::left_join(depths, by = c("site_idx", "visit_idx", "prof_idx", "layer_idx")) |>
     dplyr::mutate(
       fieldDepth = stringr::str_count(hierarchyPath, "\\.") + 1,
       SiteID = paste(projectAuthority, projectLabel, AnsisSiteID, sep = "_"),
@@ -265,7 +256,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
         TRUE ~ NA_character_
       )
     ) |>
-    rename(PropertyPath = fieldName) |>
+    dplyr::rename(PropertyPath = fieldName) |>
     dplyr::select(
       fieldDepth, SiteID, projectAuthority, projectLabel, AnsisSiteID, SRID, Longitude, Latitude,
       endAtTime, depthUpper, depthLower, PropertyPath, Property, PropertyIndex,

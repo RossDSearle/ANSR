@@ -311,7 +311,7 @@ parseANSISJsonParallel3 <- function(zipFile, numCPUs=NULL, propertiesToParse=NUL
       ansisData <- ansisData[, -c(12,19,20,21)]
     }
 
-    ansisData <- ansisData %>% arrange(SiteID, endAtTime, fieldDepth, Property , depthUpper, depthLower )
+    ansisData <- ansisData |> dplyr::arrange(SiteID, endAtTime, fieldDepth, Property , depthUpper, depthLower )
 
     d1 <- stringr::str_replace(zipFile, 'RawJSONResponses', 'ANSISDataObjects')
     ofData <- stringr::str_replace(d1, '.zip$', '.rds')
@@ -357,7 +357,7 @@ parseANSISJsonSingleSite3 <- function(jsnFileName, propertiesToParse=NULL, verbo
       ansisData <- ansisData[, -c(12,19,20,21)]
     }
 
-    ansisData <- ansisData %>% arrange(SiteID, endAtTime, fieldDepth, Property , depthUpper, depthLower )
+    ansisData <- ansisData |> dplyr::arrange(SiteID, endAtTime, fieldDepth, Property , depthUpper, depthLower )
 
     # d1 <- stringr::str_replace(zipFile, 'RawJSONResponses', 'ANSISDataObjects')
     # ofData <- stringr::str_replace(d1, '.zip$', '.rds')

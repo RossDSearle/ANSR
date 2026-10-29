@@ -456,26 +456,24 @@ summariseOutputs <- function(df) {
   df <- tibble::as_tibble(df)
 
   # 1. Calculate overall counts using count()
-  totCnts  <- df %>% dplyr::count(Property, name = "count")
-  siteCnts <- df %>% dplyr::count(SiteID, Property, name = "count")
+  totCnts  <- df |>dplyr::count(Property, name = "count")
+  siteCnts <- df |> dplyr::count(SiteID, Property, name = "count")
 
   ol <- list()
   ol$Totals$ANSISPropertyCounts <- totCnts
   ol$Sites$ANSISPropertyCounts  <- siteCnts
 
   # 2. Handle conditional counts for UsedProcedure
-  meths <- df %>% dplyr::filter(!is.na(UsedProcedure))
+  meths <- df |> dplyr::filter(!is.na(UsedProcedure))
 
   if (nrow(meths) > 0) {
 
-    # count() automatically handles groupings.
-    # arrange() replaces data.table::setorder to sort the output.
-    totMethCnts <- meths %>%
-      dplyr::count(Property, UsedProcedure, name = "count") %>%
+    totMethCnts <- meths |>
+      dplyr::count(Property, UsedProcedure, name = "count") |>
       dplyr::arrange(Property, UsedProcedure)
 
-    siteMethCnts <- meths %>%
-      dplyr::count(SiteID, Property, UsedProcedure, name = "count") %>%
+    siteMethCnts <- meths |>
+      dplyr::count(SiteID, Property, UsedProcedure, name = "count") |>
       dplyr::arrange(SiteID, Property, UsedProcedure)
 
     ol$Totals$LabMethodCounts <- totMethCnts
