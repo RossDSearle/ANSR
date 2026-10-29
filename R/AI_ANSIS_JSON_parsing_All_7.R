@@ -161,7 +161,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
 
       clean_path = stringr::str_remove_all(path, "(?i)\\.result"),
 
-      attr_type = case_when(
+      attr_type = dplyr::case_when(
         stringr::str_detect(clean_path, "(?i)\\.(unit|uom)(\\.\\d+)?$") ~ "Unit",
         stringr::str_detect(clean_path, "(?i)\\.?(used)?procedure(\\.\\d+)?$") ~ "UsedProcedure",
         stringr::str_detect(clean_path, "(?i)\\.(value|hasValue)(\\.\\d+)?$") ~ "Value",
@@ -259,7 +259,7 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
       SiteID = paste(projectAuthority, projectLabel, AnsisSiteID, sep = "_"),
       Property = stringr::str_extract(fieldName, "^[^.]+"),
       PropertyIndex = stringr::str_extract(fieldName, "(?<=\\.)\\d+(?=\\.|$)"),
-      subProperty = case_when(
+      subProperty = dplyr::case_when(
         !is.na(PropertyIndex) & stringr::str_detect(fieldName, "^[^.]+\\.\\d+\\.") ~ stringr::str_replace(fieldName, "^[^.]+\\.\\d+\\.", ""),
         is.na(PropertyIndex) & stringr::str_detect(fieldName, "\\.") ~ stringr::str_replace(fieldName, "^[^.]+\\.", ""),
         TRUE ~ NA_character_
