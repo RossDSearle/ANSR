@@ -394,88 +394,75 @@ parseANSISJsonSingleSite3 <- function(jsnFileName, propertiesToParse=NULL, verbo
 
 
 
-# makeWideTable
+
+# makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=F){
 #
-#' Format the ANSIS response into a wide table
-#' @param anisObject An ANSIS R object
-#' @param propertyType Return data for either 'SiteVisit', 'Horizons' or 'Lab'
-#' @param propertyType Return data for a specific list of soil properties
-#' @param decode return either coded or decoded values (default=F)
-
-#' @details  You need to specify a parameter value for either 'propertyType' or 'properties'.
-#' The data frame contains SiteID, location, depths and soil property fields
-#' @author Ross Searle
-#' @return dataframe
-#' @export
-
-makeWideTable <- function(ansisObject, propertyType=NULL, labcodes=NULL, decode=F){
-
-
-  if(is.null(propertyType) & is.null(labcodes)){
-    stop('You have to specify a value for either the propertyType or properties parameter')
-  }
-
-  alldf <- ansisObject$CSV
-
-  alldf$Longitude <- as.numeric(alldf$Longitude)
-  alldf$Latitude <- as.numeric(alldf$Latitude)
-  alldf$UpperDepth <- as.numeric(alldf$UpperDepth)
-  alldf$LowerDepth <- as.numeric(alldf$LowerDepth)
-
-
-  if(!is.null(labcodes)){
-    idxs <- which(!labcodes %in% unique(alldf$Property))
-    if(length(idxs) > 0){
-      stop('One or more supplied properties are not available in the ANSIS response. Use the "getAvailableProperties" function to see what properties are available')
-    }else{
-      cols <- labcodes
-      alldf <- alldf[alldf$Property %in% labcodes,]
-    }
-  }else if(!is.null(propertyType)){
-    alldf <- alldf[alldf$PropertyType==propertyType,]
-    cols <- unique(alldf$Property)
-
-  }
-
-  baseCols <- unique(alldf[c('Site','Longitude', 'Latitude',  'UpperDepth', 'LowerDepth')])
-  baseCols$UpperDepth <- as.numeric(baseCols$UpperDepth)
-  baseCols$LowerDepth <- as.numeric(baseCols$LowerDepth)
-  baseCols <- baseCols[with(baseCols, order(Site, UpperDepth, LowerDepth)), ]
-
-
-
-  for (i in 1:length(cols)) {
-    c <- cols[i]
-    baseCols[c] <- rep('', nrow(baseCols))
-  }
-
-  bt <- baseCols
-  nt <- alldf
-
-
-
-  pb <- progress::progress_bar$new(total = nrow(bt))
-  for (i in 1:nrow(bt)) {
-    rec <- bt[i, ]
-    sid <- rec$Site
-    ud <- rec$UpperDepth
-    ld <- rec$LowerDepth
-    for (j in 1:length(cols)) {
-      att <- cols[j]
-
-      # if(decode){
-      #   v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Description
-      # }else{
-        v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Value
-     # }
-
-      vc <- paste(v, sep = " ", collapse = '; ')
-      bt[i, ][att] <- vc
-    }
-    pb$tick()
-  }
-  return(bt)
-}
+#
+#   if(is.null(propertyType) & is.null(labcodes)){
+#     stop('You have to specify a value for either the propertyType or properties parameter')
+#   }
+#
+#   alldf <- ansisObject$CSV
+#
+#   alldf$Longitude <- as.numeric(alldf$Longitude)
+#   alldf$Latitude <- as.numeric(alldf$Latitude)
+#   alldf$UpperDepth <- as.numeric(alldf$UpperDepth)
+#   alldf$LowerDepth <- as.numeric(alldf$LowerDepth)
+#
+#
+#   if(!is.null(labcodes)){
+#     idxs <- which(!labcodes %in% unique(alldf$Property))
+#     if(length(idxs) > 0){
+#       stop('One or more supplied properties are not available in the ANSIS response. Use the "getAvailableProperties" function to see what properties are available')
+#     }else{
+#       cols <- labcodes
+#       alldf <- alldf[alldf$Property %in% labcodes,]
+#     }
+#   }else if(!is.null(propertyType)){
+#     alldf <- alldf[alldf$PropertyType==propertyType,]
+#     cols <- unique(alldf$Property)
+#
+#   }
+#
+#   baseCols <- unique(alldf[c('Site','Longitude', 'Latitude',  'UpperDepth', 'LowerDepth')])
+#   baseCols$UpperDepth <- as.numeric(baseCols$UpperDepth)
+#   baseCols$LowerDepth <- as.numeric(baseCols$LowerDepth)
+#   baseCols <- baseCols[with(baseCols, order(Site, UpperDepth, LowerDepth)), ]
+#
+#
+#
+#   for (i in 1:length(cols)) {
+#     c <- cols[i]
+#     baseCols[c] <- rep('', nrow(baseCols))
+#   }
+#
+#   bt <- baseCols
+#   nt <- alldf
+#
+#
+#
+#   pb <- progress::progress_bar$new(total = nrow(bt))
+#   for (i in 1:nrow(bt)) {
+#     rec <- bt[i, ]
+#     sid <- rec$Site
+#     ud <- rec$UpperDepth
+#     ld <- rec$LowerDepth
+#     for (j in 1:length(cols)) {
+#       att <- cols[j]
+#
+#       # if(decode){
+#       #   v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Description
+#       # }else{
+#         v <- nt[nt$Site==sid & nt$UpperDepth==ud & nt$LowerDepth==ld & nt$Property==att, ]$Value
+#      # }
+#
+#       vc <- paste(v, sep = " ", collapse = '; ')
+#       bt[i, ][att] <- vc
+#     }
+#     pb$tick()
+#   }
+#   return(bt)
+# }
 
 
 
