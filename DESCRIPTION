@@ -2,6 +2,7 @@ Package: ANSR
 Type: Package
 Title: Query ANSIS and massage the responses into various useful formats
 Version: 2.0.0
+Date: 2026-11-01
 Authors@R: c(
     person(
       "Ross", "Searle",
@@ -13,12 +14,35 @@ Description: The Australian National Soil Information System (ANSIS) brings toge
     It delivers data in the form of a standardised JSON Schema preserving complex relationships within the data.
     This JSON data can be daunting to untangle.
     ANSR does all the hard work of querying ANSIS and parsing the JSON response data into simpler formats - mainly CSV files.
-License: MIT
+License: MIT + file LICENSE
 URL: https://github.com/RossDSearle/ANSR
 Encoding: UTF-8
 LazyData: true
-Imports: stringr, sf, jsonlite, httr, progress, tools, dplyr, lubridate, xtable, doParallel, doSNOW, listviewer, 
-         parallel, RSQLite, DBI, data.table, purrr, pbapply, tidyr, methods, leaflet, shiny, flextable
+Imports: 
+    stringr,
+    jsonlite,
+    httr,
+    progress,
+    dplyr,
+    lubridate,
+    xtable,
+    doSNOW,
+    listviewer,
+    parallel,
+    data.table,
+    purrr,
+    pbapply,
+    tidyr,
+    methods,
+    leaflet,
+    shiny,
+    flextable,
+    crayon,
+    foreach,
+    tibble,
+    zip,
+    utils,
+    curl
 Depends: 
     R (>= 4.1.0)
 Config/roxygen2/version: 8.1.1

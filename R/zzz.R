@@ -1,42 +1,49 @@
 
-
 #' @importFrom methods new
+
+# Define data.table awareness at top-level scope
+.datatable.aware <- TRUE
+
+# Create an internal environment to hold package state/constants without polluting .GlobalEnv
+ANSR_env <- new.env(parent = emptyenv())
+
 .onAttach <- function(lib, pkg) {
 
-  .datatable.aware <- TRUE
-
-
-  Constants <<- new("Constants",
-                    ANSISAPIurlDev =  '',
-                    ANSISAPIurlProd =  'https://apim-ansis-app-prod-ac.azure-api.net',
-                    ANSISguiURL = 'https://portal.ansis.net/'
+  # 1. Store constants in internal package environment
+  ANSR_env$Constants <- list(
+    ANSISAPIurlDev  = "",
+    ANSISAPIurlProd = "https://apim-ansis-app-prod-ac.azure-api.net",
+    ANSISguiURL     = "https://portal.ansis.net/"
   )
 
-#
-  DataSets <<- new("DataSets",
-                 # mps = getPackageData_mps(),
-                 mappingInfo = generateANSISSchemaMappingTable(),
-                 Providers = apiCatalogueSummary(),
-                 Enums = getEnums()
-                 #CodesTable = getPackageData_CodesTable()
-                # CodesTable = jsonlite::fromJSON('https://soils.csiro.au/data/natsoil-api/codes')
-                # labcodesMapping = getPackageData_labcodesMapping()
+  # 2. Lazily / safely initialize network data without breaking offline attachment
+  tryCatch({
+    if (curl::has_internet()) {
+      ANSR_env$DataSets <- list(
+        mappingInfo = generateANSISSchemaMappingTable(),
+        Providers   = apiCatalogueSummary(),
+        Enums       = getEnums()
+      )
+    }
+  }, error = function(e) {
+    # Suppress network initialization failures during offline load
+    NULL
+  })
 
-)
+  # 3. Capture asciiProfile output if it uses cat() internally
+  ascii_txt <- paste(utils::capture.output(asciiProfile()), collapse = "\n")
 
+  # 4. Build startup message string safely
+  header  <- crayon::bold(crayon::green("\n\n#########     Welcome to the ANSR Package     ##########\n\n"))
+  body    <- crayon::bold(crayon::blue(
+    "This package is designed for interacting with the Australian National Soil Information System (ANSIS).\n",
+    "Before any of the API functions will work you need to authorise access using the apiAuthoriseMe() function\n",
+    "using your ANSIS account Username and Password. You also need to supply a DataStore path.\n\n"
+  ))
+  link    <- crayon::magenta("Visit https://ansis.net\n\n")
 
+  msg <- paste0(ascii_txt, "\n", header, body, link)
 
-  msg <- paste0(crayon::bold( crayon::green( paste0("\n\n#########     Welcome to the ANSR Package     ##########\n\n"))),
-                crayon::bold( crayon::blue(paste0('This package is designed for interacting with the Australian National Soil Information System (ANSIS).
-                                                  \nBefore any of the API functions will work you need to authorise access using the apiAuthoriseMe() function\nusing your ANSIS account Username and Password. You also need to supply a DataStore path.\n\n'), paste0(crayon::magenta('Visit https://ansis.net\n\n')))))
-
-
-
-
+  # 5. Emit single suppressable startup message
   packageStartupMessage(msg)
-
-
 }
-
-
-

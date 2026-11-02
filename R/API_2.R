@@ -119,7 +119,7 @@ ANSIS_Demos <- function() {
     base::cat(base::paste0(lns, collapse = "\n"))
     base::cat(crayon::bold(crayon::red("\n\nCopy and paste the code above into an R script file.\n\n")))
   } else {
-    utils::file.show(demo_path, title = "ANSR Demo Script")
+    file.show(demo_path, title = "ANSR Demo Script")
   }
   return(invisible(TRUE))
 }
@@ -197,6 +197,7 @@ apiAuthoriseMe <- function(username, password, DataStorePath) {
 #' @author Ross Searle
 #' @export
 apiGenerateToken <- function(user, pwd, verbose = FALSE) {
+
   if (verbose) base::cat("Authorising user....\n")
 
   url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/Authorise")
@@ -335,66 +336,28 @@ apiProviderCatalogue <- function(providerNames = NULL, includeProperties = FALSE
 }
 
 
-#' ANSIS Property Definitions
+
+
+#' Get ANSIS Soil Property Information
+#' @param ansisProperties The ANSIS property value/s to filter on. A vector() of ansisProperties
+
+
+#' @details ANSIS has its own specific code to identify soil properties. The information in this table is used to map to these codes to allow querying of the ANSIS data repository
 #' @author Ross Searle
+#' @return data.frame
 #' @export
-apiPropertyDefinitions <- function() {
-  url <- base::paste0(Constants@ANSISAPIurlProd, "/site-catalogue/v1/definitions")
-  resp <- base::tryCatch({ httr::GET(url, httr::timeout(30)) }, error = function(e) NULL)
 
-  if (base::is.null(resp) || httr::http_error(resp)) {
-    base::warning("Failed to fetch property definitions.", call. = FALSE)
-    return(data.frame())
+
+getAnsisPropertyInfo <- function(ansisProperties=NULL){
+  if(is.null(ansisProperties)){
+    ansisPropertyRecs <- DataSets@mappingInfo
+  }else if(!is.null(ansisProperties)){
+    idxs <- which(DataSets@mappingInfo$ANSIS_Property %in% ansisProperties)
+    ansisPropertyRecs <- DataSets@mappingInfo[idxs,]
   }
-
-  jsn <- httr::content(resp, "text", encoding = "UTF-8")
-  defs <- base::tryCatch({ jsonlite::fromJSON(jsn) }, error = function(e) NULL)
-
-  if (base::is.null(defs)) return(data.frame())
-
-  odf <- data.frame()
-  for (i in 0:4) {
-    key <- base::as.character(i)
-    if (!key %in% base::names(defs)) next
-
-    n1 <- defs[[key]]
-    propType <- n1$name
-
-    if (propType %in% base::c("Layer/Horizon", "Profile")) {
-      if (!base::is.null(n1$members)) {
-        for (k in base::seq_along(n1$members)) {
-          m_key <- n1$members[k]
-          n2 <- defs[[m_key]]
-          if (!base::is.null(n2)) {
-            df <- data.frame(PropType = propType, Property = propType, Name = n2$name, ANSISCode = m_key, stringsAsFactors = FALSE)
-            odf <- base::rbind(odf, df)
-          }
-        }
-      }
-    } else {
-      if (!base::is.null(n1$members)) {
-        for (j in base::seq_along(n1$members)) {
-          p_key <- n1$members[j]
-          n2 <- defs[[p_key]]
-          if (!base::is.null(n2)) {
-            prop <- n2$name
-            if (!base::is.null(n2$members)) {
-              for (k in base::seq_along(n2$members)) {
-                sub_key <- n2$members[k]
-                n3 <- defs[[sub_key]]
-                if (!base::is.null(n3)) {
-                  df <- data.frame(PropType = propType, Property = prop, Name = n3$name, ANSISCode = sub_key, stringsAsFactors = FALSE)
-                  odf <- base::rbind(odf, df)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return(odf)
+  return(ansisPropertyRecs)
 }
+
 
 
 getOutputFileName <- function(queryName, overwrite = FALSE) {
@@ -426,7 +389,7 @@ getOutputFileName <- function(queryName, overwrite = FALSE) {
         base::unlink(outJsonZipFile)
       } else {
         if (base::interactive()) {
-          killit <- utils::readline(prompt = crayon::red("A query zip file with this name exists. Overwrite? (Y/n): "))
+          killit <- base::readline(prompt = crayon::red("A query zip file with this name exists. Overwrite? (Y/n): "))
           if (base::toupper(killit) == "Y") {
             base::unlink(outJsonZipFile)
           } else {
@@ -472,6 +435,16 @@ makeQueryObject <- function(ansisProperty = NULL, ansisID = NULL, labCode = NULL
 
 
 #' Send a Query to the ANSIS API
+
+#' @param minx Western extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxx Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param miny Southern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param maxy Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.
+#' @param ansisProperties ANSIS property elements to query on.
+#' @param startYear Starting year of date range to return data for.
+#' @param endYear Finishing year of date range to return data for.
+#' @param provider The Data Provider to return data for.
+#' @param sites A list of ANSIS Site IDs to return data for.
 #' @author Ross Searle
 #' @export
 apiSendQuery <- function(ansisProperties = NULL, minx = NULL, maxx = NULL, miny = NULL, maxy = NULL,
@@ -590,6 +563,7 @@ apiQueryStatus_Monitor <- function(reqID, max_wait_sec = 1800) {
 
 
 #' Get the Status of all ANSIS Queries
+#' @param statusTypes Default is NULL, thus returns all queries, otherwise one of "Processing", "Completed", "Queued", "Error"
 #' @author Ross Searle
 #' @export
 apiQueryStatus_All <- function(statusTypes = NULL) {
@@ -633,6 +607,8 @@ apiQueryStatus_All <- function(statusTypes = NULL) {
 
 
 #' Get an ANSIS Query Status
+#' @param reqID ANSIS Request ID
+#' @param verbose logical for terse or verbose output
 #' @author Ross Searle
 #' @export
 apiQueryStatus_Single <- function(reqID, verbose = FALSE) {
@@ -660,6 +636,7 @@ apiQueryStatus_Single <- function(reqID, verbose = FALSE) {
 
 
 #' Delete an ANSIS Query
+#' @param reqID The ANSIS query ID to delete
 #' @author Ross Searle
 #' @export
 apiDeleteQuery <- function(reqID) {
@@ -708,12 +685,18 @@ apiDeleteAllQueries <- function() {
 }
 
 
-#' Download Query Data
+#' Download Query Data as JSON files
+#' @param reqID The ANSIS query ID to download files for.
+#' @param outZipFile The file path of the download zip file to create
 #' @author Ross Searle
 #' @export
 apiDownloadQueryData <- function(reqID, outZipFile = NULL) {
 
   if (!checkIfAuthorised()) return(NULL)
+
+  if(is.null(outZipFile)){
+    stop('Please provide a filename for the download data zip file')
+  }
 
   qStat <- apiQueryStatus_Single(reqID = reqID, verbose = TRUE)
   if (base::is.null(qStat) || base::is.null(qStat$sdrRequest$files)) {
@@ -764,30 +747,17 @@ apiDownloadQueryData <- function(reqID, outZipFile = NULL) {
     return(outZipFile)
   }
 
-  return(NULL)
+  return(outZipFile)
 }
 
-
-#' Get a DSM Suitable Data Table
-#' @author Ross Searle
-#' @export
-getDSMtable <- function(ansisObject = NULL, propertyCode = NULL) {
-
-  if (base::is.null(propertyCode) || propertyCode == "") {
-    base::stop("You must specify a valid 'propertyCode'.", call. = FALSE)
-  }
-
-  if (base::is.null(ansisObject)) {
-    base::stop("You must supply an 'ansisObject'.", call. = FALSE)
-  }
-
-  base::cat("\nGenerating DSM Table....\n")
-  dsm <- makeDSMTable(ansisObject, propertyCode)
-  return(dsm)
-}
 
 
 #' Get a single site
+#' @param providerID The Data Provider to return data for.
+#' @param siteID An ANSIS Site ID.
+#' @param target_fields ANSIS fields to include in the parsed output
+#' @param format The output format. One of ANSISDataObject or JSON
+
 #' @author Ross Searle
 #' @export
 getSingleSite <- function(providerID, siteID, target_fields = NULL, format = "ANSISDataObject") {
@@ -824,3 +794,4 @@ getSingleSite <- function(providerID, siteID, target_fields = NULL, format = "AN
     base::stop("Invalid format specified. Must be 'JSON' or 'ANSISDataObject'.", call. = FALSE)
   }
 }
+

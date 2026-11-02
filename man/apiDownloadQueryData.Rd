@@ -2,12 +2,17 @@
 % Please edit documentation in R/API_2.R
 \name{apiDownloadQueryData}
 \alias{apiDownloadQueryData}
-\title{Download Query Data}
+\title{Download Query Data as JSON files}
 \usage{
 apiDownloadQueryData(reqID, outZipFile = NULL)
 }
+\arguments{
+\item{reqID}{The ANSIS query ID to download files for.}
+
+\item{outZipFile}{The file path of the download zip file to create}
+}
 \description{
-Download Query Data
+Download Query Data as JSON files
 }
 \author{
 Ross Searle

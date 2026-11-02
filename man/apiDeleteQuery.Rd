@@ -6,6 +6,9 @@
 \usage{
 apiDeleteQuery(reqID)
 }
+\arguments{
+\item{reqID}{The ANSIS query ID to delete}
+}
 \description{
 Delete an ANSIS Query
 }

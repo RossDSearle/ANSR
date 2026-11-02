@@ -423,8 +423,8 @@ summariseOutputsYeOlde <- function(df){
   dt <- data.table::as.data.table(df)
 
   # 2. Explicitly invoke the data.table subset method to bypass fallback bugs
-  totCnts <-  data.table:::`[.data.table`(dt, , list(count = .N), by = c('fieldName'))
-  siteCnts <- data.table:::`[.data.table`(dt, , list(count = .N), by = c("scopedIdentifier", "fieldName"))
+  totCnts <-  data.table::`[.data.table`(dt, , list(count = .N), by = c('fieldName'))
+  siteCnts <- data.table::`[.data.table`(dt, , list(count = .N), by = c("scopedIdentifier", "fieldName"))
 
   ol <- list()
   ol$Totals$ANSISPropertyCounts <- tibble::tibble(totCnts)
@@ -434,12 +434,12 @@ summariseOutputsYeOlde <- function(df){
   if(length(methIdxs) > 0){
 
     # Use the explicit method here as well
-    meths <- data.table:::`[.data.table`(dt, methIdxs, )
+    meths <- data.table::`[.data.table`(dt, methIdxs, )
 
-    totMethCnts <-  data.table:::`[.data.table`(meths, , list(count = .N), by = c('fieldName', 'UsedProcedure'))
+    totMethCnts <-  data.table::`[.data.table`(meths, , list(count = .N), by = c('fieldName', 'UsedProcedure'))
     data.table::setorder(totMethCnts, fieldName , UsedProcedure )
 
-    siteMethCnts <-  data.table:::`[.data.table`(meths, , list(count = .N), by = c('scopedIdentifier', 'fieldName', 'UsedProcedure'))
+    siteMethCnts <-  data.table::`[.data.table`(meths, , list(count = .N), by = c('scopedIdentifier', 'fieldName', 'UsedProcedure'))
     data.table::setorder(siteMethCnts, scopedIdentifier, fieldName , UsedProcedure )
 
     ol$Totals$LabMethodCounts <- tibble::tibble(totMethCnts)

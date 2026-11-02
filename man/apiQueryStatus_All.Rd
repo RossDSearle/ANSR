@@ -6,6 +6,9 @@
 \usage{
 apiQueryStatus_All(statusTypes = NULL)
 }
+\arguments{
+\item{statusTypes}{Default is NULL, thus returns all queries, otherwise one of "Processing", "Completed", "Queued", "Error"}
+}
 \description{
 Get the Status of all ANSIS Queries
 }

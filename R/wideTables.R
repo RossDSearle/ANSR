@@ -22,7 +22,7 @@ makeWideTable <- function(ANSISDataObject, propertyType=NULL, widenBy='usedProce
 
   if(propertyType=='Lab'){
 
-    df_filtered <- indf |> filter((!is.na(UsedProcedure) & UsedProcedure != "") & !is.na(depthUpper))
+    df_filtered <- indf |> dplyr::filter((!is.na(UsedProcedure) & UsedProcedure != "") & !is.na(depthUpper))
 
       if(widenBy=='usedProcedure'){
         odf <- expandByUsedProcedure(ANSISFlatDF=df_filtered)
@@ -31,11 +31,11 @@ makeWideTable <- function(ANSISDataObject, propertyType=NULL, widenBy='usedProce
       }
   }else if(propertyType=='Horizons'){
 
-      df_filtered <- indf |> filter((is.na(UsedProcedure) | UsedProcedure == "") & !is.na(depthUpper))
+      df_filtered <- indf |> dplyr::filter((is.na(UsedProcedure) | UsedProcedure == "") & !is.na(depthUpper))
       odf <- expandByPropertiesProfile(ANSISFlatDF=df_filtered)
   } else if(propertyType=='SiteVisit'){
 
-      df_filtered <- indf |> filter((is.na(UsedProcedure) | UsedProcedure == "") & is.na(depthUpper))
+      df_filtered <- indf |> dplyr::filter((is.na(usedProcedure) | usedProcedure == "") & is.na(depthUpper))
       odf <- expandByPropertiesSite(ANSISFlatDF=df_filtered)
 
   } else{
@@ -58,9 +58,9 @@ expandByPropertiesSite <- function(ANSISFlatDF){
 
   )
 
-  df_combined <- df %>%
-    distinct(across(all_of(c(id_cols, "Property", "Value")))) %>%
-    pivot_wider(
+  df_combined <- df |>
+    dplyr::distinct(across(all_of(c(id_cols, "Property", "Value")))) |>
+    tidyr::pivot_wider(
       id_cols     = all_of(id_cols),
       names_from  = Property,
       values_from = c(Value),
@@ -85,9 +85,9 @@ expandByPropertiesProfile <- function(ANSISFlatDF){
 
   )
 
-  df_combined <- df %>%
-    distinct(across(all_of(c(id_cols, "Property", "Value")))) %>%
-    pivot_wider(
+  df_combined <- df |>
+    dplyr::distinct(across(all_of(c(id_cols, "Property", "Value")))) |>
+    tidyr::pivot_wider(
       id_cols     = all_of(id_cols),
       names_from  = Property,
       values_from = c(Value),
@@ -109,9 +109,9 @@ id_cols <- c(
 
 )
 
-df_combined <- df %>%
-  distinct(across(all_of(c(id_cols, "Property", "Value", "Unit", "UsedProcedure")))) %>%
-  pivot_wider(
+df_combined <- df |>
+ dplyr::distinct(across(all_of(c(id_cols, "Property", "Value", "Unit", "UsedProcedure")))) |>
+  tidyr::pivot_wider(
     id_cols     = all_of(id_cols),
     names_from  = Property,
     values_from = c(Value, Unit, UsedProcedure),
@@ -133,9 +133,9 @@ expandByUsedProcedure <- function(ANSISFlatDF){
     )
 
     # 4. Pivot wider using valid UsedProcedure values as column names
-    df_wide <- df %>%
-      distinct(across(all_of(c(id_cols, "UsedProcedure", "Value")))) %>%
-      pivot_wider(
+    df_wide <- df |>
+      dplyr::distinct(across(all_of(c(id_cols, "UsedProcedure", "Value")))) |>
+      tidyr::pivot_wider(
         id_cols     = all_of(id_cols),
         names_from  = UsedProcedure,
         values_from = Value,

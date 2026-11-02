@@ -1,4 +1,3 @@
-
 #' ANSIS Data Disclaimer
 #' @author Ross Searle
 #' @return character
@@ -6,12 +5,12 @@
 
 ANSIS_Disclaimer <- function(){
 
-    cat(paste0( crayon::blue(crayon::bold( '\n############################  DISCLAIMER  ############################ \n\n')),
+  cat(paste0( crayon::blue(crayon::bold( '\n############################  DISCLAIMER  ############################ \n\n')),
 
-        crayon::blue('Data and other content made accessible via ANSIS is provided by multiple providers, harmonised and made available on an ‘as is’ basis.
+              crayon::blue('Data and other content made accessible via ANSIS is provided by multiple providers, harmonised and made available on an \'as is\' basis.
         \nIf you use or download any data or other material made accessible by ANSIS you do so at your own risk and you acknowledge that such data may be\nincomplete or not applicable to all situations.\n\n
     To the extent permitted by law, CSIRO excludes all liability to any person for any consequences, including but not limited to all losses, damages,\n costs, expenses and any other compensation, arising directly or indirectly from accessing and using any information or material contained in it.\n\n\n'
-    )))
+              )))
 }
 
 #' ANSIS Data System Citation
@@ -45,10 +44,10 @@ ANSIS_Ackowledgement <- function(){
 #' @export
 #'
 ANSR_PackageCitation <- function(){
-  suppressWarnings(citation('ANSR'))
-#   c$year <- '2026'
-#  #c2 <- stringr::str_replace(c, '????', '2026')
-# c
+  cit <- suppressWarnings(utils::citation('ANSR'))
+  # text_vec <- format(citation("ANSR"))
+  # cit2 <- stringr::str_replace(text_vec, stringr::fixed("????"), '2026')
+  return(cit)
 }
 
 
@@ -60,11 +59,13 @@ ANSIS_Info <- function(){
   What <- c('ANSIS Website',
             'About',
             'R package',
-            'CSIRO')
+            'CSIRO',
+            "ANSIS Schema docs")
 
   Where <- c( 'https://ansis.net/',
-             'https://www.agriculture.gov.au/agriculture-land/farm-food-drought/natural-resources/soils/national-soil-action-plan/ansis',
-             'https://github.com/RossDSearle/ANSR',
-             'https://www.csiro.au/en/research/natural-environment/land/soil/ansis')
-data.frame(What, Where)
-  }
+              'https://www.agriculture.gov.au/agriculture-land/farm-food-drought/natural-resources/soils/national-soil-action-plan/ansis',
+              'https://github.com/RossDSearle/ANSR',
+              'https://www.csiro.au/en/research/natural-environment/land/soil/ansis',
+              'https://github.com/ANZSoilData/def-au-schema-json/blob/main/data/soil-site.json')
+  data.frame(What, Where)
+}

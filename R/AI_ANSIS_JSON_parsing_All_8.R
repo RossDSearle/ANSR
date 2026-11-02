@@ -290,8 +290,8 @@ ANSIS_JSON_parsing_All <- function(inDir, target_fields = NULL, num_cores = NULL
   cl <- parallel::makeCluster(num_cores)
   doSNOW::registerDoSNOW(cl)
 
-  pb <- txtProgressBar(min = 0, max = total_files, style = 3)
-  progress <- function(n) setTxtProgressBar(pb, n)
+  pb <- utils::txtProgressBar(min = 0, max = total_files, style = 3)
+  progress <- function(n) utils::setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
 
   `%dopar%` <- foreach::`%dopar%`

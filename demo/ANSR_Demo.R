@@ -11,9 +11,9 @@
 
 #### If you don't have the "ANSR" package already installed on your machine, install it as per below
 
-library(devtools)
-devtools::install_github("RossDSearle/ANSR", auth_token = "YourGitHubAuthToken")
-
+# library(devtools)
+# devtools::install_github("RossDSearle/ANSR", auth_token = "YourGitHubAuthToken")
+#pak::pkg_install("RossDSearle/ANSR", ask=F)
 
 
 username = 'YourANSISUserName'

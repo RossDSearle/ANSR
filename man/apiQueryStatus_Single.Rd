@@ -6,6 +6,9 @@
 \usage{
 apiQueryStatus_Single(reqID, verbose = FALSE)
 }
+\arguments{
+\item{reqID}{ANSIS Request ID}
+}
 \description{
 Get an ANSIS Query Status
 }

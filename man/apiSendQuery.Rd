@@ -16,6 +16,25 @@ apiSendQuery(
   sites = NULL
 )
 }
+\arguments{
+\item{ansisProperties}{ANSIS property elements to query on.}
+
+\item{minx}{Western extent of the bounding box of the query. CRS WGS84. Default is NULL.}
+
+\item{maxx}{Eastern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
+
+\item{miny}{Southern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
+
+\item{maxy}{Northern extent of the bounding box of the query. CRS WGS84. Default is NULL.}
+
+\item{startYear}{Starting year of date range to return data for.}
+
+\item{endYear}{Finishing year of date range to return data for.}
+
+\item{provider}{The Data Provider to return data for.}
+
+\item{sites}{A list of ANSIS Site IDs to return data for.}
+}
 \description{
 Send a Query to the ANSIS API
 }

@@ -11,6 +11,11 @@ getSingleSite(
   format = "ANSISDataObject"
 )
 }
+\arguments{
+\item{providerID}{The Data Provider to return data for.}
+
+\item{siteID}{An ANSIS Site ID.}
+}
 \description{
 Get a single site
 }
