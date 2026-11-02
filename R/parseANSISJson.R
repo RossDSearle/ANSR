@@ -26,7 +26,7 @@ parseANSISJsonParallel3 <- function(zipFile, numCPUs=NULL, propertiesToParse=NUL
  # cat(paste0('\nExtracting files from the zip archive into - ', outDir, '\n'))
   cat(paste0('\nParsing the ANSI json into a flat structure...\n'))
 
-  unzip(
+  zip::unzip(
     zipfile = zipFile,
     exdir = outDir
   )
@@ -60,7 +60,7 @@ parseANSISJsonParallel3 <- function(zipFile, numCPUs=NULL, propertiesToParse=NUL
 
     unlink(outDir, recursive = TRUE)
     message(sprintf("Success! Exported %s rows to %s", nrow(ansisData), ofData))
-    print(head(jL$DataSummary$Totals))
+    print(utils::head(jL$DataSummary$Totals))
     if(viewSummaries){
       print(listviewer::jsonedit(jL$DataSummary))
     }

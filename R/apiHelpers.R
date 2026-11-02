@@ -28,7 +28,9 @@ validateQueryParameters <- function(ansisProperties, minx, maxx, miny, maxy,  st
     stop(crayon::red('\nYou need to supply at least one value for the ansisProperties parameter.'))
   }
 
-  idxs <- which(!ansisProperties %in% DataSets@mappingInfo$ANSIS_Property)
+  DataSets <- get0("DataSets", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
+  idxs <- which(!ansisProperties %in% DataSets$mappingInfo$ANSIS_Property)
   if(length(idxs)>0){
 
     vals <- paste0( ansisProperties[idxs], collapse = ", ")
@@ -41,7 +43,7 @@ validateQueryParameters <- function(ansisProperties, minx, maxx, miny, maxy,  st
   if(!is.null(startYear)){is_valid_year(startYear)}
   if(!is.null(endYear)){is_valid_year(endYear)}
   if(!is.null(provider)){
-    p <- DataSets@Providers
+    p <- DataSets$Providers
     idxs <- which(!provider %in% p$name)
     if(length(idxs)>0){
       stop(crayon::red('\nThe data provider parameter value is not a valid ANSIS Data Provider name.'))
@@ -73,21 +75,34 @@ is_valid_year <- function(x) {
 checkIfAuthorised <- function(){
 
 
-  if(!exists('authANSIS')){
+  if(!exists("ANSR_env") && !is.environment(ANSR_env)){
+    stop(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
+    #return(F)
+  }
+
+  # Check if 'authANSIS' exists inside ANSR_env
+  if (exists("authANSIS", envir = ANSR_env, inherits = FALSE)) {
+    #message("Authorised")
+  } else {
+   # message("Not authorised")
+  }
+
+  if(is.null(ANSR_env$authANSIS)){
     stop(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
     #return(F)
   }
 
 
-  if(!authANSIS@Authorised){
+
+  if(!ANSR_env$authANSIS@Authorised){
     stop(paste0('\nUser not authorised. Please use the apiAuthoriseMe() function to set up your ANSIS authorisation.\n\n'))
     #return(F)
   }
 
   ### reauthorise if the token has expired
-  if(authANSIS@TokenExpiry <= Sys.time()){
+  if(ANSR_env$authANSIS@TokenExpiry <= Sys.time()){
     cat('\nReauthorising with ANSIS...\n')
-    apiAuthoriseMe(authANSIS@usr, authANSIS@pwd, authANSIS@DataStorePath)
+    apiAuthoriseMe(ANSR_env$authANSIS@usr, ANSR_env$authANSIS@pwd, ANSR_env$authANSIS@DataStorePath)
   }
 
   return(T)

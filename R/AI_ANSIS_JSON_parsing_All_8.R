@@ -194,9 +194,9 @@ process_json_fileAll <- function(file_path, target_fields = NULL) {
     dplyr::left_join(project_lookup, by = c("value" = "id")) |>
     dplyr::group_by(site_idx) |>
     dplyr::summarise(
-      projectName = paste(na.omit(unique(projectName)), collapse = ", "),
-      projectLabel = paste(na.omit(unique(projectLabel)), collapse = ", "),
-      projectAuthority = paste(na.omit(unique(projectAuthority)), collapse = ", "),
+      projectName = paste(stats::na.omit(unique(projectName)), collapse = ", "),
+      projectLabel = paste(stats::na.omit(unique(projectLabel)), collapse = ", "),
+      projectAuthority = paste(stats::na.omit(unique(projectAuthority)), collapse = ", "),
       .groups = "drop"
     ) |>
     dplyr::mutate(

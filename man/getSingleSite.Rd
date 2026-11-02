@@ -15,6 +15,10 @@ getSingleSite(
 \item{providerID}{The Data Provider to return data for.}
 
 \item{siteID}{An ANSIS Site ID.}
+
+\item{target_fields}{ANSIS fields to include in the parsed output}
+
+\item{format}{The output format. One of ANSISDataObject or JSON}
 }
 \description{
 Get a single site

@@ -21,6 +21,10 @@ siteDataMapViewer <- function(providers=NULL) {
 
   if(!checkIfAuthorised()){return(cat(''))}
 
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  DataSets <- get0("DataSets", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
  sites <-  getSitesTable(providerNames = providers )
  sites$sid <- paste0(sites$Provider, '_', sites$SiteID)
 
@@ -152,7 +156,7 @@ siteDataMapViewer <- function(providers=NULL) {
  )
   server <- function(input, output, session) {
 
-    RV <- reactiveValues()
+    RV <- shiny::reactiveValues()
     RV$CurrentSiteDF <- NULL
 
 
@@ -185,10 +189,10 @@ siteDataMapViewer <- function(providers=NULL) {
 
     output$flextable <- shiny::renderUI({
 
-      req(RV$CurrentSiteDF)
+      shiny::req(RV$CurrentSiteDF)
 
       sdf <- RV$CurrentSiteDF$Data[, c(1, 10, 11, 12:17)]
-      codes <- DataSets@Enums
+      codes <- DataSets$Enums
       cdf <- data.frame(codes$const, codes$const_description)
 
       mdf<- merge(sdf, cdf, by.x = 'Value', by.y = 'codes.const', all.x=T)
@@ -239,7 +243,7 @@ siteDataMapViewer <- function(providers=NULL) {
 
     # Handle the 'Done' button in the title bar
     shiny::observeEvent(input$done, {
-      stopApp("Tool closed.") # You can return data back to the R console here
+    shiny::stopApp("Tool closed.") # You can return data back to the R console here
     })
   }
 

@@ -27,4 +27,8 @@ export(makeWideTable)
 export(parseANSISJsonParallel3)
 export(siteDataMapViewer)
 import(data.table)
+importFrom(data.table,
+  ":=",
+  data.table
+)
 importFrom(methods,new)

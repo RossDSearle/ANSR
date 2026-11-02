@@ -31,6 +31,9 @@ apiGetANSISData <- function(queryName = NULL, description = NULL, ansisPropertie
     return(NULL)
   }
 
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   qry <- apiSendQuery(minx = minx, maxx = maxx, miny = miny, maxy = maxy,
                       ansisProperties = ansisProperties, startYear = startYear,
                       endYear = endYear, provider = provider, sites = sites)
@@ -174,7 +177,8 @@ apiAuthoriseMe <- function(username, password, DataStorePath) {
     base::stop(base::sprintf("Failed to create storage directories at '%s': %s", DataStorePath, e$message), call. = FALSE)
   })
 
-  authANSIS <<- methods::new("Authorisation",
+
+  ANSR_env$authANSIS <- methods::new("Authorisation",
                              usr = username,
                              pwd = password,
                              Authorised = TRUE,
@@ -182,7 +186,7 @@ apiAuthoriseMe <- function(username, password, DataStorePath) {
                              TokenExpiry = expire,
                              DataStorePath = DataStorePath)
 
-  tokenTime <- base::as.numeric(difftime(authANSIS@TokenExpiry, base::Sys.time(), units = "hours"))
+  tokenTime <- base::as.numeric(difftime(ANSR_env$authANSIS@TokenExpiry, base::Sys.time(), units = "hours"))
   base::cat(base::paste0("\n", crayon::bold(crayon::green("Authorisation successful")),
                          "\n\nThis authorisation will remain valid for about ",
                          base::round(tokenTime, 1), " hours.\n\n"))
@@ -200,7 +204,9 @@ apiGenerateToken <- function(user, pwd, verbose = FALSE) {
 
   if (verbose) base::cat("Authorising user....\n")
 
-  url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/Authorise")
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
+  url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/Authorise")
 
   resp <- base::tryCatch({
     httr::GET(url, httr::add_headers(username = user, password = pwd), httr::timeout(30))
@@ -234,7 +240,13 @@ apiGenerateToken <- function(user, pwd, verbose = FALSE) {
 #' @author Ross Searle
 #' @export
 apiCatalogueSummary <- function() {
-  url <- base::paste0(Constants@ANSISAPIurlProd, "/site-catalogue/v1/catalogue-summary")
+
+  constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
+  url <- base::paste0(constants$ANSISAPIurlProd, "/site-catalogue/v1/catalogue-summary")
+
+
+
 
   resp <- base::tryCatch({
     httr::GET(url = url, httr::timeout(30))
@@ -278,11 +290,13 @@ apiProviderCatalogue <- function(providerNames = NULL, includeProperties = FALSE
   cdf <- data.frame()
   raw_jsons <- base::list()
 
+  constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   for (i in base::seq_along(providerNames)) {
     p <- providerNames[i]
     base::cat(base::paste0("Getting catalogue information for ", p, "....\n"))
 
-    url <- base::paste0(Constants@ANSISAPIurlProd, "/site-catalogue/v1/provider/", p)
+    url <- base::paste0(constants$ANSISAPIurlProd, "/site-catalogue/v1/provider/", p)
     resp <- base::tryCatch({
       httr::GET(url = url, httr::timeout(30))
     }, error = function(e) NULL)
@@ -349,11 +363,15 @@ apiProviderCatalogue <- function(providerNames = NULL, includeProperties = FALSE
 
 
 getAnsisPropertyInfo <- function(ansisProperties=NULL){
+
+  DataSets <- get0("DataSets", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
+
   if(is.null(ansisProperties)){
-    ansisPropertyRecs <- DataSets@mappingInfo
+    ansisPropertyRecs <- DataSets$mappingInfo
   }else if(!is.null(ansisProperties)){
-    idxs <- which(DataSets@mappingInfo$ANSIS_Property %in% ansisProperties)
-    ansisPropertyRecs <- DataSets@mappingInfo[idxs,]
+    idxs <- which(DataSets$mappingInfo$ANSIS_Property %in% ansisProperties)
+    ansisPropertyRecs <- DataSets$mappingInfo[idxs,]
   }
   return(ansisPropertyRecs)
 }
@@ -361,6 +379,9 @@ getAnsisPropertyInfo <- function(ansisProperties=NULL){
 
 
 getOutputFileName <- function(queryName, overwrite = FALSE) {
+
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   if (!base::exists("authANSIS") || base::is.null(authANSIS@DataStorePath)) {
     base::stop("Authorisation object missing. Please authorise session.", call. = FALSE)
   }
@@ -409,6 +430,9 @@ makeQueryObject <- function(ansisProperty = NULL, ansisID = NULL, labCode = NULL
                             minx = NULL, maxx = NULL, miny = NULL, maxy = NULL,
                             startYear = NULL, endYear = NULL, provider = NULL, sites = NULL) {
 
+  DataSets <- get0("DataSets", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   usr <- if (base::exists("authANSIS")) authANSIS@usr else "Unknown"
 
   queryObject <- base::list(
@@ -456,6 +480,9 @@ apiSendQuery <- function(ansisProperties = NULL, minx = NULL, maxx = NULL, miny 
     return(NULL)
   }
 
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   ids <- NULL
   if (!base::is.null(ansisProperties)) {
     ansisPropertyRecs <- getAnsisPropertyInfo(ansisProperties)
@@ -475,7 +502,7 @@ apiSendQuery <- function(ansisProperties = NULL, minx = NULL, maxx = NULL, miny 
   qryJSON <- qryDF[qryDF$QueryField == "ANSISQueryJSON", ]$QueryValue
 
   base::cat("Sending query to the ANSIS server....\n")
-  url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/create-query-request")
+  url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/create-query-request")
 
   resp <- base::tryCatch({
     httr::POST(url = url, body = qryJSON,
@@ -513,6 +540,9 @@ apiQueryStatus_Monitor <- function(reqID, max_wait_sec = 1800) {
 
   if (!checkIfAuthorised()) return(NULL)
 
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   inProgress <- TRUE
   pb <- base::c("\\", "|", "/", "-")
   iter <- 1
@@ -529,11 +559,13 @@ apiQueryStatus_Monitor <- function(reqID, max_wait_sec = 1800) {
       return("Timeout")
     }
 
+
+
     base::cat(base::sprintf("\rQuerying ANSIS Server  [%s] : Number of data chunks generated = ", pb[iter]))
     iter <- iter + 1
     if (iter > 4) {
       iter <- 1
-      url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/get-query-request-status?requestId=", reqID)
+      url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/get-query-request-status?requestId=", reqID)
 
       resp <- base::tryCatch({
         httr::GET(url = url, httr::add_headers(Authorization = base::paste0("Bearer ", authANSIS@Token)), httr::timeout(30))
@@ -570,8 +602,11 @@ apiQueryStatus_All <- function(statusTypes = NULL) {
 
   if (!checkIfAuthorised()) return(NULL)
 
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   valid_stats <- base::c("Processing", "Completed", "Queued", "Error")
-  stat_url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/get-all-query-requests-statuses")
+  stat_url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/get-all-query-requests-statuses")
 
   resp <- base::tryCatch({
     httr::GET(url = stat_url, httr::add_headers(Authorization = base::paste0("Bearer ", authANSIS@Token)), httr::timeout(30))
@@ -608,14 +643,16 @@ apiQueryStatus_All <- function(statusTypes = NULL) {
 
 #' Get an ANSIS Query Status
 #' @param reqID ANSIS Request ID
-#' @param verbose logical for terse or verbose output
+#' @param verbose Logical for terse or verbose output
 #' @author Ross Searle
 #' @export
 apiQueryStatus_Single <- function(reqID, verbose = FALSE) {
 
   if (!checkIfAuthorised()) return(NULL)
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
 
-  stat_url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/get-query-request-status?requestId=", reqID)
+  stat_url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/get-query-request-status?requestId=", reqID)
   resp <- base::tryCatch({
     httr::GET(url = stat_url, httr::add_headers(Authorization = base::paste0("Bearer ", authANSIS@Token)), httr::timeout(30))
   }, error = function(e) NULL)
@@ -642,8 +679,11 @@ apiQueryStatus_Single <- function(reqID, verbose = FALSE) {
 apiDeleteQuery <- function(reqID) {
 
   if (!checkIfAuthorised()) return(NULL)
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
 
-  url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/cancel-query-request?requestId=", reqID)
+
+  url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/cancel-query-request?requestId=", reqID)
   resp <- base::tryCatch({
     httr::POST(url = url, httr::add_headers(Authorization = base::paste0("Bearer ", authANSIS@Token)), httr::timeout(30))
   }, error = function(e) NULL)
@@ -694,6 +734,9 @@ apiDownloadQueryData <- function(reqID, outZipFile = NULL) {
 
   if (!checkIfAuthorised()) return(NULL)
 
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+
   if(is.null(outZipFile)){
     stop('Please provide a filename for the download data zip file')
   }
@@ -722,7 +765,7 @@ apiDownloadQueryData <- function(reqID, outZipFile = NULL) {
     fn <- base::file.path(outDir, base::sprintf("%s.json", fls[i]))
 
     if (!base::file.exists(fn)) {
-      dl_url <- base::paste0(Constants@ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/download-response?fileId=", fls[i])
+      dl_url <- base::paste0(Constants$ANSISAPIurlProd, "/ansis-external-api/query-requests/v2/download-response?fileId=", fls[i])
       resp <- base::tryCatch({
         httr::GET(url = dl_url, httr::add_headers(Authorization = base::paste0("Bearer ", authANSIS@Token)), httr::timeout(60))
       }, error = function(e) NULL)
@@ -763,12 +806,14 @@ apiDownloadQueryData <- function(reqID, outZipFile = NULL) {
 getSingleSite <- function(providerID, siteID, target_fields = NULL, format = "ANSISDataObject") {
 
   if (!checkIfAuthorised()) return(NULL)
+  Constants <- get0("Constants", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
+  authANSIS <- get0("authANSIS", envir = ANSR_env, inherits = FALSE, ifnotfound = NULL)
 
   if (base::missing(providerID) || base::missing(siteID)) {
     base::stop("Both 'providerID' and 'siteID' must be specified.", call. = FALSE)
   }
 
-  url <- base::paste0(Constants@ANSISAPIurlProd, "/sdr-public/v1/SingleSite?provider=", providerID, "&site=", siteID)
+  url <- base::paste0(Constants$ANSISAPIurlProd, "/sdr-public/v1/SingleSite?provider=", providerID, "&site=", siteID)
 
   resp <- base::tryCatch({
     httr::GET(url = url, httr::add_headers(Authorization = base::paste0("Bearer ", authANSIS@Token)), httr::timeout(30))

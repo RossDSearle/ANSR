@@ -74,7 +74,7 @@ apiPropertyDefinitions2 <- function(outFile=NULL){
   # 4. Clean up the data for CSV export
   # CSVs cannot hold R lists, so we convert any nested objects or arrays into JSON strings
   odf_clean <- odf |>
-    dplyr::mutate(across(everything(), ~ sapply(.x, function(v) {
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~ sapply(.x, function(v) {
       if (is.null(v) || length(v) == 0) {
         return(NA_character_)
       }
@@ -92,7 +92,7 @@ apiPropertyDefinitions2 <- function(outFile=NULL){
 
 
   if(!is.null(outFile)){
-    write.csv(odf, outFile, row.names = FALSE, na = "")
+    utils::write.csv(odf, outFile, row.names = FALSE, na = "")
     cat(sprintf("Successfully parsed %d definitions and saved to %s\n", nrow(odf_clean), outFile))
     shell(outFile, wait = F)
   }
@@ -169,7 +169,7 @@ getANSISProerties <- function(outFile=NULL){
 
 
   if(!is.null(outFile)){
-    write.csv(odf, outFile, row.names = FALSE, na = "")
+    utils::write.csv(odf, outFile, row.names = FALSE, na = "")
     cat(sprintf("Successfully extracted %d definitions and saved to %s\n", nrow(outFile), save))
     shell(outFile, wait = F)
 
@@ -287,7 +287,7 @@ getANSISPhysChemProcedures <- function(outFile=NULL){
   }
 
   if(!is.null(outFile)){
-    write.csv(odf, outFile, row.names = FALSE)
+    utils::write.csv(odf, outFile, row.names = FALSE)
     shell(outFile, wait=F)
   }
 

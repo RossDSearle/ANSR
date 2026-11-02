@@ -8,6 +8,8 @@ apiQueryStatus_Single(reqID, verbose = FALSE)
 }
 \arguments{
 \item{reqID}{ANSIS Request ID}
+
+\item{verbose}{Logical for terse or verbose output}
 }
 \description{
 Get an ANSIS Query Status

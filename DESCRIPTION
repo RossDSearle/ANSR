@@ -31,7 +31,6 @@ Imports:
     parallel,
     data.table,
     purrr,
-    pbapply,
     tidyr,
     methods,
     leaflet,
@@ -42,7 +41,9 @@ Imports:
     tibble,
     zip,
     utils,
-    curl
+    curl,
+    tidyselect,
+    stats
 Depends: 
     R (>= 4.1.0)
 Config/roxygen2/version: 8.1.1

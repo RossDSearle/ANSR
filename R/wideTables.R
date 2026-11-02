@@ -59,13 +59,13 @@ expandByPropertiesSite <- function(ANSISFlatDF){
   )
 
   df_combined <- df |>
-    dplyr::distinct(across(all_of(c(id_cols, "Property", "Value")))) |>
+    dplyr::distinct(dplyr::across(tidyselect::all_of(c(id_cols, "Property", "Value")))) |>
     tidyr::pivot_wider(
-      id_cols     = all_of(id_cols),
+      id_cols     = tidyselect::all_of(id_cols),
       names_from  = Property,
       values_from = c(Value),
       names_glue  = "{Property}_{.value}",
-      values_fn   = ~ first(na.omit(.x)) # Fills with NA when property value is missing
+      values_fn   = ~ first(stats::na.omit(.x)) # Fills with NA when property value is missing
     )
 
   return(df_combined)
@@ -86,13 +86,13 @@ expandByPropertiesProfile <- function(ANSISFlatDF){
   )
 
   df_combined <- df |>
-    dplyr::distinct(across(all_of(c(id_cols, "Property", "Value")))) |>
+    dplyr::distinct(dplyr::across(tidyselect::all_of(c(id_cols, "Property", "Value")))) |>
     tidyr::pivot_wider(
-      id_cols     = all_of(id_cols),
+      id_cols     = tidyselect::all_of(id_cols),
       names_from  = Property,
       values_from = c(Value),
       names_glue  = "{Property}_{.value}",
-      values_fn   = ~ first(na.omit(.x)) # Fills with NA when property value is missing
+      values_fn   = ~ first(stats::na.omit(.x)) # Fills with NA when property value is missing
     )
 
   return(df_combined)
@@ -110,13 +110,13 @@ id_cols <- c(
 )
 
 df_combined <- df |>
- dplyr::distinct(across(all_of(c(id_cols, "Property", "Value", "Unit", "UsedProcedure")))) |>
+ dplyr::distinct(dplyr::across(tidyselect::all_of(c(id_cols, "Property", "Value", "Unit", "UsedProcedure")))) |>
   tidyr::pivot_wider(
-    id_cols     = all_of(id_cols),
+    id_cols     = tidyselect::all_of(id_cols),
     names_from  = Property,
     values_from = c(Value, Unit, UsedProcedure),
     names_glue  = "{Property}_{.value}",
-    values_fn   = ~ first(na.omit(.x)) # Fills with NA when property value is missing
+    values_fn   = ~ first(stats::na.omit(.x)) # Fills with NA when property value is missing
   )
 
 return(df_combined)
@@ -134,12 +134,12 @@ expandByUsedProcedure <- function(ANSISFlatDF){
 
     # 4. Pivot wider using valid UsedProcedure values as column names
     df_wide <- df |>
-      dplyr::distinct(across(all_of(c(id_cols, "UsedProcedure", "Value")))) |>
+      dplyr::distinct(dplyr::across(tidyselect::all_of(c(id_cols, "UsedProcedure", "Value")))) |>
       tidyr::pivot_wider(
-        id_cols     = all_of(id_cols),
+        id_cols     = tidyselect::all_of(id_cols),
         names_from  = UsedProcedure,
         values_from = Value,
-        values_fn   = ~ first(na.omit(.x))
+        values_fn   = ~ first(stats::na.omit(.x))
       )
 return(df_wide)
 }

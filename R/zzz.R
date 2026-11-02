@@ -1,5 +1,6 @@
 
 #' @importFrom methods new
+#' @importFrom data.table data.table :=
 
 # Define data.table awareness at top-level scope
 .datatable.aware <- TRUE
@@ -47,3 +48,15 @@ ANSR_env <- new.env(parent = emptyenv())
   # 5. Emit single suppressable startup message
   packageStartupMessage(msg)
 }
+
+
+# Quiet R CMD check NOTES regarding tidyverse unquoted column names
+utils::globalVariables(c(
+  "AnsisSiteID", "CodesTable", "Definition_Name", "Latitude", "Longitude",
+  "Property", "PropertyIndex", "PropertyPath", "SRID", "SiteID", "Unit",
+
+  "UsedProcedure", "Value", "attr_type", "base_path", "clean_path",
+  "coords", "depthLower", "endAtTime", "fieldDepth", "depthUpper", "id", "path", "sourceFile",
+  "hierarchyPath", "site_idx", "visit_idx", "prof_idx", "layer_idx", "details", 'jcode', 'fieldName',
+  'projectName', 'projectLabel', 'projectAuthority', 'subProperty', 'usedProcedure', 'value'
+))
