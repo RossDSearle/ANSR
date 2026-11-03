@@ -38,5 +38,4 @@ dev/
 *.html
 .Rbuildignore
 APIDocs/
-inst/doc
 *.Rd
