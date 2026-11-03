@@ -11,11 +11,7 @@
 
 #### 1. If you don't have the "ANSR" package already installed on your machine, install it as per below and load it.
 
-# pak::cache_clean()
-# options(pkg.build_vignettes = TRUE)
-# pak::pkg_install("RossDSearle/ANSR", upgrade = TRUE)
-
-remotes::install_github("RossDSearle/ANSR", build_vignettes = TRUE, force = TRUE)
+# remotes::install_github("RossDSearle/ANSR", build_vignettes = TRUE, force = TRUE)
 
 library(ANSR)
 
