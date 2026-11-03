@@ -35,7 +35,6 @@ po/*~
 rsconnect/
 example.html
 dev/
-*.html
 .Rbuildignore
 APIDocs/
 *.Rd
