@@ -136,7 +136,11 @@ Below are the functions needed to run the above query as a series of manual step
 
 <BR> **OK. That is the manual approach**.
 
-Note that the JSON parsing uses multiple cores on your machine to speed up the flat file generation, so run this package on a machine with as many cores as possible to optimise your parsing experience. <BR> <BR> \### Below are some more helper and information type functions.
+Note that the JSON parsing uses multiple cores on your machine to speed up the flat file generation, so run this package on a machine with as many cores as possible to optimise your parsing experience. <BR> <BR>
+
+<BR>
+
+### Below are some more helper and information type functions.
 
 See the package help for details.
 
@@ -184,23 +188,23 @@ Remember to hit the stop button to get out of this function.
 
 Remember to hit the stop button to get out of this function
 
-[apiDeleteQuery(reqID = qry\$reqID)]{style="color: #DB7107;"} 
+[apiDeleteQuery(reqID = qry\$reqID)]{style="color: #DB7107;"}
 
 [apiDeleteAllQueries()]{style="color: #DB7107;"}
 
 #### Miscellaneous metadata functions
 
-[ANSIS_Ackowledgement()]{style="color: #DB7107;"} 
+[ANSIS_Ackowledgement()]{style="color: #DB7107;"}
 
-[ANSIS_APIDocs()]{style="color: #DB7107;"} 
+[ANSIS_APIDocs()]{style="color: #DB7107;"}
 
-[ANSIS_Citation()]{style="color: #DB7107;"} 
+[ANSIS_Citation()]{style="color: #DB7107;"}
 
-[ANSIS_Disclaimer()]{style="color: #DB7107;"} 
+[ANSIS_Disclaimer()]{style="color: #DB7107;"}
 
-[ANSIS_Info()]{style="color: #DB7107;"} 
+[ANSIS_Info()]{style="color: #DB7107;"}
 
-[ANSIS_OpenWebsite()]{style="color: #DB7107;"} 
+[ANSIS_OpenWebsite()]{style="color: #DB7107;"}
 
 [ANSR_PackageCitation()]{style="color: #DB7107;"}
 
