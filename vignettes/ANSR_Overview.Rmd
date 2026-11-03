@@ -14,6 +14,38 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(ANSR)
+### Welcome to ANSR
+
+An R package to query ANSIS and massage the responses into various useful formats.
+
+The [Australian National Soil Information System](https://ansis.net/) (ANSIS) brings together a range of publicly available soil profile data sets from across Australia. It delivers data in the form of a standardised JSON Schema preserving complex relationships within the data. This JSON data can be daunting to untangle.
+
+ANSR does all the hard work of querying ANSIS and parsing the JSON response data into simpler formats - mainly CSV files.
+
+### About ANSIS
+
+ANSIS provides access to nationally consistent, standardised soil data through an access control, trusted mechanism – ANSIS is the new place to find readily useable soil data and information. Users of ANSIS can:
+
+- Discover, filter, access and view relevant soil data
+
+- Download soil data in a standard format for use in modelling or analysis
+
+- Use an Application Programming Interface (API) to connect soil data through ANSIS into your own system or application
+
+- Easily connect to the latest available soil data using your preferred GIS and modelling applications.
+
+ANSIS allows the discovery of soil data from multiple providers, which enables ANSIS users to make better informed decisions. With improved access to soil data and information ANSIS provides a foundational information infrastructure to support sustainable soil management for future generations.
+
+### Getting Started with ANSR
+
+The ANSR package requires you to have an ANSIS account and be logged into it. If you don't have an ANSIS account got to the ANSIS website to create one.
+
+```{r}
+utils::browseURL('https://portal.ansis.net/')
 ```
+
+#### 2.2 Once you have created your ANSIS account you need to keep these details somewhere to supply to the ANSR package.
+
+#### A convenient way to store the deatils and keep them from being shared accidentally is to create an entry
+
+#### in your "R.environ" file in your home directory on your local machine as per below.

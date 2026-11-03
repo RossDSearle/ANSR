@@ -39,3 +39,5 @@ dev/
 APIDocs/
 *.Rd
 inst/doc
+/doc/
+/Meta/
