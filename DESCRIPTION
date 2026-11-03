@@ -49,6 +49,6 @@ Depends:
 Config/roxygen2/version: 8.1.1
 Suggests: 
     knitr,
-    rmarkdown
-VignetteBuilder: 
-    quarto
+    rmarkdown,
+    R.rsp
+VignetteBuilder: R.rsp, knitr
