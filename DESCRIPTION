@@ -35,6 +35,7 @@ Imports:
     methods,
     leaflet,
     shiny,
+    shinybusy,
     flextable,
     crayon,
     foreach,
