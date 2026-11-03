@@ -10,6 +10,11 @@ The [Australian National Soil Information System](https://ansis.net/) (ANSIS) br
 
 ANSR does all the hard work of querying ANSIS and parsing the JSON response data into simpler formats - mainly CSV files.
 
+# How to install the package
+
+remotes::install_github("RossDSearle/ANSR", build_vignettes = TRUE, force = TRUE)
+library(ANSR)
+
 
 ## About ANSR
 
