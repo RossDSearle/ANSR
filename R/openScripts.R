@@ -1,4 +1,4 @@
-open_script <- function(scriptName = "ANSR_Demo.R", overwrite = FALSE) {
+open_script <- function(scriptName = "ANSR_Demo.R", overwrite = T) {
   # 1. Locate the file in the installed package
   pkg_script <- system.file("DemoScripts", scriptName, package = "ANSR")
 

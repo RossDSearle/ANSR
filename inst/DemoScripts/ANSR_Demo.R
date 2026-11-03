@@ -159,7 +159,7 @@ head(csiroSites)
 ##### Miscellaneous ANSIS management functions
 apiQueryStatus_All()
 apiQueryStatus_Monitor(reqID = qry$reqID)
-apiQueryStatus_Single(reqID = qry$reqID) # - remember to hit the stop button to get out of this function
+apiQueryStatus_Single(reqID = qry$reqID)
 apiDeleteQuery(reqID = qry$reqID)
 apiDeleteAllQueries()
 
