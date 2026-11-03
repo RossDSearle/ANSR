@@ -105,10 +105,10 @@ qry <- apiSendQuery(minx = 147, maxx = 151, miny = -29, maxy = -25,
 
 apiQueryStatus_Monitor(reqID = qry$reqID)
 
-####  5.3 Once the query is completed download the generated JSON files
+####  5.3 Once the query is completed, download the generated JSON files
 
 zipFile <- tempfile(pattern = 'ANSIS_Query', fileext = '.zip')
-apiDownloadQueryData(reqID = qry$reqID, outZipFile = zipFile)  # - ok
+apiDownloadQueryData(reqID = qry$reqID, outZipFile = zipFile)
 
 ####  5.4 Parse the JSON files into a flat file structure.
 
@@ -144,7 +144,7 @@ listviewer::jsonedit(ao)
 #### Get the ANSIS Property information
 pi <- getAnsisPropertyInfo()
 head(pi)
-getAnsisPropertyInfo(ansisProperties='pH') # - ok
+getAnsisPropertyInfo(ansisProperties='pH')
 
 
 ####  Show the ANSIS Data Providers
