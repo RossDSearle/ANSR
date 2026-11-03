@@ -1,0 +1,8 @@
+---
+title: "ANSR Overview"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ANSR Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
