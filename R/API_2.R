@@ -110,22 +110,25 @@ ANSIS_APIDocs <- function() {
 #' @details Opens a demo script demonstrating 'ANSR' package functionality.
 #' @author Ross Searle
 #' @export
-ANSIS_Demos <- function() {
-  demo_path <- base::system.file("extdata", "ANSR_Demo.R", package = "ANSR")
+ANSR_Demo <- function() {
 
-  if (!base::file.exists(demo_path)) {
-    base::warning("ANSR_Demo.R file not found in package.", call. = FALSE)
-    return(invisible(FALSE))
-  }
+  open_script(scriptName = "ANSR_Demo.R", overwrite = FALSE)
 
-  if (base::Sys.info()["sysname"] == "Linux") {
-    lns <- base::readLines(demo_path, warn = FALSE)
-    base::cat(base::paste0(lns, collapse = "\n"))
-    base::cat(crayon::bold(crayon::red("\n\nCopy and paste the code above into an R script file.\n\n")))
-  } else {
-    file.show(demo_path, title = "ANSR Demo Script")
-  }
-  return(invisible(TRUE))
+  # demo_path <- base::system.file("extdata", "ANSR_Demo.R", package = "ANSR")
+  #
+  # if (!base::file.exists(demo_path)) {
+  #   base::warning("ANSR_Demo.R file not found in package.", call. = FALSE)
+  #   return(invisible(FALSE))
+  # }
+  #
+  # if (base::Sys.info()["sysname"] == "Linux") {
+  #   lns <- base::readLines(demo_path, warn = FALSE)
+  #   base::cat(base::paste0(lns, collapse = "\n"))
+  #   base::cat(crayon::bold(crayon::red("\n\nCopy and paste the code above into an R script file.\n\n")))
+  # } else {
+  #   file.show(demo_path, title = "ANSR Demo Script")
+  # }
+  # return(invisible(TRUE))
 }
 
 

@@ -19,6 +19,6 @@ open_script <- function(scriptName = "ANSR_Demo.R", overwrite = FALSE) {
     file.edit(of)
   }
 
-  invisible(output_path)
+  invisible(of)
 }
 
