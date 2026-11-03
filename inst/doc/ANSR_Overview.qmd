@@ -2,6 +2,7 @@
 title: "ANSR Overview"
 format: 
   html:
+    embed-resources: true
     page-layout: full
 vignette: >
   %\VignetteIndexEntry{ANSR Overview}
