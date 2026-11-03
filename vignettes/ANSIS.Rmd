@@ -1,0 +1,51 @@
+---
+title: "ANSIS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ANSIS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The [Australian National Soil Information System](https://ansis.net/) (ANSIS) brings together a range of publicly available soil profile data sets from across Australia. It delivers data in the form of a standardised JSON Schema preserving complex relationships within the data.
+
+The Australian National Soil Information System (ANSIS) aggregates and delivers soil data from governments, research and natural resource management organisations, industry, farmers, and the community. To achieve this, data managed by multiple providers in different ways and for different reasons must be harmonised. A common information model to which the provider data can be mapped is therefore required. This model must be consistent with soil scientists’ understanding of soils and their nationally agreed practices for sampling and describing them.
+
+The ANSIS information model was developed to deliver the soil data concepts described in the [Australian Soil and Land Survey Field Handbook](https://www.publishing.csiro.au/book/8129/). The ANSIS information model is described in detail [here](https://github.com/ANZSoilData/def-au-schema-json).
+
+ANSIS data can be queried and downloaded from the ANSIS [Data Portal](https://portal.ansis.net/). Data from the ANSIS Portal is delivered to the user as JavaScript Object Notation ([JSON](https://en.wikipedia.org/wiki/JSON)) which allows it to maintain the complex relational data objects inherent in the Schema.
+
+<BR>
+
+<BR>
+
+------------------------------------------------------------------------
+
+For a detailed description of ANSIS please read this paper - <https://www.sciencedirect.com/science/article/pii/S2950289626000345>
+
+### Paper Abstract
+
+Soil is one of the Earth’s most valuable natural resource assets, vital for agriculture, environmental sustainability, and climate change resilience. In Australia, while there is a large amount of soil data, much of it has been difficult to use as nationally consistent evidence for decision-making because it is fragmented across jurisdictions, institutions and formats. The Australian National Soil Information System (ANSIS) represents a novel advancement in the management, accessibility, and interoperability of soil data across Australia. This paper presents the collaborative approach taken to develop ANSIS, highlighting the system’s significant advancement in soil data federation and standardisation of disparate sources of soil data from across Australia. The approach articulates the underpinning requirements, the core architecture, the data and social governance framework, and the collaboration and outreach undertaken. ANSIS delivers nationally standardised, analysis-ready data conforming to Australian soil standards. By bringing together soil data from 13 data providers, ANSIS provides access to over 309,000 soil sites and over three million analytical records. The ANSIS platform has a range of tools that provide different ways to access and view soil data, enabling users with varying needs to target the soil data and information they seek. The novelty of ANSIS, its benefits for Australia and internationally, as well as challenges, limitations and opportunities are discussed, highlighting ANSIS’s role in advancing soil science and supporting sustainable soil management. The development of ANSIS has strengthened Australia’s role in soil information systems and digital soil infrastructure.
+
+------------------------------------------------------------------------
+
+<BR>
+
+<BR>
+
+## Disclaimer
+
+ANSR may or may not be supported into the future and no guarantees are given as to data quality, so use with caution. All the disclaimers of ANSIS also apply to the ANSR package.
+
+Data and other content made accessible via ANSIS is provided by multiple providers, harmonised and made available on an ‘as is’ basis. If you use or download any data or other material made accessible by ANSIS you do so at your own risk and you acknowledge that such data may be incomplete or not applicable to all situations.
+
+## Contacts
+
+Contact the [ANSIS help desk](https://ansis.net/contact/) with any questions about ANSIS or ANSIS data
