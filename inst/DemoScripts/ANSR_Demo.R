@@ -15,6 +15,8 @@ pak::cache_clean()
 options(pkg.build_vignettes = TRUE)
 pak::pkg_install("RossDSearle/ANSR", upgrade = TRUE)
 
+remotes::install_github("RossDSearle/ANSR", build_vignettes = TRUE, force = TRUE)
+
 library(ANSR)
 
 #### 2. The ANSR package requires you to have an ANSIS account and be logged into it.
