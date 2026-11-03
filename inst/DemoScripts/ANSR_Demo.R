@@ -11,14 +11,9 @@
 
 #### 1. If you don't have the "ANSR" package already installed on your machine, install it as per below and load it.
 
-pak::cache_clean()
+# pak::cache_clean()
 # options(pkg.build_vignettes = TRUE)
-pak::pkg_install("RossDSearle/ANSR", upgrade = TRUE)
-
-#remotes::install_github("RossDSearle/ANSR",  force = TRUE)
-
-remotes::install_github("RossDSearle/ANSR", force = TRUE)
-vignette(package = "ANSR")
+# pak::pkg_install("RossDSearle/ANSR", upgrade = TRUE)
 
 remotes::install_github("RossDSearle/ANSR", build_vignettes = TRUE, force = TRUE)
 
@@ -31,7 +26,7 @@ library(ANSR)
 utils::browseURL('https://portal.ansis.net/')
 
 #### 2.2 Once you have created your ANSIS account you need to keep these details somewhere to supply to the ANSR package.
-####     A convenient way to store the deatils and keep them from being shared accidentally is to create an entry
+####     A convenient way to store the details and keep them from being shared accidentally is to create an entry
 ####     in your "R.environ" file in your home directory on your local machine as per below.
 
 ANSISUser='YourANSISUserName'
@@ -48,7 +43,7 @@ username = 'YourANSISUserName'
 password = 'YourANSISPassword'
 
 ####  3. Now we need to Authenticate with the ANSIS API using the apiAuthoriseMe() function. This function also
-####     Sets up a directory where all of the ANSIS data downloads will be wrtten automatically
+####     sets up a directory where all of the ANSIS data downloads will be written automatically
 
 DataStorePath = 'c:/temp/ansis'
 apiAuthoriseMe(username = username, password = password, DataStorePath = DataStorePath)
