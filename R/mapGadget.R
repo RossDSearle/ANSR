@@ -36,6 +36,9 @@ siteDataMapViewer <- function(providers=NULL) {
 
 
  ui <- shiny::fluidPage(
+
+  # shinybusy::add_busy_bar(color = "#0073e6", height = "4px", timeout = 100),
+
    shiny::tags$head(
      shiny::tags$style(shiny::HTML("
       html, body {
@@ -174,6 +177,14 @@ siteDataMapViewer <- function(providers=NULL) {
 
     # Listen for the click event
     shiny::observeEvent(input$ansr_map_marker_click, {
+
+    shinybusy::show_modal_spinner(
+        spin = "circle",
+         color = "#0073e6"
+        # text = "Querying the ANSIS database, please wait..."
+      )
+
+
       click <- input$ansr_map_marker_click
       if (is.null(click)) return()
 
@@ -183,6 +194,7 @@ siteDataMapViewer <- function(providers=NULL) {
       s <- bits[[1]][2]
       RV$CurrentSiteDF <- getSingleSite(providerID=p, siteID=s, )
 
+      shinybusy::remove_modal_spinner()
 
     })
 

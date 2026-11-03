@@ -89,7 +89,8 @@ apiGetANSISData <- function(queryName = NULL, description = NULL, ansisPropertie
 #' @author Ross Searle
 #' @export
 ANSIS_APIDocs <- function() {
-  pdf_path <- base::system.file("extdata", "ANSIS_HTTP_API.pdf", package = "ANSR")
+ # pdf_path <- base::system.file("extdata", "ANSIS_HTTP_API.pdf", package = "ANSR")
+  pdf_path <-       system.file("extdata", "ANSIS_HTTP_API.pdf", package = "ANSR")
 
   if (!base::file.exists(pdf_path)) {
     base::warning("ANSIS_HTTP_API.pdf documentation file not found in package.", call. = FALSE)

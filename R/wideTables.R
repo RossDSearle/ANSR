@@ -35,12 +35,12 @@ makeWideTable <- function(ANSISDataObject, propertyType=NULL, widenBy='usedProce
       odf <- expandByPropertiesProfile(ANSISFlatDF=df_filtered)
   } else if(propertyType=='SiteVisit'){
 
-      df_filtered <- indf |> dplyr::filter((is.na(usedProcedure) | usedProcedure == "") & is.na(depthUpper))
+      df_filtered <- indf |> dplyr::filter((is.na(UsedProcedure) | UsedProcedure == "") & is.na(depthUpper))
       odf <- expandByPropertiesSite(ANSISFlatDF=df_filtered)
 
   } else{
 
-    stop('Please specify a type parameter of one of "Lab", "Profile" oe "Site"')
+    stop('Please specify a type parameter of one of "Lab", "Profile" or "SiteVisit"')
   }
 
 return(odf)
